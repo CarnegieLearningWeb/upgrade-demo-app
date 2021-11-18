@@ -16,11 +16,11 @@ UPGRADE_BASE_URL={UpGrade Frontend Base URL (e.g. http://localhost:4200)}
 UPGRADE_CONTEXT={Name of the UpGrade Experiment Context (e.g. app)}
 IS_PRODUCTION={Whether the app is in production mode or not (YES or NO)}
 ```
-5. Run the following commands in the Terminal.
+4. Run the following commands in the Terminal.
 ```
 git clone https://github.com/CarnegieLearningWeb/upgrade-demo-app.git
 cd upgrade-demo-app
 npm install dependencies
 npm start
 ```
-3. Open your web browser and navigate to http://localhost:8080
+5. Open your web browser and navigate to http://localhost:8080
