@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>QuizApp - Problem</title>
+    <meta charset=utf-8 />
+    <meta name="description" content="UpGrade Demo App" />
+    <meta name="keywords" content="UpGrade, Demo, App" />
+    <meta name="viewport"
+        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
+    <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/quiz-app/problem.css" />
+    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
+    <script src="/js/upgrade-client-lib.js"></script>
+    <script src="/js/fetch-wrapper.js"></script>
+    <script src="/js/log-handler.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="main">
+            <div id="text-wrapper">
+                <p class="message" id="description"></p>
+                <p class="message" id="question"></p>
+            </div>
+            <div id="svg-wrapper">
+                <svg height="100%" width="400px" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid meet">
+                    <%- problem.drawing %>
+                </svg>
+            </div>
+            <form id="answer-form">
+                <label class="answer-label" for="answer-input">Answer:</label>
+                <input type="number" id="answer-input" autocomplete="off" required autofocus>
+                <label class="answer-label" for="answer-input">in<sup>2</sup></label>
+            </form>
+            <div id="button-wrapper">
+                <button id="submit-button" type="submit" form="answer-form"><i
+                        class="fa fa-check-circle fa-lg"></i>Submit</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.addEventListener("load", async () => {
+            // Create UpgradeClient
+            const studentId = "<%= session.student %>";
+            const hostUrl = "<%= upgradeHostUrl %>";
+            const upClient = new UpgradeClient(studentId, hostUrl);
+
+            // Define context and experiment point
+            const context = "<%= upgradeContext %>";
+            const expPoint = "area";
+
+            // Question Type (default: Abstract)
+            const questionTypeExpId = "question_type";
+            const questionTypeExpCondition = await upClient.getExperimentCondition(context, expPoint, questionTypeExpId);
+            const questionType = questionTypeExpCondition == null ? "Abstract" : questionTypeExpCondition.assignedCondition.conditionCode;
+            await upClient.markExperimentPoint(expPoint, questionType, questionTypeExpId);
+            if (questionTypeExpCondition) {
+                await LogHandler.info(`Reached the decision point 'Area - Abstract (Default) or Concrete' - Got condition '${questionType}'`);
+            }
+            const description = document.getElementById("description");
+            const question = document.getElementById("question");
+            const concretes = document.querySelectorAll(".concrete");
+            switch (questionType) {
+                case "Abstract":
+                    description.innerText = "<%= problem.message.description %>";
+                    question.innerText = "<%= problem.message.question %>";
+                    concretes.forEach(concrete => concrete.style.display = "none");
+                    break;
+                case "Concrete":
+                    switch ("<%= problem.name %>") {
+                        case "square":
+                            description.innerText = "A napkin has a side length of 10 inches.";
+                            question.innerText = "What is the area of the napkin?";
+                            break;
+                        case "rectangle":
+                            description.innerText = "A television has a length of 50 inches and a width of 30 inches.";
+                            question.innerText = "What is the area of the television?";
+                            break;
+                        case "triangle":
+                            description.innerText = "A college banner is 14 inches long and has a 5 inch base.";
+                            question.innerText = "What is the area of the banner?";
+                            break;
+                    }
+                    concretes.forEach(concrete => concrete.style.display = "block");
+                    break;
+            }
+
+            // Motivational Support Type (default: No Support)
+            const motivationalSupportTypeExpId = "motivational_support_type";
+            const motivationalSupportTypeExpCondition = await upClient.getExperimentCondition(context, expPoint, motivationalSupportTypeExpId);
+            const motivationalSupportType = motivationalSupportTypeExpCondition == null ? "No Support" : motivationalSupportTypeExpCondition.assignedCondition.conditionCode;
+            await upClient.markExperimentPoint(expPoint, motivationalSupportType, motivationalSupportTypeExpId);
+            if (motivationalSupportTypeExpCondition) {
+                await LogHandler.info(`Reached the decision point 'Area - No Support (Default) / Mindset / Utility Value' - Got condition '${motivationalSupportType}'`);
+            }
+            switch (motivationalSupportType) {
+                case "No Support":
+                    break;
+                case "Mindset":
+                    setTimeout(() => alert("Did you know your brain grows as you learn?"), 500);
+                    break;
+                case "Utility Value":
+                    setTimeout(() => alert("Did you know that 86% of jobs require math?"), 500);
+                    break;
+            }
+
+            // Answer Submission Form
+            const answerForm = document.getElementById("answer-form");
+            const answerInput = document.getElementById("answer-input");
+            let isLoading = false;
+            answerForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                if (isLoading) {
+                    return;
+                }
+                isLoading = true;
+                
+                // Update the session
+                const data = await FetchWrapper.put("/api/session/<%= session._id %>", {
+                    currentDate: new Date().toISOString(), // turned into duration in seconds
+                    answer: answerInput.value
+                });
+                if (data.error) {
+                    return await LogHandler.error(data.error.message);
+                }
+                await LogHandler.info(data.message);
+
+                // Reload the problem page
+                window.location.href = "/quiz-app/session/<%= session._id %>/problem";
+            });
+
+            // Focus Answer Input
+            answerInput.focus();
+        });
+    </script>
+</body>
+
+</html>

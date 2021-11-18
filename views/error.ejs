@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>UpGrade Demo - <%= error.message %>
+    </title>
+    <meta charset=utf-8 />
+    <meta name="description" content="UpGrade Demo App" />
+    <meta name="keywords" content="UpGrade, Demo, App" />
+    <meta name="viewport"
+        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/error.css" />
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="message-wrapper">
+            <p id="error-status">
+                <%= error.status %>
+            </p>
+            <p id="error-message">
+                <%= error.message %>
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

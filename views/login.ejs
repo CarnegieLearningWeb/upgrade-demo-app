@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>UpGrade Demo - Log in</title>
+    <meta charset=utf-8 />
+    <meta name="description" content="UpGrade Demo App" />
+    <meta name="keywords" content="UpGrade, Demo, App" />
+    <meta name="viewport"
+        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
+    <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/login.css" />
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="/js/fetch-wrapper.js"></script>
+    <script src="/js/log-handler.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="header" class="shadowed">
+            <div id="title">
+                <img id="upgrade-logo" src="/asset/image/upgrade-logo.png" alt="UpGrade Logo">
+                <h2 id="title-text">UpGrade Demo</h2>
+            </div>
+        </div>
+        <div id="main">
+            <div id="main-top">
+                <div id="headline-wrapper">
+                    <div id="headline-left">
+                        <div id="headline-left-top">
+                            <h1 class="headline-large">KNOW</h1>
+                            <h1 class="headline-large">WHAT</h1>
+                            <h1 class="headline-large">WORKS.</h1>
+                        </div>
+                        <div id="headline-left-middle">
+                            <h3 class="headline-medium">
+                                <strong>UpGrade</strong> is the only open-source evidence-based testing platform that
+                                uncovers the most effective learning experiences.
+                            </h3>
+                        </div>
+                        <div id="headline-left-bottom">
+                            <h3 class="headline-medium">
+                                This demo app is to help you learn what UpGrade can do for you.
+                            </h3>
+                        </div>
+                    </div>
+                    <div id="headline-right">
+                        <div id="headline-right-top">
+                            <h4 class="headline-medium">Watch this video to learn more about <strong>UpGrade</strong> in
+                                10 minutes!</h4>
+                        </div>
+                        <div id="headline-right-bottom">
+                            <img id="upgrade-screenshot" class="shadowed" src="/asset/image/upgrade-screenshot.png"
+                                alt="UpGrade Screenshot">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="main-bottom">
+                <div id="login-button" class="unselectable">
+                    <div id="logo-wrapper">
+                        <img id="google-logo" src="/asset/image/google-logo.png" alt="Google Logo">
+                    </div>
+                    <div id="text-wrapper">
+                        <p id="button-text">Sign in with Google</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="demo-video-overlay" style="pointer-events: none; opacity: 0;">
+            <iframe id="demo-video" src="" title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>
+        </div>
+    </div>
+    <script>
+        window.addEventListener("load", () => {
+            // If the device is mobile, alert the message and redirect to the upgrade website
+            const isMobile = (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf("IEMobile") !== -1);
+            if (isMobile) {
+                alert("Sorry, the app is not available on mobile devices yet. Please use a desktop browser.");
+                window.location.href = "https://www.upgradeplatform.org/";
+                return;
+            }
+            // Show/Hide the demo video overlay when the screenshot is clicked
+            const upgradeScreenshot = document.getElementById("upgrade-screenshot");
+            const demoVideoOverlay = document.getElementById("demo-video-overlay");
+            const demoVideo = document.getElementById("demo-video");
+            upgradeScreenshot.addEventListener("click", () => {
+                demoVideo.src = "https://www.youtube.com/embed/9eSCSCnnN9s";
+                demoVideoOverlay.style.opacity = 1;
+                demoVideoOverlay.style.pointerEvents = "auto";
+            });
+            demoVideoOverlay.addEventListener("click", () => {
+                demoVideo.src = "";
+                demoVideoOverlay.style.opacity = 0;
+                demoVideoOverlay.style.pointerEvents = "none";
+            });
+
+            const clearUpgradeData = async () => {
+                const hostUrl = "<%= upgradeHostUrl %>";
+                const experiments = await FetchWrapper.get(`${hostUrl}/api/experiments`);
+                for (const experiment of experiments) {
+                    await FetchWrapper.delete(`${hostUrl}/api/experiments/${experiment.id}`);
+                }                
+            }
+
+            const clearDemoAppData = async () => {
+                await FetchWrapper.delete("/api/logs");
+                await FetchWrapper.delete("/api/sessions");
+            }
+
+            gapi.load("auth2", () => {
+                // Retrieve the singleton for the GoogleAuth library and set up the client.
+                const auth2 = gapi.auth2.init({
+                    client_id: "<%= googleClientId %>",
+                    cookiepolicy: "single_host_origin"
+                });
+                const loginButton = document.getElementById("login-button");
+                auth2.attachClickHandler(loginButton, {}, async (googleUser) => {
+                    const token = googleUser.getAuthResponse().id_token;
+                    const data = await FetchWrapper.post("/api/login", {
+                        token: googleUser.getAuthResponse().id_token
+                    });
+                    if (data.error) {
+                        alert(`Error: ${data.error.message}`);
+                        console.error(data.error);
+                        return;
+                    }
+                    await LogHandler.info(data.message);
+                    await auth2.signOut();
+
+                    // Clear UpGrade and Demo App data
+                    await clearUpgradeData();
+                    await clearDemoAppData();
+                    window.location.href = "/home";
+                }, (error) => {
+                    // alert(JSON.stringify(error, null, 2));
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

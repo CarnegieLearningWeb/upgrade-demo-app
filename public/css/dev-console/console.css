@@ -1,0 +1,189 @@
+/* ==================== wrapper ==================== */
+
+#wrapper {
+    width: 100%;
+    min-width: 750px;
+    height: 100%;
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #FFFFFF;
+}
+
+/* ==================== main ==================== */
+
+#main {
+    margin-top: -20px;
+    width: 750px;
+    height: 590px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ==================== text-wrapper ==================== */
+
+#text-wrapper {
+    width: 100%;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#console-text {
+    font-size: 36px;
+    font-weight: 800;
+    color: #F6683F;
+}
+
+/* ==================== select-wrapper ==================== */
+
+#select-wrapper {
+    width: 100%;
+    height: 70px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.select-group {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.console-select {
+    margin-left: 10px;
+    width: 110px;
+    height: 35px;
+    background-position-x: calc(110px - 30px);
+}
+
+/* ==================== table-wrapper ==================== */
+
+#table-wrapper {
+    width: 100%;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #808080;
+    border-radius: 5px;
+}
+
+.table-row {
+    width: 100%;
+    min-height: 45px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #C8C8C8;
+}
+
+.table-col1, .table-col2, .table-col3 {
+    margin-left: 15px;
+}
+
+.table-col1 {
+    width: 140px;
+}
+
+.table-col2 {
+    width: 533px;
+}
+
+#log-rows-wrapper .table-col2 {
+    width: 580px;
+}
+
+.table-col3 {
+    width: 32px;
+}
+
+.fixed-text {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 22px;
+    color: #444444;
+}
+
+.table-text {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 22px;
+    color: #444444;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.trace-text {
+    color: #777777;
+}
+
+.debug-text {
+    color: #5E5E5E;
+}
+
+.info-text {
+    color: #444444;
+}
+
+.warn-text {
+    color: #2B2B2B;
+}
+
+.error-text {
+    color: #FF0000;
+}
+
+.fatal-text {
+    color: #E60000;
+}
+
+.table-col3 p {
+    color: #F6683F;
+}
+
+.table-col3 p:hover {
+    color: #E95B32;
+}
+
+.table-col3 p:active {
+    color: #DD4F26;
+}
+
+.table-col3 .fixed-text {
+    cursor: pointer;
+}
+
+#table-top {
+    height: 66px;
+    border-radius: 5px 5px 0px 0px;
+    background: #FFF0E6;
+    border-bottom: 1px solid #808080;
+}
+
+#table-middle {
+    width: 100%;
+    height: 384px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.rows-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}

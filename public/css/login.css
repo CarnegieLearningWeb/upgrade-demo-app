@@ -1,0 +1,246 @@
+/* ==================== wrapper ==================== */
+
+#wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background: #FFFFFF;
+}
+
+/* ==================== header ==================== */
+
+#header {
+    width: 100%;
+    height: 88px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+}
+
+#title {
+    margin-left: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#upgrade-logo {
+    width: 28px;
+    height: 27px;
+}
+
+#title-text {
+    margin-left: 10px;
+    font-size: 28px;
+    font-weight: 800;
+    color: #3F68F6;
+}
+
+/* ==================== main ==================== */
+
+#main {
+    margin-top: 6px;
+    width: 100%;
+    height: calc(100% - 88px - 6px);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#main-top {
+    width: calc(100% - 96px * 2);
+    min-width: calc(96px * 2 + 400px + 670px);
+    height: 544px;
+    min-height: 544px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    background: #3F68F6;
+}
+
+#headline-wrapper {
+    width: calc(100% - 78px * 2);
+    height: calc(100% - 65px * 2);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    color: #FFF;
+}
+
+strong {
+    font-weight: 800;
+}
+
+.headline-large {
+    font-size: 72px;
+    line-height: 65px;
+    font-weight: 800;
+}
+
+.headline-medium {
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 600;
+}
+
+#headline-left {
+    width: 400px;
+    min-width: 400px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+#headline-left-top {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+#headline-left-middle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+#headline-left-bottom {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+#headline-right {
+    width: 670px;
+    min-width: 670px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#headline-right-top {
+    width: 100%;
+    height: 43px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#headline-right-bottom {
+    width: 100%;
+    height: calc(100% - 43px - 6px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#upgrade-screenshot {
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#main-bottom {
+    width: 100%;
+    height: calc(100% - 544px);
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#login-button {
+    width: 250px;
+    height: 48px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    background: #3F68F6;
+    cursor: pointer;
+}
+
+#login-button:hover {
+    background: #325BE9;
+}
+
+#login-button:active {
+    background: #264FDD;
+}
+
+#logo-wrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid#3F68F6;
+    border-radius: 5px;
+    background: #FFFFFF;
+}
+
+#google-logo {
+    margin-left: 2px;
+    width: 22px;
+    height: 22px;
+}
+
+#text-wrapper {
+    width: calc(250px - 48px);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#button-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+/* ==================== video overlay ==================== */
+
+#demo-video-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.75);
+    opacity: 0;
+    -webkit-transition: opacity 0.5s;
+    -moz-transition: opacity 0.5s;
+    transition: opacity 0.5s;
+    pointer-events: none;
+}
+
+#demo-video {
+    width: 800px;
+    height: 450px;
+    border-radius: 5px;
+}

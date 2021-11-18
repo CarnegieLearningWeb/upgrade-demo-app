@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>Dev Console - Console</title>
+    <meta charset=utf-8 />
+    <meta name="description" content="UpGrade Demo App" />
+    <meta name="keywords" content="UpGrade, Demo, App" />
+    <meta name="viewport"
+        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
+    <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/dev-console/console.css" />
+    <script src="/js/fetch-wrapper.js"></script>
+    <script src="/js/log-handler.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="main">
+            <div id="text-wrapper">
+                <h1 id="console-text">Console</h1>
+            </div>
+            <div id="select-wrapper">
+                <div class="select-group">
+                    <label class="console-label" for="loglevel-select">Log Level:</label>
+                    <select class="console-select" id="loglevel-select" name="loglevel-select" required>
+                        <option value="all">All</option>
+                        <option value="trace">Trace</option>
+                        <option value="debug">Debug</option>
+                        <option value="info" selected>Info</option>
+                        <option value="warn">Warn</option>
+                        <option value="error">Error</option>
+                        <option value="fatal">Fatal</option>
+                    </select>
+                </div>
+            </div>
+            <div id="table-wrapper">
+                <div class="table-row" id="table-top">
+                    <div class="table-col1">
+                        <p class="fixed-text">Log Date/Time</p>
+                    </div>
+                    <div class="table-col2">
+                        <p class="fixed-text">Log Message</p>
+                    </div>
+                    <div class="table-col3">
+                        <p class="fixed-text unselectable"><i class="fa fa-trash fa-lg"></i></p>
+                    </div>
+                </div>
+                <div id="table-middle">
+                    <div class="rows-wrapper" id="log-rows-wrapper">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const logRowsWrapper = document.getElementById("log-rows-wrapper");
+        const logLevelSelect = document.getElementById("loglevel-select");
+        const topTextElems = document.querySelectorAll("#table-top .fixed-text");
+        const logLevels = ["all", "trace", "debug", "info", "warn", "error", "fatal"];
+        const logLevelMap = {
+            all: logLevels.slice(1),
+            trace: logLevels.slice(1),
+            debug: logLevels.slice(2),
+            info: logLevels.slice(3),
+            warn: logLevels.slice(4),
+            error: logLevels.slice(5),
+            fatal: logLevels.slice(6)
+        };
+
+        // Update the table on select change
+        async function updateTable() {
+            // Get logs
+            const data = await FetchWrapper.get("/api/logs");
+            if (data.error) {
+                return await LogHandler.error(data.error.message);
+            }
+            const logs = data.logs;
+            const allowedLogLevels = logLevelMap[logLevelSelect.value];
+            logRowsWrapper.innerHTML = "";
+            for (const log of logs) {
+                if (!allowedLogLevels.includes(log.level)) {
+                    continue;
+                }
+                logRowsWrapper.innerHTML +=
+                    `
+                        <div class="table-row">
+                            <div class="table-col1">
+                                <p class="table-text ${log.level}-text">${new Intl.DateTimeFormat("en-US", { month: "short", day: "2-digit", hour: "numeric", minute: "numeric" }).format(new Date(log.date))}</p>
+                            </div>
+                            <div class="table-col2">
+                                <p class="table-text ${log.level}-text">${log.message}</p>
+                            </div>
+                        </div>
+                        `;
+            }
+            logRowsWrapper.scrollTop = logRowsWrapper.scrollHeight;
+        }
+
+        // Clear logs on Clear Logs text click
+        topTextElems[2].addEventListener("click", async () => {
+            if (!confirm("Do you want to clear the logs?")) {
+                return;
+            }
+            const data = await FetchWrapper.delete("/api/logs");
+            if (data.error) {
+                return await LogHandler.error(data.error.message);
+            }
+            updateTable();
+        });
+
+        window.addEventListener("load", () => {
+            // Add select change event listener
+            logLevelSelect.addEventListener("change", updateTable);
+
+            // Update the table initially
+            updateTable();
+        });
+    </script>
+</body>
+
+</html>

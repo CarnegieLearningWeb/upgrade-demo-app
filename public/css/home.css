@@ -1,0 +1,279 @@
+/* ==================== wrapper ==================== */
+
+#wrapper {
+    width: 100%;
+    min-width: 1024px;
+    height: 100%;
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background: #F0F2F8;
+}
+
+/* ==================== header ==================== */
+
+#header {
+    width: 100%;
+    height: 88px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+}
+
+#title {
+    margin-left: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#upgrade-logo {
+    width: 28px;
+    height: 27px;
+}
+
+#title-text {
+    margin-left: 10px;
+    font-size: 28px;
+    font-weight: 800;
+    color: #3F68F6;
+}
+
+#logout-button {
+    margin-right: 30px;
+    width: 148px;
+    height: 48px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    background: #3F68F6;
+    cursor: pointer;
+}
+
+#logout-button:hover {
+    background: #325BE9;
+}
+
+#logout-button:active {
+    background: #264FDD;
+}
+
+#logo-wrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid#3F68F6;
+    border-radius: 5px;
+    background: #FFFFFF;
+}
+
+#google-logo {
+    margin-left: 2px;
+    width: 22px;
+    height: 22px;
+}
+
+#text-wrapper {
+    width: calc(148px - 48px);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#button-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+/* ==================== main ==================== */
+
+#main {
+    margin-top: 6px;
+    width: 100%;
+    height: calc(100% - 88px - 6px);
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+#sidebar {
+    width: calc(338px + 6px * 2);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    -webkit-transition: margin 0.25s ease-in-out;
+    -moz-transition: margin 0.25s ease-in-out;
+    transition: margin 0.25s ease-in-out;
+}
+
+.tour-bar {
+    width: 338px;
+    height: 57px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    border-radius: 5px;
+    border-top: solid 1px #B7B9BC;
+    cursor: pointer;
+}
+
+.tour-text {
+    margin-left: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #444444;
+}
+
+.tour-icon {
+    margin-right: 16px;
+    width: 20px;
+    height: 20px;
+}
+
+#tours-bar {
+    height: 60px;
+    border: none;
+}
+
+#tours-title {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#tours-icon {
+    margin-left: 24px;
+    width: 25px;
+    height: 25px;
+}
+
+#close-icon {
+    width: 25px;
+    height: 25px;
+}
+
+#app {
+    width: calc(100% - 338px - 6px * 3);
+    height: calc(100% - 6px);
+    background: #FFFFFF;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    -webkit-transition: width 0.25s ease-in-out;
+    -moz-transition: width 0.25s ease-in-out;
+    transition: width 0.25s ease-in-out;
+}
+
+#tabs {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    border-bottom: solid 1px #B7B9BC;
+}
+
+.tab {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.tab-top {
+    width: 100%;
+    height: calc(100% - 3px);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.tab-icon {
+    width: 23px;
+    height: 23px;
+    -webkit-transition: filter 0.15s ease-in-out;
+    -moz-transition: filter 0.15s ease-in-out;
+    transition: filter 0.15s ease-in-out;
+}
+
+.tab-text {
+    margin-left: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #444444;
+    -webkit-transition: color 0.15s ease-in-out;
+    -moz-transition: color 0.15s ease-in-out;
+    transition: color 0.15s ease-in-out;
+}
+
+.tab-bottom {
+    margin-left: 4px;
+    width: 135px;
+    height: 3px;
+    background: transparent;
+    opacity: 0.85;
+    -webkit-transition: background 0.3s ease-in-out;
+    -moz-transition: background 0.3s ease-in-out;
+    transition: background 0.3s ease-in-out;
+}
+
+#tours-tab {
+    display: none;
+}
+
+#upgrade-icon {
+    margin-right: -4px;
+    margin-top: 4px;
+    width: 26px;
+    height: 29px;
+}
+
+#dev-console-icon {
+    margin-right: -2px;
+    width: 23px;
+    height: 24px;
+}
+
+#iframe-wrapper {
+    width: 100%;
+    height: calc(100% - 60px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-iframe {
+    width: 100%;
+    height: 100%;
+    display: none;
+    box-shadow: none;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+}

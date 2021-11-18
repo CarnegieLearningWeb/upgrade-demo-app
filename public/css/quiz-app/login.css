@@ -1,0 +1,105 @@
+/* ==================== wrapper ==================== */
+
+#wrapper {
+    width: 100%;
+    min-width: 600px;
+    height: 100%;
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #FFFFFF;
+}
+
+/* ==================== login-form ==================== */
+
+#login-form {
+    margin-top: -80px;
+    width: 400px;
+    height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ==================== text-wrapper ==================== */
+
+#text-wrapper {
+    width: 100%;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#login-text {
+    font-size: 36px;
+    font-weight: 800;
+    color: #1CC198;
+}
+
+/* ==================== login-wrapper ==================== */
+
+#login-wrapper {
+    width: 100%;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-group {
+    width: 100%;
+    height: 40%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.login-input {
+    width: 285px;
+    height: 35px;
+}
+
+#username-select {
+    background-position-x: calc(285px - 30px);
+}
+
+select:invalid {
+    color: #808080;
+}
+
+#password-input {
+    font-family: Verdana;
+    letter-spacing: 0.125em;
+}
+
+/* ==================== button-wrapper ==================== */
+
+#button-wrapper {
+    width: 400px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#login-button {
+    width: 100%;
+    height: 100%;
+    background: #1CC198;
+}
+
+#login-button:hover {
+    background: #0FB48B;
+}
+
+#login-button:active {
+    background: #03A87F;
+}

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>UpGrade Demo - Home</title>
+    <meta charset=utf-8 />
+    <meta name="description" content="UpGrade Demo App" />
+    <meta name="keywords" content="UpGrade, Demo, App" />
+    <meta name="viewport"
+        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
+    <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/home.css" />
+    <script src="/js/fetch-wrapper.js"></script>
+    <script src="/js/log-handler.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="header" class="shadowed">
+            <div id="title">
+                <img id="upgrade-logo" src="/asset/image/upgrade-logo.png" alt="UpGrade Logo">
+                <h2 id="title-text">UpGrade Demo</h2>
+            </div>
+            <div id="logout-button" class="unselectable">
+                <div id="logo-wrapper">
+                    <img id="google-logo" src="/asset/image/google-logo.png" alt="Google Logo">
+                </div>
+                <div id="text-wrapper">
+                    <p id="button-text">Sign out</p>
+                </div>
+            </div>
+        </div>
+        <div id="main">
+            <div id="sidebar" class="unselectable">
+                <div class="tour-bar shadowed" id="tours-bar">
+                    <div id="tours-title">
+                        <img id="tours-icon" class="recolor-444444" src="/asset/image/tours-icon.png" alt="Tours Icon">
+                        <p class="tab-text" id="tours-text">Tours</p>
+                    </div>
+                    <img class="tour-icon recolor-444444" id="close-icon" src="/asset/image/close-icon.png"
+                        alt="Close Icon">
+                </div>
+                <div id="tours-container">
+                    <div class="tour-bar shadowed">
+                        <p class="tour-text">Welcome Tour</p>
+                        <img class="tour-icon recolor-444444" src="/asset/image/arrow-icon.png" alt="Arrow Icon">
+                    </div>
+                </div>
+            </div>
+            <div id="app" class="shadowed">
+                <div id="tabs" class="unselectable">
+                    <div class="tab" id="tours-tab">
+                        <div class="tab-top" id="tours-tab-top">
+                            <img class="tab-icon recolor-444444" id="tours-icon" src="/asset/image/tours-icon.png"
+                                alt="Tours Icon">
+                            <h4 class="tab-text" id="tours-tab-text">Tours</h4>
+                        </div>
+                        <div class="tab-bottom" id="tours-tab-bottom"></div>
+                    </div>
+                    <div class="tab" id="quiz-app-tab">
+                        <div class="tab-top" id="quiz-app-tab-top">
+                            <img class="tab-icon recolor-444444" id="quiz-app-icon" src="/asset/image/quiz-app-icon.png"
+                                alt="QuizApp Icon">
+                            <h4 class="tab-text" id="quiz-app-tab-text">QuizApp</h4>
+                        </div>
+                        <div class="tab-bottom" id="quiz-app-tab-bottom"></div>
+                    </div>
+                    <div class="tab" id="admin-tool-tab">
+                        <div class="tab-top" id="admin-tool-tab-top">
+                            <img class="tab-icon recolor-444444" id="admin-tool-icon"
+                                src="/asset/image/admin-tool-icon.png" alt="Admin Tool Icon">
+                            <h4 class="tab-text" id="admin-tool-tab-text">Admin Tool</h4>
+                        </div>
+                        <div class="tab-bottom" id="admin-tool-tab-bottom"></div>
+                    </div>
+                    <div class="tab" id="upgrade-tab">
+                        <div class="tab-top" id="upgrade-tab-top">
+                            <img class="tab-icon recolor-444444" id="upgrade-icon" src="/asset/image/upgrade-icon.png"
+                                alt="UpGrade Icon">
+                            <h4 class="tab-text" id="upgrade-tab-text">UpGrade</h4>
+                        </div>
+                        <div class="tab-bottom" id="upgrade-tab-bottom"></div>
+                    </div>
+                    <div class="tab" id="dev-console-tab">
+                        <div class="tab-top" id="dev-console-tab-top">
+                            <img class="tab-icon recolor-444444" id="dev-console-icon"
+                                src="/asset/image/dev-console-icon.png" alt="Dev Console Icon">
+                            <h4 class="tab-text" id="dev-console-tab-text">Dev Console</h4>
+                        </div>
+                        <div class="tab-bottom" id="dev-console-tab-bottom"></div>
+                    </div>
+                </div>
+                <div id="iframe-wrapper">
+                    <iframe class="app-iframe" id="quiz-app-iframe" src="/quiz-app/student/login"
+                        onload="onIframeLoad(this)"></iframe>
+                    <iframe class="app-iframe" id="admin-tool-iframe" src="/admin-tool/summary"
+                        onload="onIframeLoad(this)"></iframe>
+                    <iframe class="app-iframe" id="upgrade-iframe" src="<%= upgradeBaseUrl %>"
+                        onload="onIframeLoad(this)"></iframe>
+                    <iframe class="app-iframe" id="dev-console-iframe" src="/dev-console/console"
+                        onload="onIframeLoad(this)"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function sendDataToIframe(iframe, data) {
+            iframe.contentWindow.postMessage(data, iframe.src.replace(/\/$/, ""));
+        }
+        
+        function onIframeLoad(iframe) {
+            // Receive data from the iframe
+            window.addEventListener("message", (event) => {
+                if (event.origin !== iframe.src.replace(/\/$/, "")) {
+                    return;
+                }
+                const data = event.message || event.data;
+                // Used for detecting user events from the iframe during tours
+                switch (data.message) {
+                    case "fromQuizApp":
+                        console.log(data.value);
+                        break;
+                    case "fromAdminTool":
+                        console.log(data.value);
+                        break;
+                    case "fromUpgrade":
+                        console.log(data.value);
+                        break;
+                    case "fromDevConsole":
+                        console.log(data.value);
+                        break;
+                }
+            });
+            // Send initial data to the iframe
+            switch (iframe.id) {
+                case "quiz-app-iframe":
+                    break;
+                case "admin-tool-iframe":
+                    break;
+                case "upgrade-iframe":
+                    sendDataToIframe(iframe, { message: "logout" });
+                    sendDataToIframe(iframe, { message: "setZoomLevel", value: "90%" });
+                    break;
+                case "dev-console-iframe":
+                    break;
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", async () => {
+            // Logout Button
+            const logoutButton = document.getElementById("logout-button");
+            const upgradeIframe = document.getElementById("upgrade-iframe");
+            logoutButton.addEventListener("click", async () => {
+                await LogHandler.info("Logging out the user...");
+
+                // Logout UpGrade
+                sendDataToIframe(upgradeIframe, { message: "logout" });
+
+                // Logout the Demo app
+                const data = await FetchWrapper.get("/api/logout");
+                if (data.error) {
+                    alert(`Error: ${data.error.message}`);
+                    console.error(data.error);
+                    return;
+                }
+                console.log(data.message);
+                window.location.href = "/login";
+            });
+
+            // Tours bar/tab toggle
+            const toursBar = document.getElementById("tours-bar");
+            const toursTab = document.getElementById("tours-tab");
+            const sidebar = document.getElementById("sidebar");
+            const app = document.getElementById("app");
+            toursBar.addEventListener("click", () => {
+                toursTab.style.display = "flex";
+                sidebar.style.marginLeft = "calc(-338px - 6px)";
+                app.style.width = "calc(100% - 6px * 2)";
+            });
+            toursTab.addEventListener("click", () => {
+                toursTab.style.display = "none";
+                sidebar.style.marginLeft = "0px";
+                app.style.width = "calc(100% - 338px - 6px * 3)";
+            });
+
+            // Tour contents
+            const toursContainter = document.getElementById("tours-container");
+            const tourBars = toursContainter.children;
+            for (const tourBar of tourBars) {
+                tourBar.addEventListener("click", () => {
+                    alert(`Sorry, the ${tourBar.firstElementChild.innerText} will be added soon.`);
+                });
+            }
+
+            // QuizApp / Admin Tool / UpGrade / Dev Console Tabs
+            const tabs = Array.from(document.getElementsByClassName("tab")).slice(1); // Exclude the Tours tab
+            for (const tab of tabs) {
+                tab.addEventListener("click", onTabClick);
+            }
+            const tabColorMap = {
+                "quiz-app": "1CC198",
+                "admin-tool": "FF9129",
+                "upgrade": "3F68F6",
+                "dev-console": "F6683F"
+            };
+            let clickedTab = {};
+            function onTabClick() {
+                if (this === clickedTab) {
+                    return;
+                }
+                clickedTab = this;
+                for (const tab of tabs) {
+                    const appName = tab.id.slice(0, -4); // Remove the last "-tab" from the tab ID
+                    const tabColor = tabColorMap[appName];
+                    const tabIcon = tab.querySelector(".tab-top .tab-icon");
+                    const tabText = tab.querySelector(".tab-top .tab-text");
+                    const tabBottom = tab.querySelector(".tab-bottom");
+                    const iframe = document.getElementById(`${appName}-iframe`);
+                    if (tab === this) { // If the tab is clicked
+                        switch (appName) {
+                            case "quiz-app":
+                                // Do nothing
+                                break;
+                            case "admin-tool":
+                                // Update the table
+                                if (iframe.contentWindow.updateTable) {
+                                    iframe.contentWindow.updateTable();
+                                }
+                                break;
+                            case "upgrade":
+                                // Click the experiments tab
+                                sendDataToIframe(iframe, { message: "clickExperimentsTab" });
+                                break;
+                            case "dev-console":
+                                // Update the table
+                                if (iframe.contentWindow.updateTable) {
+                                    iframe.contentWindow.updateTable();
+                                }
+                                break;
+                        }
+                        tabIcon.className = `tab-icon recolor-${tabColor}`;
+                        tabText.style.color = `#${tabColor}`;
+                        tabBottom.style.background = `#${tabColor}`;
+                        iframe.style.display = "block";
+                        iframe.focus();
+                        continue;
+                    }
+                    tabIcon.className = "tab-icon recolor-444444";
+                    tabText.style.color = "#444444";
+                    tabBottom.style.background = "transparent";
+                    iframe.style.display = "none";
+                }
+            }
+            tabs[0].click();
+        });
+    </script>
+</body>
+
+</html>

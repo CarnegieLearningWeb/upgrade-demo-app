@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>QuizApp - Login</title>
+    <meta charset=utf-8 />
+    <meta name="description" content="UpGrade Demo App" />
+    <meta name="keywords" content="UpGrade, Demo, App" />
+    <meta name="viewport"
+        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
+    <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/quiz-app/login.css" />
+    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
+    <script src="/js/upgrade-client-lib.js"></script>
+    <script src="/js/fetch-wrapper.js"></script>
+    <script src="/js/log-handler.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <form id="login-form">
+            <div id="text-wrapper">
+                <h1 id="login-text">Student Login</h1>
+            </div>
+            <div id="login-wrapper">
+                <div class="login-group">
+                    <label class="login-label" for="username-select">Username:</label>
+                    <select class="login-input" id="username-select" name="username" required>
+                        <option value="" disabled selected hidden>Please Choose...</option>
+                        <% for (const klass of klasses) { %>
+                            <optgroup label="<%= klass.period %> Period">
+                                <% for (const student of klass.students) { %>
+                                    <option value="<%= student._id %>">
+                                        <%= student.name %>
+                                    </option>
+                                    <% } %>
+                            </optgroup>
+                            <% } %>
+                    </select>
+                </div>
+                <div class="login-group">
+                    <label class="login-label" for="password-input">Password:</label>
+                    <input type="password" class="login-input" id="password-input" name="password" minlength="8"
+                        required readonly>
+                </div>
+            </div>
+            <div id="button-wrapper">
+                <button id="login-button" type="submit"><i class="fa fa-graduation-cap fa-lg"></i>Login</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        window.addEventListener("load", () => {
+            // Login Form
+            const loginForm = document.getElementById("login-form");
+            const userNameSelect = document.getElementById("username-select");
+            const passwordInput = document.getElementById("password-input");
+
+            // Autocomplete the fake password on select change
+            userNameSelect.addEventListener("change", (event) => {
+                const value = userNameSelect.value;
+                const passwordMinLength = 8;
+                const passwordMaxLength = 16;
+                const passwordLength = passwordMinLength + value.charCodeAt(value.length - 1) % (passwordMaxLength - passwordMinLength + 1);
+                passwordInput.value = value.substring(0, passwordLength);
+            });
+
+            // Called on login button click
+            let isLoading = false;
+            loginForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                if (isLoading) {
+                    return;
+                }
+                isLoading = true;
+
+                // Create a new session
+                const data = await FetchWrapper.post("/api/session", {
+                    studentId: userNameSelect.value,
+                    startDate: new Date().toISOString()
+                });
+                if (data.error) {
+                    return await LogHandler.error(data.error.message);
+                }
+                await LogHandler.info(data.message);
+
+                // Create and initialize UpgradeClient
+                const studentId = userNameSelect.value;
+                const hostUrl = "<%= upgradeHostUrl %>";
+                const upClient = new UpgradeClient(studentId, hostUrl);
+                await upClient.init();
+                await LogHandler.info("Initialized the UpGrade Client Library");
+
+                // Define context
+                const context = "<%= upgradeContext %>";
+
+                // Redirect to the intro page
+                window.location.href = `/quiz-app/session/${data.session._id}/intro`;
+            });
+
+            // Focus Username Select
+            userNameSelect.focus();
+        });
+    </script>
+</body>
+
+</html>

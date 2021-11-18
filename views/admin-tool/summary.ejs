@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>Admin Tool - Summary</title>
+    <meta charset=utf-8 />
+    <meta name="description" content="UpGrade Demo App" />
+    <meta name="keywords" content="UpGrade, Demo, App" />
+    <meta name="viewport"
+        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
+    <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/admin-tool/summary.css" />
+    <script src="/js/fetch-wrapper.js"></script>
+    <script src="/js/log-handler.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="main">
+            <div id="text-wrapper">
+                <h1 id="summary-text">Summary</h1>
+            </div>
+            <div id="select-wrapper">
+                <div class="select-group">
+                    <label class="summary-label" for="summaryby-select">Summary by:</label>
+                    <select class="summary-select" id="summaryby-select" name="summaryby-select" required>
+                        <option value="session" selected>Session</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+                <div class="select-group">
+                    <label class="summary-label" for="classperiod-select">Class period:</label>
+                    <select class="summary-select" id="classperiod-select" name="classperiod-select" required>
+                        <option value="all" selected>All</option>
+                        <% for (const klass of klasses) { %>
+                            <option value="<%= klass.period.toLowerCase() %>" id="<%= klass._id %>">
+                                <%= klass.period %>
+                            </option>
+                            <% } %>
+                    </select>
+                </div>
+            </div>
+            <div id="table-wrapper">
+                <div class="table-row" id="table-top">
+                    <div class="table-col1">
+                        <p class="fixed-text">Student<br>Name</p>
+                    </div>
+                    <div class="table-col2">
+                        <p class="fixed-text">Session Start<br>Date/Time</p>
+                    </div>
+                    <div class="table-col3">
+                        <p class="fixed-text">Duration<br>(mm:ss)</p>
+                    </div>
+                    <div class="table-col4">
+                        <p class="fixed-text">Problems<br>Answered</p>
+                    </div>
+                    <div class="table-col5">
+                        <p class="fixed-text">Problems<br>Correct</p>
+                    </div>
+                    <div class="table-col6">
+                        <p class="fixed-text">Clear<br>Session</p>
+                    </div>
+                </div>
+                <div id="table-middle">
+                    <div class="rows-wrapper" id="session-rows-wrapper"></div>
+                    <div class="rows-wrapper" id="student-rows-wrapper">
+                        <% for (const klass of klasses) { %>
+                            <% for (const student of klass.students) { %>
+                                <div
+                                    class="table-row klass-all klass-<%= klass.period.toLowerCase() %> student-<%= student._id %>">
+                                    <div class="table-col1">
+                                        <p class="table-text fixed">
+                                            <%= student.name %>
+                                        </p>
+                                    </div>
+                                    <div class="table-col2">
+                                        <p class="table-text"></p>
+                                    </div>
+                                    <div class="table-col3">
+                                        <p class="table-text"></p>
+                                    </div>
+                                    <div class="table-col4">
+                                        <p class="table-text"></p>
+                                    </div>
+                                    <div class="table-col5">
+                                        <p class="table-text"></p>
+                                    </div>
+                                    <div class="table-col6">
+                                        <p class="table-text fixed"><i class="fa fa-undo fa-lg"
+                                                onclick="onResetSessionClick('<%= student._id %>', '<%= student.name %>')"></i>
+                                        </p>
+                                    </div>
+                                </div>
+                                <% } %>
+                                    <% } %>
+                    </div>
+                </div>
+                <div class="table-row" id="table-bottom">
+                    <div class="table-col1">
+                        <p class="fixed-text">Total</p>
+                    </div>
+                    <div class="table-col2">
+                        <p class="table-text"></p>
+                    </div>
+                    <div class="table-col3">
+                        <p class="table-text"></p>
+                    </div>
+                    <div class="table-col4">
+                        <p class="table-text"></p>
+                    </div>
+                    <div class="table-col5">
+                        <p class="table-text"></p>
+                    </div>
+                    <div class="table-col6">
+                        <p class="table-text"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const sessionRowsWrapper = document.getElementById("session-rows-wrapper");
+        const studentRowsWrapper = document.getElementById("student-rows-wrapper");
+        const summaryBySelect = document.getElementById("summaryby-select");
+        const classPeriodSelect = document.getElementById("classperiod-select");
+        const topTextElems = document.querySelectorAll("#table-top .fixed-text");
+        const bottomTextElems = document.querySelectorAll("#table-bottom p");
+
+        // Update the table on select change
+        async function updateTable() {
+            // Get sessions
+            const data = await FetchWrapper.get("/api/sessions");
+            if (data.error) {
+                return await LogHandler.error(data.error.message);
+            }
+            const sessions = data.sessions;
+            if (summaryBySelect.value === "session") {
+                // Update top texts
+                topTextElems[1].innerHTML = "Session Start<br>Date/Time";
+
+                // Update the session rows
+                const total = {
+                    durationSeconds: 0,
+                    numAnswered: 0,
+                    numCorrect: 0
+                };
+                sessionRowsWrapper.innerHTML = "";
+                for (let i = sessions.length - 1; i >= 0; i--) { // Show newer sessions at the top
+                    const session = sessions[i];
+                    // Add the session rows of the selected class period only (unless "all" is selected)
+                    if (classPeriodSelect.value !== "all" && session.klass.period.toLowerCase() !== classPeriodSelect.value) {
+                        continue;
+                    }
+                    sessionRowsWrapper.innerHTML +=
+                        `
+                            <div class="table-row">
+                                <div class="table-col1">
+                                    <p class="table-text">${session.student.name}</p>
+                                </div>
+                                <div class="table-col2">
+                                    <p class="table-text">${new Intl.DateTimeFormat("en-US", { month: "short", day: "2-digit", hour: "numeric", minute: "numeric" }).format(new Date(session.startDate))}</p>
+                                </div>
+                                <div class="table-col3">
+                                    <p class="table-text">${formatDurationSeconds(session.durationSeconds)}</p>
+                                </div>
+                                <div class="table-col4">
+                                    <p class="table-text">${session.numAnswered}</p>
+                                </div>
+                                <div class="table-col5">
+                                    <p class="table-text">${session.numCorrect}</p>
+                                </div>
+                                <div class="table-col6">
+                                    <p class="table-text"><i class="fa fa-minus-circle fa-lg" onclick="onClearSessionClick('${session._id}', '${session.student.name}')"></i></p>
+                                </div>
+                            </div>
+                            `;
+                    total.durationSeconds += session.durationSeconds;
+                    total.numAnswered += session.numAnswered;
+                    total.numCorrect += session.numCorrect;
+                }
+                // Update bottom texts
+                bottomTextElems[1].innerText = ""; // Total Session Start Date/Time (Nothing to show)
+                bottomTextElems[2].innerText = `${formatDurationSeconds(total.durationSeconds)}`; // Total Duration
+                bottomTextElems[3].innerText = `${total.numAnswered}`; // Total Problems Answered
+                bottomTextElems[4].innerText = formatTotalProblemsCorrect(total); // Total Problems Correct
+
+                // Show the session rows wrapper only
+                studentRowsWrapper.style.display = "none";
+                sessionRowsWrapper.style.display = "flex";
+            }
+            else if (summaryBySelect.value === "student") {
+                // Update top texts
+                topTextElems[1].innerHTML = "Number of<br>Sessions";
+
+                // Reset all student row texts to zero except for the fixed ones
+                const studentRowTextElems = studentRowsWrapper.querySelectorAll(".table-text:not(.fixed)");
+                for (const studentRowTextElem of studentRowTextElems) {
+                    studentRowTextElem.innerText = 0;
+                }
+                // Update all student row texts with the session data
+                const durationTextElems = new Set();
+                const total = {
+                    numSessions: 0,
+                    durationSeconds: 0,
+                    numAnswered: 0,
+                    numCorrect: 0
+                };
+                for (const session of sessions) {
+                    const studentRowTextElems = studentRowsWrapper.querySelectorAll(`.klass-${classPeriodSelect.value}.student-${session.student._id} .table-text`);
+                    // Skip the empty query which the student doesn't belong to the selected class period
+                    if (!studentRowTextElems.length) {
+                        continue;
+                    }
+                    studentRowTextElems[1].innerText = `${Number(studentRowTextElems[1].innerText) + 1}`; // Number of Sessions
+                    studentRowTextElems[2].innerText = `${Number(studentRowTextElems[2].innerText) + session.durationSeconds}`; // Duration
+                    studentRowTextElems[3].innerText = `${Number(studentRowTextElems[3].innerText) + session.numAnswered}`; // Problems Answered
+                    studentRowTextElems[4].innerText = `${Number(studentRowTextElems[4].innerText) + session.numCorrect}`; // Problems Correct
+                    durationTextElems.add(studentRowTextElems[2]);
+                    total.numSessions += 1;
+                    total.durationSeconds += session.durationSeconds;
+                    total.numAnswered += session.numAnswered;
+                    total.numCorrect += session.numCorrect;
+                }
+                for (const durationTextElem of durationTextElems) {
+                    durationTextElem.innerText = `${formatDurationSeconds(Number(durationTextElem.innerText))}`;
+                }
+                // Update bottom texts
+                bottomTextElems[1].innerText = `${total.numSessions}`; // Total Number of Sessions
+                bottomTextElems[2].innerText = `${formatDurationSeconds(total.durationSeconds)}`; // Total Duration
+                bottomTextElems[3].innerText = `${total.numAnswered}`; // Total Problems Answered
+                bottomTextElems[4].innerText = formatTotalProblemsCorrect(total); // Total Problems Correct
+
+                // Display student rows of the selected class period only
+                const studentRows = studentRowsWrapper.querySelectorAll(".table-row");
+                for (const studentRow of studentRows) {
+                    studentRow.style.display = studentRow.classList.contains(`klass-${classPeriodSelect.value}`) ? "flex" : "none";
+                }
+                // Show the student rows wrapper only
+                sessionRowsWrapper.style.display = "none";
+                studentRowsWrapper.style.display = "flex";
+            }
+        }
+
+        // Convert seconds to mm:ss format
+        function formatDurationSeconds(durationSeconds) {
+            return new Date(durationSeconds * 1000).toISOString().substr(14, 5);
+        }
+
+        // Format the total problems correct text
+        function formatTotalProblemsCorrect(total) {
+            if (total.numAnswered === 0) {
+                return `${total.numCorrect}`;
+            }
+            return `${total.numCorrect} (${Math.round(total.numCorrect / total.numAnswered * 100)}%)`;
+        }
+
+        // Delete the session by ID on Clear Session icon click
+        async function onClearSessionClick(sessionId, studentName) {
+            if (!confirm(`Do you want to clear the ${studentName}'s session?`)) {
+                return;
+            }
+            const data = await FetchWrapper.delete(`/api/session/${sessionId}`);
+            if (data.error) {
+                return await LogHandler.error(data.error.message);
+            }
+            await LogHandler.info(data.message);
+            updateTable();
+        }
+
+        // Delete sessions by student ID on Reset Session icon click
+        async function onResetSessionClick(studentId, studentName) {
+            if (!confirm(`Do you want to clear all ${studentName}'s sessions?`)) {
+                return;
+            }
+            const data = await FetchWrapper.delete(`/api/sessions/student/${studentId}`);
+            if (data.error) {
+                return await LogHandler.error(data.error.message);
+            }
+            await LogHandler.info(data.message);
+            updateTable();
+        }
+
+        window.addEventListener("load", () => {
+            // Add select change event listeners
+            summaryBySelect.addEventListener("change", updateTable);
+            classPeriodSelect.addEventListener("change", updateTable);
+
+            // Update the table initially
+            updateTable();
+        });
+    </script>
+</body>
+
+</html>

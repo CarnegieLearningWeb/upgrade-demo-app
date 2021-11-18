@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>QuizApp - Intro</title>
+    <meta charset=utf-8 />
+    <meta name="description" content="UpGrade Demo App" />
+    <meta name="keywords" content="UpGrade, Demo, App" />
+    <meta name="viewport"
+        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
+    <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/quiz-app/intro.css" />
+    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
+    <script src="/js/upgrade-client-lib.js"></script>
+    <script src="/js/fetch-wrapper.js"></script>
+    <script src="/js/log-handler.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="main">
+            <div id="text-wrapper">
+                <p class="message">
+                    <%= message.greetings %>
+                </p>
+                <p class="message">
+                    <%= message.goal %>
+                </p>
+            </div>
+            <div id="image-wrapper">
+                <img id="intro-image" src="/asset/image/intro-image.png" alt="Intro Image">
+            </div>
+            <div id="button-wrapper">
+                <button id="start-button" type="submit"><i class="fa fa-rocket fa-lg"></i>Start</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.addEventListener("load", async () => {
+            await LogHandler.info("<%= session.student.name %> logged in");
+
+            // Start Button
+            const startButton = document.getElementById("start-button");
+            startButton.addEventListener("click", () => {
+                // Redirect to the problem page
+                window.location.href = "/quiz-app/session/<%= session._id %>/problem";
+            });
+
+            // Focus Start Button
+            startButton.focus();
+        });
+    </script>
+</body>
+
+</html>
