@@ -12,9 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
     <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/dev-console/console.css" />
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
+    <script src="/js/modal.js"></script>
 </head>
 
 <body>
@@ -70,6 +72,7 @@
             error: logLevels.slice(5),
             fatal: logLevels.slice(6)
         };
+        const confirmModal = new Modal();
 
         // Update the table on select change
         async function updateTable() {
@@ -102,14 +105,15 @@
 
         // Clear logs on Clear Logs text click
         topTextElems[2].addEventListener("click", async () => {
-            if (!confirm("Do you want to clear the logs?")) {
-                return;
-            }
-            const data = await FetchWrapper.delete("/api/logs");
-            if (data.error) {
-                return await LogHandler.error(data.error.message);
-            }
-            updateTable();
+            confirmModal.confirm("dev-console", "Dev Console", "Do you want to clear the logs?", async (buttonText) => {
+                if (buttonText === "OK") {
+                    const data = await FetchWrapper.delete("/api/logs");
+                    if (data.error) {
+                        return await LogHandler.error(data.error.message);
+                    }
+                    updateTable();
+                }
+            });
         });
 
         window.addEventListener("load", () => {

@@ -12,11 +12,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
     <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/quiz-app/problem.css" />
     <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
     <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
+    <script src="/js/modal.js"></script>
 </head>
 
 <body>
@@ -43,6 +45,8 @@
         </div>
     </div>
     <script>
+        const alertModal = new Modal();
+
         window.addEventListener("load", async () => {
             // Create UpgradeClient
             const studentId = "<%= session.student %>";
@@ -101,10 +105,10 @@
                 case "No Support":
                     break;
                 case "Mindset":
-                    setTimeout(() => alert("Did you know your brain grows as you learn?"), 500);
+                    window.setTimeout(() => alertModal.alert("quiz-app", "QuizApp", "Did you know your brain grows as you learn?", (buttonText) => { }), 500);
                     break;
                 case "Utility Value":
-                    setTimeout(() => alert("Did you know that 86% of jobs require math?"), 500);
+                    window.setTimeout(() => alertModal.alert("quiz-app", "QuizApp", "Did you know that 86% of jobs require math?", (buttonText) => { }), 500);
                     break;
             }
 
@@ -118,7 +122,7 @@
                     return;
                 }
                 isLoading = true;
-                
+
                 // Update the session
                 const data = await FetchWrapper.put("/api/session/<%= session._id %>", {
                     currentDate: new Date().toISOString(), // turned into duration in seconds

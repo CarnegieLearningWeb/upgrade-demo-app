@@ -12,9 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
     <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/admin-tool/summary.css" />
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
+    <script src="/js/modal.js"></script>
 </head>
 
 <body>
@@ -128,6 +130,7 @@
         const classPeriodSelect = document.getElementById("classperiod-select");
         const topTextElems = document.querySelectorAll("#table-top .fixed-text");
         const bottomTextElems = document.querySelectorAll("#table-bottom p");
+        const confirmModal = new Modal();
 
         // Update the table on select change
         async function updateTable() {
@@ -259,28 +262,30 @@
 
         // Delete the session by ID on Clear Session icon click
         async function onClearSessionClick(sessionId, studentName) {
-            if (!confirm(`Do you want to clear the ${studentName}'s session?`)) {
-                return;
-            }
-            const data = await FetchWrapper.delete(`/api/session/${sessionId}`);
-            if (data.error) {
-                return await LogHandler.error(data.error.message);
-            }
-            await LogHandler.info(data.message);
-            updateTable();
+            confirmModal.confirm("admin-tool", "Admin Tool", `Do you want to clear the ${studentName}'s session?`, async (buttonText) => {
+                if (buttonText === "OK") {
+                    const data = await FetchWrapper.delete(`/api/session/${sessionId}`);
+                    if (data.error) {
+                        return await LogHandler.error(data.error.message);
+                    }
+                    await LogHandler.info(data.message);
+                    updateTable();
+                }
+            });
         }
 
         // Delete sessions by student ID on Reset Session icon click
         async function onResetSessionClick(studentId, studentName) {
-            if (!confirm(`Do you want to clear all ${studentName}'s sessions?`)) {
-                return;
-            }
-            const data = await FetchWrapper.delete(`/api/sessions/student/${studentId}`);
-            if (data.error) {
-                return await LogHandler.error(data.error.message);
-            }
-            await LogHandler.info(data.message);
-            updateTable();
+            confirmModal.confirm("admin-tool", "Admin Tool", `Do you want to clear all ${studentName}'s sessions?`, async (buttonText) => {
+                if (buttonText === "OK") {
+                    const data = await FetchWrapper.delete(`/api/sessions/student/${studentId}`);
+                    if (data.error) {
+                        return await LogHandler.error(data.error.message);
+                    }
+                    await LogHandler.info(data.message);
+                    updateTable();
+                }
+            });
         }
 
         window.addEventListener("load", () => {

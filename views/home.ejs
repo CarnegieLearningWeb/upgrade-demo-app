@@ -11,9 +11,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
     <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/home.css" />
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
+    <script src="/js/modal.js"></script>
 </head>
 
 <body>
@@ -106,10 +108,14 @@
         </div>
     </div>
     <script>
+        const alertModal = new Modal();
+        const confirmModal = new Modal();
+        const tourModal = new Modal();
+
         function sendDataToIframe(iframe, data) {
             iframe.contentWindow.postMessage(data, iframe.src.replace(/\/$/, ""));
         }
-        
+
         function onIframeLoad(iframe) {
             // Receive data from the iframe
             window.addEventListener("message", (event) => {
@@ -190,7 +196,7 @@
             const tourBars = toursContainter.children;
             for (const tourBar of tourBars) {
                 tourBar.addEventListener("click", () => {
-                    alert(`Sorry, the ${tourBar.firstElementChild.innerText} will be added soon.`);
+                    alertModal.alert("upgrade", "UpGrade Demo", `Sorry, the ${tourBar.firstElementChild.innerText} will be added soon.`, (buttonText) => { });
                 });
             }
 
@@ -254,6 +260,10 @@
                 }
             }
             tabs[0].click();
+
+            window.setTimeout(() => {
+                alertModal.alert("upgrade", "UpGrade Demo Introduction", `We have created a simple app called QuizApp to demonstrate how UpGrade works.<br><br>If you are new to UpGrade, we recommend clicking on the "Welcome Tour" on the left sidebar.`, (buttonText) => { });
+            }, 500);
         });
     </script>
 </body>
