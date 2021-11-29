@@ -6,8 +6,7 @@
     <meta charset=utf-8 />
     <meta name="description" content="UpGrade Demo App" />
     <meta name="keywords" content="UpGrade, Demo, App" />
-    <meta name="viewport"
-        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
@@ -38,10 +37,8 @@
                     <select class="summary-select" id="classperiod-select" name="classperiod-select" required>
                         <option value="all" selected>All</option>
                         <% for (const klass of klasses) { %>
-                            <option value="<%= klass.period.toLowerCase() %>" id="<%= klass._id %>">
-                                <%= klass.period %>
-                            </option>
-                            <% } %>
+                        <option value="<%= klass.period.toLowerCase() %>" id="<%= klass._id %>"><%= klass.period %></option>
+                        <% } %>
                     </select>
                 </div>
             </div>
@@ -70,34 +67,32 @@
                     <div class="rows-wrapper" id="session-rows-wrapper"></div>
                     <div class="rows-wrapper" id="student-rows-wrapper">
                         <% for (const klass of klasses) { %>
-                            <% for (const student of klass.students) { %>
-                                <div
-                                    class="table-row klass-all klass-<%= klass.period.toLowerCase() %> student-<%= student._id %>">
-                                    <div class="table-col1">
-                                        <p class="table-text fixed">
-                                            <%= student.name %>
-                                        </p>
-                                    </div>
-                                    <div class="table-col2">
-                                        <p class="table-text"></p>
-                                    </div>
-                                    <div class="table-col3">
-                                        <p class="table-text"></p>
-                                    </div>
-                                    <div class="table-col4">
-                                        <p class="table-text"></p>
-                                    </div>
-                                    <div class="table-col5">
-                                        <p class="table-text"></p>
-                                    </div>
-                                    <div class="table-col6">
-                                        <p class="table-text fixed"><i class="fa fa-undo fa-lg"
-                                                onclick="onResetSessionClick('<%= student._id %>', '<%= student.name %>')"></i>
-                                        </p>
-                                    </div>
-                                </div>
-                                <% } %>
-                                    <% } %>
+                        <% for (const student of klass.students) { %>
+                        <div class="table-row klass-all klass-<%= klass.period.toLowerCase() %> student-<%= student._id %>">
+                            <div class="table-col1">
+                                <p class="table-text fixed">
+                                    <%= student.name %>
+                                </p>
+                            </div>
+                            <div class="table-col2">
+                                <p class="table-text"></p>
+                            </div>
+                            <div class="table-col3">
+                                <p class="table-text"></p>
+                            </div>
+                            <div class="table-col4">
+                                <p class="table-text"></p>
+                            </div>
+                            <div class="table-col5">
+                                <p class="table-text"></p>
+                            </div>
+                            <div class="table-col6">
+                                <p class="table-text fixed"><i class="fa fa-undo fa-lg" onclick="onResetSessionClick('<%= student._id %>', '<%= student.name %>')"></i>
+                                </p>
+                            </div>
+                        </div>
+                        <% } %>
+                        <% } %>
                     </div>
                 </div>
                 <div class="table-row" id="table-bottom">
@@ -130,7 +125,9 @@
         const classPeriodSelect = document.getElementById("classperiod-select");
         const topTextElems = document.querySelectorAll("#table-top .fixed-text");
         const bottomTextElems = document.querySelectorAll("#table-bottom p");
-        const confirmModal = new Modal();
+
+        // Modal
+        const modal = new Modal();
 
         // Update the table on select change
         async function updateTable() {
@@ -193,8 +190,7 @@
                 // Show the session rows wrapper only
                 studentRowsWrapper.style.display = "none";
                 sessionRowsWrapper.style.display = "flex";
-            }
-            else if (summaryBySelect.value === "student") {
+            } else if (summaryBySelect.value === "student") {
                 // Update top texts
                 topTextElems[1].innerHTML = "Number of<br>Sessions";
 
@@ -262,8 +258,8 @@
 
         // Delete the session by ID on Clear Session icon click
         async function onClearSessionClick(sessionId, studentName) {
-            confirmModal.confirm("admin-tool", "Admin Tool", `Do you want to clear the ${studentName}'s session?`, async (buttonText) => {
-                if (buttonText === "OK") {
+            modal.confirm("admin-tool", "Admin Tool", `Do you want to clear the ${studentName}'s session?`, ["Cancel", "Clear"], async (buttonText) => {
+                if (buttonText === "Clear") {
                     const data = await FetchWrapper.delete(`/api/session/${sessionId}`);
                     if (data.error) {
                         return await LogHandler.error(data.error.message);
@@ -276,8 +272,8 @@
 
         // Delete sessions by student ID on Reset Session icon click
         async function onResetSessionClick(studentId, studentName) {
-            confirmModal.confirm("admin-tool", "Admin Tool", `Do you want to clear all ${studentName}'s sessions?`, async (buttonText) => {
-                if (buttonText === "OK") {
+            modal.confirm("admin-tool", "Admin Tool", `Do you want to clear all ${studentName}'s sessions?`, ["Cancel", "Clear"], async (buttonText) => {
+                if (buttonText === "Clear") {
                     const data = await FetchWrapper.delete(`/api/sessions/student/${studentId}`);
                     if (data.error) {
                         return await LogHandler.error(data.error.message);

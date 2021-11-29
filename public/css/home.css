@@ -123,15 +123,23 @@
 
 .tour-bar {
     width: 338px;
+    background: #FFFFFF;
+    border-radius: 5px;
+    border-top: solid 1px #B7B9BC;
+}
+
+.tour-wrapper {
+    width: 100%;
     height: 57px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    background: #FFFFFF;
-    border-radius: 5px;
-    border-top: solid 1px #B7B9BC;
     cursor: pointer;
+}
+
+#tours-bar.loading .tour-wrapper, #tours-container.loading .tour-wrapper {
+    cursor: wait;
 }
 
 .tour-text {
@@ -147,9 +155,20 @@
     height: 20px;
 }
 
+.tour-bar.selected .tour-icon {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
 #tours-bar {
-    height: 60px;
     border: none;
+}
+
+#tours-bar .tour-wrapper {
+    height: 60px;
 }
 
 #tours-title {
@@ -169,6 +188,56 @@
 #close-icon {
     width: 25px;
     height: 25px;
+}
+
+.steps-container {
+    display: none;
+    cursor: not-allowed;
+}
+
+.tour-bar.selected .steps-container {
+    display: block;
+}
+
+.step-bar {
+    width: 338px;
+    height: 53px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    color: #444444;
+    border-radius: 5px;
+}
+
+.step-quiz-app.selected {
+    background: #F0FFFA;
+    border: 1px solid#1CC198;
+    color: #1CC198;
+}
+
+.step-admin-tool.selected {
+    background: #FFFAF5;
+    border: 1px solid#FF9129;
+    color: #FF9129;
+}
+
+.step-upgrade.selected {
+    background: #F0F5FF;
+    border: 1px solid#3F68F6;
+    color: #3F68F6;
+}
+
+.step-dev-console.selected {
+    background: #FFF5F0;
+    border: 1px solid#F6683F;
+    color: #F6683F;
+}
+
+.step-text {
+    margin-left: 48px;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 #app {
@@ -202,6 +271,10 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+}
+
+.tab.loading {
+    cursor: wait;
 }
 
 .tab-top {
@@ -266,6 +339,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    cursor: auto;
+}
+
+#iframe-wrapper.loading {
+    cursor: wait;
 }
 
 .app-iframe {
@@ -276,4 +354,29 @@
     outline: none;
     border: none;
     border-radius: 5px;
+}
+
+#iframe-loading-animation {
+    animation: loading 1s linear infinite;
+    border: solid 5px transparent;
+    border-top: solid 5px #1CC198;
+    border-bottom: solid 5px #1CC198;
+    border-radius: 60px;
+    width: 120px;
+    height: 120px;
+    opacity: 0;
+    -webkit-transition: opacity 0.5s;
+    -moz-transition: opacity 0.5s;
+    transition: opacity 0.5s;
+    pointer-events: none;
+}
+
+@keyframes loading {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }

@@ -6,8 +6,7 @@
     <meta charset=utf-8 />
     <meta name="description" content="UpGrade Demo App" />
     <meta name="keywords" content="UpGrade, Demo, App" />
-    <meta name="viewport"
-        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
@@ -31,20 +30,17 @@
                     <select class="login-input" id="username-select" name="username" required>
                         <option value="" disabled selected hidden>Please Choose...</option>
                         <% for (const klass of klasses) { %>
-                            <optgroup label="<%= klass.period %> Period">
-                                <% for (const student of klass.students) { %>
-                                    <option value="<%= student._id %>">
-                                        <%= student.name %>
-                                    </option>
-                                    <% } %>
-                            </optgroup>
+                        <optgroup label="<%= klass.period %> Period">
+                            <% for (const student of klass.students) { %>
+                            <option value="<%= student._id %>"><%= student.name %></option>
                             <% } %>
+                        </optgroup>
+                        <% } %>
                     </select>
                 </div>
                 <div class="login-group">
                     <label class="login-label" for="password-input">Password:</label>
-                    <input type="password" class="login-input" id="password-input" name="password" minlength="8"
-                        required readonly>
+                    <input type="password" class="login-input" id="password-input" name="password" minlength="8" required readonly>
                 </div>
             </div>
             <div id="button-wrapper">

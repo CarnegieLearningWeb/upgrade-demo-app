@@ -6,11 +6,39 @@ class Modal {
         this.stopDrag = this.stopDrag.bind(this);
         this.clickClose = this.clickClose.bind(this);
         this.clickButton = this.clickButton.bind(this);
+        this.clampModalWindow = this.clampModalWindow.bind(this);
         this.onButtonClick = null;
         this.isCreated = false;
     }
 
-    create(appName, hideOverlay, alignRight, title, content, buttonTexts = []) {
+    confirm(context, title, content, buttonTexts = [], onButtonClick) {
+        const createOrUpdate = this.isCreated ? this.update : this.create;
+        createOrUpdate.call(this, context, false, false, title, content, buttonTexts);
+        this.onButtonClick = (buttonText) => {
+            this.destroy();
+            if (typeof onButtonClick === "function") {
+                onButtonClick(buttonText);
+            }
+        }
+        if (buttonTexts.length) {
+            this.modalButtons[buttonTexts.length - 1].focus();
+        }
+    }
+
+    tour(context, title, content, buttonTexts = [], onButtonClick) {
+        const createOrUpdate = this.isCreated ? this.update : this.create;
+        createOrUpdate.call(this, context, true, true, title, content, buttonTexts);
+        this.onButtonClick = (buttonText) => {
+            if (typeof onButtonClick === "function") {
+                onButtonClick(buttonText);
+            }
+        }
+        if (buttonTexts.length) {
+            this.modalButtons[buttonTexts.length - 1].focus();
+        }
+    }
+
+    create(context, hideOverlay, alignRight, title, content, buttonTexts = []) {
         if (this.isCreated) {
             return;
         }
@@ -49,7 +77,7 @@ class Modal {
         this.modalCloseIconWrapper = this.modalWrapper.querySelector(".modal-close-icon-wrapper");
         this.modalButtons = this.modalWrapper.querySelectorAll(".modal-button");
         this.isCreated = true;
-        this.update(appName, hideOverlay, alignRight, title, content, buttonTexts);
+        this.update(context, hideOverlay, alignRight, title, content, buttonTexts);
 
         // Add event listeners
         this.dragObj = null;
@@ -57,21 +85,23 @@ class Modal {
         this.yOffset = 0;
         this.modalTitleBar.addEventListener("mousedown", this.startDrag, true);
         this.modalTitleBar.addEventListener("touchstart", this.startDrag, true);
-        this.wrapper.addEventListener("mouseup", this.stopDrag, true);
-        this.wrapper.addEventListener("touchend", this.stopDrag, true);
+        window.addEventListener("mouseup", this.stopDrag, true);
+        window.addEventListener("touchend", this.stopDrag, true);
         this.modalCloseIconWrapper.addEventListener("click", this.clickClose, true);
         for (const modalButton of this.modalButtons) {
             modalButton.addEventListener("click", this.clickButton, true);
         }
+        window.addEventListener("resize", this.clampModalWindow, true);
+
         // Append modal wrapper
         this.wrapper.appendChild(this.modalWrapper);
     }
 
-    update(appName, hideOverlay, alignRight, title, content, buttonTexts = []) {
+    update(context, hideOverlay, alignRight, title, content, buttonTexts = []) {
         if (!this.isCreated) {
             return;
         }
-        this.modalWindow.className = `modal-window modal-${appName}`;
+        this.modalWindow.className = `modal-window modal-${context}`;
         this.modalOverlay.style.display = hideOverlay ? "none" : "block";
         this.modalWindow.style.right = alignRight ? "6px" : "auto";
         this.modalTitle.innerHTML = title;
@@ -93,41 +123,17 @@ class Modal {
         // Remove event listeners
         this.modalTitleBar.removeEventListener("mousedown", this.startDrag, true);
         this.modalTitleBar.removeEventListener("touchstart", this.startDrag, true);
-        this.wrapper.removeEventListener("mouseup", this.stopDrag, true);
-        this.wrapper.removeEventListener("touchend", this.stopDrag, true);
+        window.removeEventListener("mouseup", this.stopDrag, true);
+        window.removeEventListener("touchend", this.stopDrag, true);
         this.modalCloseIconWrapper.removeEventListener("click", this.clickClose, true);
         for (const modalButton of this.modalButtons) {
             modalButton.removeEventListener("click", this.clickButton, true);
         }
+        window.removeEventListener("resize", this.clampModalWindow, true);
+
         // Remove modal wrapper
         this.wrapper.removeChild(this.modalWrapper);
         this.isCreated = false;
-    }
-
-    alert(appName, title, content, onButtonClick) {
-        const createOrUpdate = this.isCreated ? this.update : this.create;
-        createOrUpdate.call(this, appName, false, false, title, content, ["OK"]);
-        this.onButtonClick = (buttonText) => {
-            this.destroy();
-            onButtonClick(buttonText);
-        };
-    }
-
-    confirm(appName, title, content, onButtonClick) {
-        const createOrUpdate = this.isCreated ? this.update : this.create;
-        createOrUpdate.call(this, appName, false, false, title, content, ["Cancel", "OK"]);
-        this.onButtonClick = (buttonText) => {
-            this.destroy();
-            onButtonClick(buttonText);
-        };
-    }
-
-    tour(appName, title, content, buttonTexts = [], onButtonClick) {
-        const createOrUpdate = this.isCreated ? this.update : this.create;
-        createOrUpdate.call(this, appName, true, true, title, content, buttonTexts);
-        this.onButtonClick = (buttonText) => {
-            onButtonClick(buttonText);
-        };
     }
 
     startDrag(event) {
@@ -135,6 +141,11 @@ class Modal {
         event.stopPropagation();
         if (!this.modalTitleBar.contains(event.target) || this.modalCloseIconWrapper.contains(event.target)) {
             return;
+        }
+        if (this.modalOverlay.style.display === "none") {
+            this.modalOverlay.style.opacity = 0;
+            this.modalOverlay.style.display = "block";
+            this.tempModalOverlay = true;
         }
         this.dragObj = this.modalWindow;
         const rect = this.dragObj.getBoundingClientRect();
@@ -171,6 +182,12 @@ class Modal {
             this.dragObj = null;
             window.removeEventListener("mousemove", this.dragObject, true);
             window.removeEventListener("touchmove", this.dragObject, true);
+            if (this.tempModalOverlay) {
+                this.modalOverlay.style.display = "none";
+                this.modalOverlay.style.opacity = 1;
+                this.tempModalOverlay = false;
+            }
+            this.clampModalWindow();
         }
     }
 
@@ -183,6 +200,29 @@ class Modal {
     clickButton(event) {
         if (typeof this.onButtonClick === "function") {
             this.onButtonClick(event.target.innerText);
+        }
+    }
+
+    clampModalWindow() {
+        const modalWindowLeft = parseInt(this.modalWindow.style.left);
+        const modalWindowTop = parseInt(this.modalWindow.style.top);
+        const modalWindowWidth = this.modalWindow.clientWidth;
+        const modalWindowHeight = this.modalWindow.clientHeight;
+        if (!isNaN(modalWindowLeft)) {
+            if (modalWindowLeft + modalWindowWidth + 6 > window.innerWidth) {
+                this.modalWindow.style.left = `${window.innerWidth - modalWindowWidth - 6}px`;
+            }
+            else if (modalWindowLeft < 6) {
+                this.modalWindow.style.left = "6px";
+            }
+        }
+        if (!isNaN(modalWindowTop)) {
+            if (modalWindowTop + modalWindowHeight + 6 > window.innerHeight) {
+                this.modalWindow.style.top = `${window.innerHeight - modalWindowHeight - 6}px`;
+            }
+            else if (modalWindowTop < 6) {
+                this.modalWindow.style.top = "6px";
+            }
         }
     }
 }

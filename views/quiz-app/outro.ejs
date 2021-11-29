@@ -6,8 +6,7 @@
     <meta charset=utf-8 />
     <meta name="description" content="UpGrade Demo App" />
     <meta name="keywords" content="UpGrade, Demo, App" />
-    <meta name="viewport"
-        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
@@ -23,12 +22,8 @@
     <div id="wrapper">
         <div id="main">
             <div id="text-wrapper">
-                <p class="message">
-                    <%= message.feedback %>
-                </p>
-                <p class="message">
-                    <%= message.result %>
-                </p>
+                <p class="message"><%= message.feedback %></p>
+                <p class="message"><%= message.result %></p>
             </div>
             <div id="image-wrapper">
                 <img id="outro-image" src="/asset/image/outro-image.png" alt="Outro Image">
@@ -48,7 +43,7 @@
                     return;
                 }
                 isLoading = true;
-                
+
                 // UpGrade Metrics Setup (Note: Need a documentation and maybe a better way to add/post metrics)
                 /* 
                 How to add metrics in UpGrade: Profile -> Metrics -> Add Metrics (add each data one by one)
@@ -81,7 +76,7 @@
                     }
                 }];
                 await LogHandler.info("Posting metrics to UpGrade...");
-                await upClient.log(metrics);  // Note: Why does the log() function require an array? Any use cases?
+                await upClient.log(metrics); // Note: Why does the log() function require an array? Any use cases?
 
                 await LogHandler.info("<%= session.student.name %> logged out");
 

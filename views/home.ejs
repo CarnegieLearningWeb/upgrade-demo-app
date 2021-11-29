@@ -6,8 +6,7 @@
     <meta charset=utf-8 />
     <meta name="description" content="UpGrade Demo App" />
     <meta name="keywords" content="UpGrade, Demo, App" />
-    <meta name="viewport"
-        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
     <link rel="stylesheet" href="/css/universal.css" />
@@ -36,142 +35,147 @@
         </div>
         <div id="main">
             <div id="sidebar" class="unselectable">
-                <div class="tour-bar shadowed" id="tours-bar">
-                    <div id="tours-title">
-                        <img id="tours-icon" class="recolor-444444" src="/asset/image/tours-icon.png" alt="Tours Icon">
-                        <p class="tab-text" id="tours-text">Tours</p>
+                <div class="tour-bar shadowed loading" id="tours-bar">
+                    <div class="tour-wrapper">
+                        <div id="tours-title">
+                            <img id="tours-icon" class="recolor-444444" src="/asset/image/tours-icon.png" alt="Tours Icon">
+                            <p class="tab-text" id="tours-text">Tours</p>
+                        </div>
+                        <img class="tour-icon recolor-444444" id="close-icon" src="/asset/image/close-icon.png" alt="Close Icon">
                     </div>
-                    <img class="tour-icon recolor-444444" id="close-icon" src="/asset/image/close-icon.png"
-                        alt="Close Icon">
                 </div>
-                <div id="tours-container">
-                    <div class="tour-bar shadowed">
-                        <p class="tour-text">Welcome Tour</p>
-                        <img class="tour-icon recolor-444444" src="/asset/image/arrow-icon.png" alt="Arrow Icon">
+                <div id="tours-container" class="loading">
+                    <% for (const tour of tours) { %>
+                    <div class="tour-bar shadowed ">
+                        <div class="tour-wrapper">
+                            <p class="tour-text"><%= tour.name %></p>
+                            <img class="tour-icon recolor-444444" src="/asset/image/arrow-icon.png" alt="Arrow Icon">
+                        </div>
+                        <div class="steps-container">
+                            <% const contextToAppName=(context)=> { switch (context) { case "quiz-app": return "QuizApp"; case "admin-tool": return "Admin Tool"; case "upgrade": return "UpGrade"; case "dev-console": return "Dev Console";} } %>
+                            <% for (const step of tour.steps) { %>
+                            <div class="step-bar step-<%= step.context %>">
+                                <p class="step-text"><%= `${contextToAppName(step.context)}: ${step.title}` %></p>
+                            </div>
+                            <% } %>
+                        </div>
                     </div>
+                    <% } %>
                 </div>
             </div>
             <div id="app" class="shadowed">
                 <div id="tabs" class="unselectable">
                     <div class="tab" id="tours-tab">
                         <div class="tab-top" id="tours-tab-top">
-                            <img class="tab-icon recolor-444444" id="tours-icon" src="/asset/image/tours-icon.png"
-                                alt="Tours Icon">
+                            <img class="tab-icon recolor-444444" id="tours-icon" src="/asset/image/tours-icon.png" alt="Tours Icon">
                             <h4 class="tab-text" id="tours-tab-text">Tours</h4>
                         </div>
                         <div class="tab-bottom" id="tours-tab-bottom"></div>
                     </div>
-                    <div class="tab" id="quiz-app-tab">
+                    <div class="tab loading" id="quiz-app-tab">
                         <div class="tab-top" id="quiz-app-tab-top">
-                            <img class="tab-icon recolor-444444" id="quiz-app-icon" src="/asset/image/quiz-app-icon.png"
-                                alt="QuizApp Icon">
+                            <img class="tab-icon recolor-444444" id="quiz-app-icon" src="/asset/image/quiz-app-icon.png" alt="QuizApp Icon">
                             <h4 class="tab-text" id="quiz-app-tab-text">QuizApp</h4>
                         </div>
                         <div class="tab-bottom" id="quiz-app-tab-bottom"></div>
                     </div>
-                    <div class="tab" id="admin-tool-tab">
+                    <div class="tab loading" id="admin-tool-tab">
                         <div class="tab-top" id="admin-tool-tab-top">
-                            <img class="tab-icon recolor-444444" id="admin-tool-icon"
-                                src="/asset/image/admin-tool-icon.png" alt="Admin Tool Icon">
+                            <img class="tab-icon recolor-444444" id="admin-tool-icon" src="/asset/image/admin-tool-icon.png" alt="Admin Tool Icon">
                             <h4 class="tab-text" id="admin-tool-tab-text">Admin Tool</h4>
                         </div>
                         <div class="tab-bottom" id="admin-tool-tab-bottom"></div>
                     </div>
-                    <div class="tab" id="upgrade-tab">
+                    <div class="tab loading" id="upgrade-tab">
                         <div class="tab-top" id="upgrade-tab-top">
-                            <img class="tab-icon recolor-444444" id="upgrade-icon" src="/asset/image/upgrade-icon.png"
-                                alt="UpGrade Icon">
+                            <img class="tab-icon recolor-444444" id="upgrade-icon" src="/asset/image/upgrade-icon.png" alt="UpGrade Icon">
                             <h4 class="tab-text" id="upgrade-tab-text">UpGrade</h4>
                         </div>
                         <div class="tab-bottom" id="upgrade-tab-bottom"></div>
                     </div>
-                    <div class="tab" id="dev-console-tab">
+                    <div class="tab loading" id="dev-console-tab">
                         <div class="tab-top" id="dev-console-tab-top">
-                            <img class="tab-icon recolor-444444" id="dev-console-icon"
-                                src="/asset/image/dev-console-icon.png" alt="Dev Console Icon">
+                            <img class="tab-icon recolor-444444" id="dev-console-icon" src="/asset/image/dev-console-icon.png" alt="Dev Console Icon">
                             <h4 class="tab-text" id="dev-console-tab-text">Dev Console</h4>
                         </div>
                         <div class="tab-bottom" id="dev-console-tab-bottom"></div>
                     </div>
                 </div>
-                <div id="iframe-wrapper">
-                    <iframe class="app-iframe" id="quiz-app-iframe" src="/quiz-app/student/login"
-                        onload="onIframeLoad(this)"></iframe>
-                    <iframe class="app-iframe" id="admin-tool-iframe" src="/admin-tool/summary"
-                        onload="onIframeLoad(this)"></iframe>
-                    <iframe class="app-iframe" id="upgrade-iframe" src="<%= upgradeBaseUrl %>"
-                        onload="onIframeLoad(this)"></iframe>
-                    <iframe class="app-iframe" id="dev-console-iframe" src="/dev-console/console"
-                        onload="onIframeLoad(this)"></iframe>
+                <div id="iframe-wrapper" class="loading">
+                    <iframe class="app-iframe" id="quiz-app-iframe"></iframe>
+                    <iframe class="app-iframe" id="admin-tool-iframe"></iframe>
+                    <iframe class="app-iframe" id="upgrade-iframe"></iframe>
+                    <iframe class="app-iframe" id="dev-console-iframe"></iframe>
+                    <div id="iframe-loading-animation"></div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        const alertModal = new Modal();
-        const confirmModal = new Modal();
-        const tourModal = new Modal();
+        window.addEventListener("load", async () => {
+            // Show iframe loading animation
+            const iframeLoadingAnimation = document.getElementById("iframe-loading-animation");
+            iframeLoadingAnimation.style.opacity = 1;
 
-        function sendDataToIframe(iframe, data) {
-            iframe.contentWindow.postMessage(data, iframe.src.replace(/\/$/, ""));
-        }
+            // Modals
+            const confirmModal = new Modal();
+            const tourModal = new Modal();
 
-        function onIframeLoad(iframe) {
-            // Receive data from the iframe
-            window.addEventListener("message", (event) => {
-                if (event.origin !== iframe.src.replace(/\/$/, "")) {
-                    return;
-                }
-                const data = event.message || event.data;
-                // Used for detecting user events from the iframe during tours
-                switch (data.message) {
-                    case "fromQuizApp":
-                        console.log(data.value);
-                        break;
-                    case "fromAdminTool":
-                        console.log(data.value);
-                        break;
-                    case "fromUpgrade":
-                        console.log(data.value);
-                        break;
-                    case "fromDevConsole":
-                        console.log(data.value);
-                        break;
-                }
-            });
-            // Send initial data to the iframe
-            switch (iframe.id) {
-                case "quiz-app-iframe":
-                    break;
-                case "admin-tool-iframe":
-                    break;
-                case "upgrade-iframe":
-                    sendDataToIframe(iframe, { message: "logout" });
-                    sendDataToIframe(iframe, { message: "setZoomLevel", value: "90%" });
-                    break;
-                case "dev-console-iframe":
-                    break;
+            // Show introduction modal window
+            confirmModal.confirm("upgrade", "UpGrade Demo Introduction", `We have created a simple app called QuizApp to demonstrate how UpGrade works.<br><br>If you are new to UpGrade, we recommend clicking on the "Welcome Tour" on the left sidebar.`, ["OK"]);
+
+            // Load iframes
+            const iframeWrapper = document.getElementById("iframe-wrapper");
+            const quizAppIframe = document.getElementById("quiz-app-iframe");
+            const adminToolIframe = document.getElementById("admin-tool-iframe");
+            const upgradeIframe = document.getElementById("upgrade-iframe");
+            const devConsoleIframe = document.getElementById("dev-console-iframe");
+            const loadIframe = (iframe, src) => {
+                return new Promise((resolve, reject) => {
+                    iframe.onload = () => {
+                        iframe.onload = null;
+                        resolve(iframe);
+                    }
+                    iframe.onerror = reject;
+                    iframe.src = src;
+                })
             }
-        }
+            await Promise.all([
+                loadIframe(quizAppIframe, "/quiz-app/student/login"),
+                loadIframe(adminToolIframe, "/admin-tool/summary"),
+                loadIframe(upgradeIframe, "<%= upgradeBaseUrl %>"),
+                loadIframe(devConsoleIframe, "/dev-console/console")
+            ]);
 
-        window.addEventListener("DOMContentLoaded", async () => {
+            // Remove loading class
+            iframeWrapper.classList.remove("loading");
+
+            // Hide iframe loading animation
+            iframeLoadingAnimation.style.display = "none";
+
+            // Send data to UpGrade
+            const sendDataToUpgrade = (data) => {
+                upgradeIframe.contentWindow.postMessage(data, upgradeIframe.src.replace(/\/$/, ""));
+            }
+
+            // Send initial data to UpGrade
+            sendDataToUpgrade({
+                message: "initCall",
+                type: "function",
+                id: "set-zoom-level",
+                args: ["90%"]
+            });
+
             // Logout Button
             const logoutButton = document.getElementById("logout-button");
-            const upgradeIframe = document.getElementById("upgrade-iframe");
             logoutButton.addEventListener("click", async () => {
                 await LogHandler.info("Logging out the user...");
-
-                // Logout UpGrade
-                sendDataToIframe(upgradeIframe, { message: "logout" });
-
-                // Logout the Demo app
-                const data = await FetchWrapper.get("/api/logout");
-                if (data.error) {
-                    alert(`Error: ${data.error.message}`);
-                    console.error(data.error);
-                    return;
-                }
-                console.log(data.message);
+                sendDataToUpgrade({
+                    message: "initCall",
+                    type: "function",
+                    id: "logout"
+                });
+                await FetchWrapper.get("/api/logout");
                 window.location.href = "/login";
             });
 
@@ -191,56 +195,325 @@
                 app.style.width = "calc(100% - 338px - 6px * 3)";
             });
 
+            // Remove loading class
+            toursBar.classList.remove("loading");
+
             // Tour contents
+            const {
+                tours
+            } = await FetchWrapper.get("/api/tours");
             const toursContainter = document.getElementById("tours-container");
-            const tourBars = toursContainter.children;
-            for (const tourBar of tourBars) {
-                tourBar.addEventListener("click", () => {
-                    alertModal.alert("upgrade", "UpGrade Demo", `Sorry, the ${tourBar.firstElementChild.innerText} will be added soon.`, (buttonText) => { });
+            const tourBars = toursContainter.querySelectorAll(".tour-bar");
+            const stepBars = document.querySelectorAll(".step-bar");
+            let selectedTourBar = null;
+
+            const clearUpgradeData = async () => {
+                const hostUrl = "<%= upgradeHostUrl %>";
+                const experiments = await FetchWrapper.get(`${hostUrl}/api/experiments`);
+                for (const experiment of experiments) {
+                    await FetchWrapper.delete(`${hostUrl}/api/experiments/${experiment.id}`);
+                }
+            }
+
+            const clearDemoAppData = async () => {
+                await FetchWrapper.delete("/api/logs");
+                await FetchWrapper.delete("/api/sessions");
+            }
+
+            const initCallFunction = {
+                "select-nth-student": (args, substep) => {
+                    const [nth, nameToReplace] = args;
+                    const userNameSelect = quizAppIframe.contentDocument.getElementById("username-select");
+                    userNameSelect.selectedIndex = nth;
+                    userNameSelect.dispatchEvent(new Event("change"));
+                    const studentName = userNameSelect.options[userNameSelect.selectedIndex].text;
+                    substep.content = substep.content.replace(nameToReplace, studentName);
+                }
+            }
+
+            const initCall = {
+                "home": (type, id, args, substep) => {
+                    if (type === "function") {
+                        return initCallFunction[id](args, substep);
+                    }
+                    const elem = document.getElementById(id);
+                    if (elem) {
+                        elem[type](...args);
+                    }
+                },
+                "quiz-app": (type, id, args, substep) => {
+                    if (type === "function") {
+                        return initCallFunction[id](args, substep);
+                    }
+                    const elem = quizAppIframe.contentDocument.getElementById(id);
+                    if (elem) {
+                        elem[type](...args);
+                    }
+                },
+                "admin-tool": (type, id, args, substep) => {
+                    if (type === "function") {
+                        return initCallFunction[id](args, substep);
+                    }
+                    const elem = adminToolIframe.contentDocument.getElementById(id);
+                    if (elem) {
+                        elem[type](...args);
+                    }
+                },
+                "upgrade": (type, id, args, substep) => {
+                    sendDataToUpgrade({
+                        message: "initCall",
+                        type,
+                        id,
+                        args
+                    });
+                },
+                "dev-console": (type, id, args, substep) => {
+                    if (type === "function") {
+                        return initCallFunction[id](args, substep);
+                    }
+                    const elem = devConsoleIframe.contentDocument.getElementById(id);
+                    if (elem) {
+                        elem[type](...args);
+                    }
+                },
+            };
+
+            const nextCallback = {
+                "home": (type, id, onNextCall) => {
+                    const onWindowEvent = (event) => {
+                        const elem = document.getElementById(id);
+                        if (elem && elem.contains(event.target)) {
+                            window.removeEventListener(type, onWindowEvent, true);
+                            onNextCall();
+                        }
+                    }
+                    window.addEventListener(type, onWindowEvent, true);
+                },
+                "quiz-app": (type, id, onNextCall) => {
+                    const onWindowEvent = (event) => {
+                        const elem = quizAppIframe.contentDocument.getElementById(id);
+                        if (elem && elem.contains(event.target)) {
+                            quizAppIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            const hrefModIds = ["login-button", "start-button", "submit-button", "logout-button"];
+                            if (hrefModIds.includes(id)) {
+                                quizAppIframe.onload = () => {
+                                    quizAppIframe.onload = null;
+                                    onNextCall();
+                                }
+                                return;
+                            }
+                            onNextCall();
+                        }
+                    }
+                    quizAppIframe.contentWindow.addEventListener(type, onWindowEvent, true);
+                },
+                "admin-tool": (type, id, onNextCall) => {
+                    const onWindowEvent = (event) => {
+                        const elem = adminToolIframe.contentDocument.getElementById(id);
+                        if (elem && elem.contains(event.target)) {
+                            adminToolIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            onNextCall();
+                        }
+                    }
+                    adminToolIframe.contentWindow.addEventListener(type, onWindowEvent, true);
+                },
+                "upgrade": (type, id, onNextCall) => {
+                    const onWindowMessage = (event) => {
+                        if (event.origin !== upgradeIframe.src.replace(/\/$/, "")) {
+                            return;
+                        }
+                        window.removeEventListener("message", onWindowMessage, true);
+                        const data = event.message || event.data;
+                        if (data.message === "onNextCall") {
+                            onNextCall();
+                        }
+                    }
+                    window.addEventListener("message", onWindowMessage, true);
+                    sendDataToUpgrade({
+                        message: "nextCallback",
+                        type,
+                        id
+                    });
+                },
+                "dev-console": (type, id, onNextCall) => {
+                    const onWindowEvent = (event) => {
+                        const elem = devConsoleIframe.contentDocument.getElementById(id);
+                        if (elem && elem.contains(event.target)) {
+                            devConsoleIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            onNextCall();
+                        }
+                    }
+                    devConsoleIframe.contentWindow.addEventListener(type, onWindowEvent, true);
+                }
+            };
+
+            const unselectAllStepBars = () => {
+                for (const stepBar of stepBars) {
+                    if (stepBar.classList.contains("selected")) {
+                        stepBar.classList.remove("selected");
+                    }
+                }
+            }
+
+            const startTour = async (tour) => {
+                // Show iframe loading animation
+                quizAppIframe.style.display = "none";
+                adminToolIframe.style.display = "none";
+                upgradeIframe.style.display = "none";
+                devConsoleIframe.style.display = "none";
+                iframeLoadingAnimation.style.display = "block";
+                iframeWrapper.classList.add("loading");
+
+                // Select the first step bar
+                stepBars[0].classList.add("selected");
+
+                // Clear UpGrade and Demo App data
+                await clearUpgradeData();
+                await clearDemoAppData();
+
+                // Reset iframe pages
+                sendDataToUpgrade({
+                    message: "initCall",
+                    type: "function",
+                    id: "logout"
+                });
+
+                await Promise.all([
+                    loadIframe(quizAppIframe, quizAppIframe.src),
+                    loadIframe(adminToolIframe, adminToolIframe.src),
+                    loadIframe(devConsoleIframe, devConsoleIframe.src)
+                ]);
+
+                // Hide iframe loading animation
+                iframeLoadingAnimation.style.display = "none";
+                iframeWrapper.classList.remove("loading");
+
+                // Click the first step tab
+                const firstStepTab = document.getElementById(`${tour.steps[0].context}-tab`);
+                firstStepTab.click();
+
+                // Show tour modal
+                const showTourModal = (stepIndex, substepIndex) => {
+                    const step = tour.steps[stepIndex];
+                    const substep = step.substeps[substepIndex];
+                    const onNextCall = () => {
+                        if (substepIndex + 1 < step.substeps.length) {
+                            showTourModal(stepIndex, substepIndex + 1);
+                            return;
+                        }
+                        if (stepIndex + 1 < tour.steps.length) {
+                            stepBars[stepIndex].classList.remove("selected");
+                            stepBars[stepIndex + 1].classList.add("selected");
+                            showTourModal(stepIndex + 1, 0);
+                            return;
+                        }
+                        unselectAllStepBars();
+                        selectedTourBar.classList.remove("selected");
+                        selectedTourBar = null;
+                        tourModal.destroy();
+                    }
+                    if (substep.initCall) {
+                        initCall[substep.initCall.context](substep.initCall.type, substep.initCall.id, substep.initCall.args || [], substep);
+                    }
+                    if (substep.nextCallback) {
+                        nextCallback[substep.nextCallback.context](substep.nextCallback.type, substep.nextCallback.id, onNextCall);
+                    }
+                    tourModal.tour(step.context, `${step.title} (${substepIndex + 1}/${step.substeps.length})`, substep.content, substep.buttonTexts || [], (buttonText) => {
+                        if (buttonText === "Close") {
+                            confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to quit the ${tour.name}?`, ["Cancel", "Quit"], (buttonText) => {
+                                if (buttonText === "Quit") {
+                                    unselectAllStepBars();
+                                    selectedTourBar.classList.remove("selected");
+                                    selectedTourBar = null;
+                                    tourModal.destroy();
+                                }
+                            });
+                        } else {
+                            onNextCall();
+                        }
+                    });
+                }
+                showTourModal(0, 0);
+            }
+
+            // Handle tour bar clicking (start/quit the tour)
+            for (let i = 0; i < tourBars.length; i++) {
+                const tourBar = tourBars[i];
+                const tourWrapper = tourBar.querySelector(".tour-wrapper");
+                const tour = tours[i];
+                tourWrapper.addEventListener("click", () => {
+                    if (tourBar.classList.contains("selected")) {
+                        confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to quit the ${tour.name}?`, ["Cancel", "Quit"], (buttonText) => {
+                            if (buttonText === "Quit") {
+                                unselectAllStepBars();
+                                tourBar.classList.remove("selected");
+                                selectedTourBar = null;
+                                tourModal.destroy();
+                            }
+                        });
+                    } else {
+                        if (selectedTourBar) {
+                            const selectedTourText = selectedTourBar.querySelector(".tour-text");
+                            confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to quit the ${selectedTourText.innerText} and start the ${tour.name}? Please note this will reset the application data.`, ["Cancel", "Yes"], async (buttonText) => {
+                                if (buttonText === "Yes") {
+                                    unselectAllStepBars();
+                                    selectedTourBar.classList.remove("selected");
+                                    tourBar.classList.add("selected");
+                                    selectedTourBar = tourBar;
+                                    tourModal.destroy();
+                                    await startTour(tour);
+                                }
+                            });
+                        } else {
+                            confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to start the ${tour.name}? Please note this will reset the application data.`, ["Cancel", "Start"], async (buttonText) => {
+                                if (buttonText === "Start") {
+                                    unselectAllStepBars();
+                                    tourBar.classList.add("selected");
+                                    selectedTourBar = tourBar;
+                                    await startTour(tour);
+                                }
+                            });
+                        }
+                    }
                 });
             }
+            // Remove loading class
+            toursContainter.classList.remove("loading");
 
             // QuizApp / Admin Tool / UpGrade / Dev Console Tabs
             const tabs = Array.from(document.getElementsByClassName("tab")).slice(1); // Exclude the Tours tab
-            for (const tab of tabs) {
-                tab.addEventListener("click", onTabClick);
-            }
             const tabColorMap = {
                 "quiz-app": "1CC198",
                 "admin-tool": "FF9129",
                 "upgrade": "3F68F6",
                 "dev-console": "F6683F"
             };
-            let clickedTab = {};
+
             function onTabClick() {
-                if (this === clickedTab) {
-                    return;
-                }
-                clickedTab = this;
                 for (const tab of tabs) {
-                    const appName = tab.id.slice(0, -4); // Remove the last "-tab" from the tab ID
-                    const tabColor = tabColorMap[appName];
+                    const context = tab.id.slice(0, -4); // Remove the last "-tab" from the tab ID
+                    const tabColor = tabColorMap[context];
                     const tabIcon = tab.querySelector(".tab-top .tab-icon");
                     const tabText = tab.querySelector(".tab-top .tab-text");
                     const tabBottom = tab.querySelector(".tab-bottom");
-                    const iframe = document.getElementById(`${appName}-iframe`);
+                    const iframe = document.getElementById(`${context}-iframe`);
                     if (tab === this) { // If the tab is clicked
-                        switch (appName) {
+                        switch (context) {
                             case "quiz-app":
-                                // Do nothing
                                 break;
                             case "admin-tool":
-                                // Update the table
                                 if (iframe.contentWindow.updateTable) {
                                     iframe.contentWindow.updateTable();
                                 }
                                 break;
                             case "upgrade":
-                                // Click the experiments tab
-                                sendDataToIframe(iframe, { message: "clickExperimentsTab" });
+                                sendDataToUpgrade({
+                                    message: "initCall",
+                                    type: "click",
+                                    id: "experiments-tab"
+                                });
                                 break;
                             case "dev-console":
-                                // Update the table
                                 if (iframe.contentWindow.updateTable) {
                                     iframe.contentWindow.updateTable();
                                 }
@@ -259,11 +532,15 @@
                     iframe.style.display = "none";
                 }
             }
-            tabs[0].click();
+            for (const tab of tabs) {
+                // Add listeners
+                tab.addEventListener("click", onTabClick);
 
-            window.setTimeout(() => {
-                alertModal.alert("upgrade", "UpGrade Demo Introduction", `We have created a simple app called QuizApp to demonstrate how UpGrade works.<br><br>If you are new to UpGrade, we recommend clicking on the "Welcome Tour" on the left sidebar.`, (buttonText) => { });
-            }, 500);
+                // Remove loading class
+                tab.classList.remove("loading");
+            }
+            // Select the QuizApp tab
+            tabs[0].click();
         });
     </script>
 </body>

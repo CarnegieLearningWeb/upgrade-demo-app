@@ -6,8 +6,7 @@
     <meta charset=utf-8 />
     <meta name="description" content="UpGrade Demo App" />
     <meta name="keywords" content="UpGrade, Demo, App" />
-    <meta name="viewport"
-        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
     <link rel="stylesheet" href="/css/universal.css" />
@@ -35,25 +34,18 @@
                             <h1 class="headline-large">WORKS.</h1>
                         </div>
                         <div id="headline-left-middle">
-                            <h3 class="headline-medium">
-                                <strong>UpGrade</strong> is the only open-source evidence-based testing platform that
-                                uncovers the most effective learning experiences.
-                            </h3>
+                            <h3 class="headline-medium"><strong>UpGrade</strong> is the only open-source evidence-based testing platform that uncovers the most effective learning experiences.</h3>
                         </div>
                         <div id="headline-left-bottom">
-                            <h3 class="headline-medium">
-                                This demo app is to help you learn what UpGrade can do for you.
-                            </h3>
+                            <h3 class="headline-medium">This demo app is to help you learn what UpGrade can do for you.</h3>
                         </div>
                     </div>
                     <div id="headline-right">
                         <div id="headline-right-top">
-                            <h4 class="headline-medium">Watch this video to learn more about <strong>UpGrade</strong> in
-                                10 minutes!</h4>
+                            <h4 class="headline-medium">Watch this video to learn more about <strong>UpGrade</strong> in 10 minutes!</h4>
                         </div>
                         <div id="headline-right-bottom">
-                            <img id="upgrade-screenshot" class="shadowed" src="/asset/image/upgrade-screenshot.png"
-                                alt="UpGrade Screenshot">
+                            <img id="upgrade-screenshot" class="shadowed" src="/asset/image/upgrade-screenshot.png" alt="UpGrade Screenshot">
                         </div>
                     </div>
                 </div>
@@ -70,9 +62,7 @@
             </div>
         </div>
         <div id="demo-video-overlay" style="pointer-events: none; opacity: 0;">
-            <iframe id="demo-video" src="" title="YouTube video player" frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen></iframe>
+            <iframe id="demo-video" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
     </div>
     <script>
@@ -104,7 +94,7 @@
                 const experiments = await FetchWrapper.get(`${hostUrl}/api/experiments`);
                 for (const experiment of experiments) {
                     await FetchWrapper.delete(`${hostUrl}/api/experiments/${experiment.id}`);
-                }                
+                }
             }
 
             const clearDemoAppData = async () => {

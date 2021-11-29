@@ -9,6 +9,7 @@ const klasses = require("./data/klasses");
 const problems = require("./data/problems");
 const introMessage = require("./data/intro-message");
 const outroMessage = require("./data/outro-message");
+const tours = require("./data/tours");
 const User = require("./models/user");
 const Klass = require("./models/klass");
 const Student = require("./models/student");
@@ -33,7 +34,7 @@ const connectDatabase = async () => {
     mongoose.Promise = global.Promise;
     await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
     console.log("Database is connected");
-};
+}
 
 // Connect database
 (async () => {
@@ -74,7 +75,12 @@ app.get("/login", asyncHandler(async (req, res) => {
 
 // Home Page
 app.get("/home", googleAuth, asyncHandler(async (req, res) => {
-    res.render("home", { upgradeBaseUrl: UPGRADE_BASE_URL });
+    res.render("home", { upgradeHostUrl: UPGRADE_HOST_URL, upgradeBaseUrl: UPGRADE_BASE_URL, tours });
+}));
+
+// Download experiment file
+app.get("/file/experiment/:filename", googleAuth, asyncHandler(async (req, res) => {
+    res.download(path.join(__dirname, `public/asset/experiment/${req.params.filename}`)); 
 }));
 
 /* ==================== QuizApp ==================== */
@@ -292,6 +298,14 @@ app.get("/api/reset", googleAuth, asyncHandler(async (req, res, next) => {
     await Log.deleteMany({});
     res.status(200).json({
         message: "Successfully reset the database"
+    });
+}));
+
+// Get tours
+app.get("/api/tours", googleAuth, asyncHandler(async (req, res) => {
+    res.status(200).json({
+        message: "Successfully got tours",
+        tours
     });
 }));
 

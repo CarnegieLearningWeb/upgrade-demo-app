@@ -6,8 +6,7 @@
     <meta charset=utf-8 />
     <meta name="description" content="UpGrade Demo App" />
     <meta name="keywords" content="UpGrade, Demo, App" />
-    <meta name="viewport"
-        content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
@@ -39,15 +38,15 @@
                 <label class="answer-label" for="answer-input">in<sup>2</sup></label>
             </form>
             <div id="button-wrapper">
-                <button id="submit-button" type="submit" form="answer-form"><i
-                        class="fa fa-check-circle fa-lg"></i>Submit</button>
+                <button id="submit-button" type="submit" form="answer-form"><i class="fa fa-check-circle fa-lg"></i>Submit</button>
             </div>
         </div>
     </div>
     <script>
-        const alertModal = new Modal();
-
         window.addEventListener("load", async () => {
+            // Modal
+            const modal = new Modal();
+
             // Create UpgradeClient
             const studentId = "<%= session.student %>";
             const hostUrl = "<%= upgradeHostUrl %>";
@@ -105,10 +104,10 @@
                 case "No Support":
                     break;
                 case "Mindset":
-                    window.setTimeout(() => alertModal.alert("quiz-app", "QuizApp", "Did you know your brain grows as you learn?", (buttonText) => { }), 500);
+                    window.setTimeout(() => modal.confirm("quiz-app", "QuizApp", "Did you know your brain grows as you learn?", ["Close"], () => answerInput.focus()), 500);
                     break;
                 case "Utility Value":
-                    window.setTimeout(() => alertModal.alert("quiz-app", "QuizApp", "Did you know that 86% of jobs require math?", (buttonText) => { }), 500);
+                    window.setTimeout(() => modal.confirm("quiz-app", "QuizApp", "Did you know that 86% of jobs require math?", ["Close"], () => answerInput.focus()), 500);
                     break;
             }
 
