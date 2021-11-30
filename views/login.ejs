@@ -91,11 +91,11 @@
 
             const clearUpgradeData = async () => {
                 const hostUrl = "<%= upgradeHostUrl %>";
-                const experiments = await FetchWrapper.get(`${hostUrl}/api/v1/experiments`);
+                const experiments = await FetchWrapper.get(`${hostUrl}/api/experiments`);
                 for (const experiment of experiments) {
-                    await FetchWrapper.delete(`${hostUrl}/api/v1/experiments/${experiment.id}`);
+                    await FetchWrapper.delete(`${hostUrl}/api/experiments/${experiment.id}`);
                 }
-                await FetchWrapper.delete(`${hostUrl}/api/v1/clearDB`);
+                await FetchWrapper.delete(`${hostUrl}/api/clearDB`);
             }
 
             const clearDemoAppData = async () => {
