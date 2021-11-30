@@ -77,7 +77,7 @@
         // Update the table on select change
         async function updateTable() {
             // Get logs
-            const data = await FetchWrapper.get("/api/logs");
+            const data = await FetchWrapper.get("/api/v1/logs");
             if (data.error) {
                 return await LogHandler.error(data.error.message);
             }
@@ -107,7 +107,7 @@
         topTextElems[2].addEventListener("click", async () => {
             modal.confirm("dev-console", "Dev Console", "Do you want to clear the logs?", ["Cancel", "Clear"], async (buttonText) => {
                 if (buttonText === "Clear") {
-                    const data = await FetchWrapper.delete("/api/logs");
+                    const data = await FetchWrapper.delete("/api/v1/logs");
                     if (data.error) {
                         return await LogHandler.error(data.error.message);
                     }

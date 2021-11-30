@@ -132,7 +132,7 @@
         // Update the table on select change
         async function updateTable() {
             // Get sessions
-            const data = await FetchWrapper.get("/api/sessions");
+            const data = await FetchWrapper.get("/api/v1/sessions");
             if (data.error) {
                 return await LogHandler.error(data.error.message);
             }
@@ -260,7 +260,7 @@
         async function onClearSessionClick(sessionId, studentName) {
             modal.confirm("admin-tool", "Admin Tool", `Do you want to clear the ${studentName}'s session?`, ["Cancel", "Clear"], async (buttonText) => {
                 if (buttonText === "Clear") {
-                    const data = await FetchWrapper.delete(`/api/session/${sessionId}`);
+                    const data = await FetchWrapper.delete(`/api/v1/session/${sessionId}`);
                     if (data.error) {
                         return await LogHandler.error(data.error.message);
                     }
@@ -274,7 +274,7 @@
         async function onResetSessionClick(studentId, studentName) {
             modal.confirm("admin-tool", "Admin Tool", `Do you want to clear all ${studentName}'s sessions?`, ["Cancel", "Clear"], async (buttonText) => {
                 if (buttonText === "Clear") {
-                    const data = await FetchWrapper.delete(`/api/sessions/student/${studentId}`);
+                    const data = await FetchWrapper.delete(`/api/v1/sessions/student/${studentId}`);
                     if (data.error) {
                         return await LogHandler.error(data.error.message);
                     }

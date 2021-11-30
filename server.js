@@ -134,7 +134,7 @@ app.get("/dev-console/console", googleAuth, asyncHandler(async (req, res) => {
 /* ==================== API ==================== */
 
 // Login the user
-app.post("/api/login", asyncHandler(async (req, res) => {
+app.post("/api/v1/login", asyncHandler(async (req, res) => {
     const { token } = req.body;
     const ticket = await client.verifyIdToken({
         idToken: token,
@@ -174,7 +174,7 @@ app.post("/api/login", asyncHandler(async (req, res) => {
 }));
 
 // Logout the user
-app.get("/api/logout", googleAuth, asyncHandler(async (req, res) => {
+app.get("/api/v1/logout", googleAuth, asyncHandler(async (req, res) => {
     res.clearCookie("session-token");
     res.status(200).json({
         message: "Successfully logged out the user"
@@ -182,7 +182,7 @@ app.get("/api/logout", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Get sessions
-app.get("/api/sessions", googleAuth, asyncHandler(async (req, res) => {
+app.get("/api/v1/sessions", googleAuth, asyncHandler(async (req, res) => {
     const populatedSessions = await Session.find({ user: req.user._id }).populate({ path: "klass" }).populate({ path: "student" });
     res.status(200).json({
         message: "Successfully got sessions",
@@ -191,7 +191,7 @@ app.get("/api/sessions", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Create a new session
-app.post("/api/session", googleAuth, asyncHandler(async (req, res) => {
+app.post("/api/v1/session", googleAuth, asyncHandler(async (req, res) => {
     const { studentId, startDate } = req.body;
     const foundStudent = await Student.findById(studentId);
     const newSession = new Session({ user: req.user._id, klass: foundStudent.parentKlass, student: foundStudent._id, startDate, durationSeconds: 0, numAnswered: 0, numCorrect: 0 });
@@ -203,7 +203,7 @@ app.post("/api/session", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Update a session by ID
-app.put("/api/session/:id", googleAuth, asyncHandler(async (req, res) => {
+app.put("/api/v1/session/:id", googleAuth, asyncHandler(async (req, res) => {
     const { currentDate, answer } = req.body;
     const foundSession = await Session.findById(req.params.id);
     foundSession.durationSeconds = Math.round((new Date(currentDate) - new Date(foundSession.startDate)) / 1000);
@@ -219,7 +219,7 @@ app.put("/api/session/:id", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Delete a session by ID
-app.delete("/api/session/:id", googleAuth, asyncHandler(async (req, res) => {
+app.delete("/api/v1/session/:id", googleAuth, asyncHandler(async (req, res) => {
     const deletedSession = await Session.findByIdAndDelete(req.params.id);
     res.status(200).json({
         message: "Successfully deleted the session",
@@ -228,7 +228,7 @@ app.delete("/api/session/:id", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Clear sessions
-app.delete("/api/sessions", googleAuth, asyncHandler(async (req, res) => {
+app.delete("/api/v1/sessions", googleAuth, asyncHandler(async (req, res) => {
     const result = await Session.deleteMany({ user: req.user._id });
     res.status(200).json({
         message: "Successfully cleared sessions",
@@ -237,7 +237,7 @@ app.delete("/api/sessions", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Delete sessions by class
-app.delete("/api/sessions/class/:id", googleAuth, asyncHandler(async (req, res) => {
+app.delete("/api/v1/sessions/class/:id", googleAuth, asyncHandler(async (req, res) => {
     const foundKlass = await Klass.findById(req.params.id);
     const result = await Session.deleteMany({ klass: foundKlass._id });
     res.status(200).json({
@@ -247,7 +247,7 @@ app.delete("/api/sessions/class/:id", googleAuth, asyncHandler(async (req, res) 
 }));
 
 // Delete sessions by student
-app.delete("/api/sessions/student/:id", googleAuth, asyncHandler(async (req, res) => {
+app.delete("/api/v1/sessions/student/:id", googleAuth, asyncHandler(async (req, res) => {
     const foundStudent = await Student.findById(req.params.id);
     const result = await Session.deleteMany({ student: foundStudent._id });
     res.status(200).json({
@@ -257,7 +257,7 @@ app.delete("/api/sessions/student/:id", googleAuth, asyncHandler(async (req, res
 }));
 
 // Get logs
-app.get("/api/logs", googleAuth, asyncHandler(async (req, res) => {
+app.get("/api/v1/logs", googleAuth, asyncHandler(async (req, res) => {
     const foundLogs = await Log.find({ user: req.user._id });
     res.status(200).json({
         message: "Successfully got logs",
@@ -266,7 +266,7 @@ app.get("/api/logs", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Create a new log
-app.post("/api/log", googleAuth, asyncHandler(async (req, res) => {
+app.post("/api/v1/log", googleAuth, asyncHandler(async (req, res) => {
     const { level, date, message } = req.body;
     const newLog = new Log({ user: req.user._id, level, date, message });
     await newLog.save();
@@ -277,7 +277,7 @@ app.post("/api/log", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Clear logs
-app.delete("/api/logs", googleAuth, asyncHandler(async (req, res) => {
+app.delete("/api/v1/logs", googleAuth, asyncHandler(async (req, res) => {
     const result = await Log.deleteMany({ user: req.user._id });
     res.status(200).json({
         message: "Successfully cleared logs",
@@ -286,7 +286,7 @@ app.delete("/api/logs", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Reset the database (only for non-production)
-app.get("/api/reset", googleAuth, asyncHandler(async (req, res, next) => {
+app.get("/api/v1/reset", googleAuth, asyncHandler(async (req, res, next) => {
     if (IS_PRODUCTION !== "NO") {
         return next();
     }
@@ -302,7 +302,7 @@ app.get("/api/reset", googleAuth, asyncHandler(async (req, res, next) => {
 }));
 
 // Get tours
-app.get("/api/tours", googleAuth, asyncHandler(async (req, res) => {
+app.get("/api/v1/tours", googleAuth, asyncHandler(async (req, res) => {
     res.status(200).json({
         message: "Successfully got tours",
         tours
@@ -312,7 +312,7 @@ app.get("/api/tours", googleAuth, asyncHandler(async (req, res) => {
 /* ==================== Errors ==================== */
 
 // API not found
-app.get("/api/*", (req, res) => {
+app.get("/api/v1/*", (req, res) => {
     throw { status: 404, message: "API not found" };
 });
 

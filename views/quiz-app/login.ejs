@@ -74,7 +74,7 @@
                 isLoading = true;
 
                 // Create a new session
-                const data = await FetchWrapper.post("/api/session", {
+                const data = await FetchWrapper.post("/api/v1/session", {
                     studentId: userNameSelect.value,
                     startDate: new Date().toISOString()
                 });

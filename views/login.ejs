@@ -91,16 +91,16 @@
 
             const clearUpgradeData = async () => {
                 const hostUrl = "<%= upgradeHostUrl %>";
-                const experiments = await FetchWrapper.get(`${hostUrl}/api/experiments`);
+                const experiments = await FetchWrapper.get(`${hostUrl}/api/v1/experiments`);
                 for (const experiment of experiments) {
-                    await FetchWrapper.delete(`${hostUrl}/api/experiments/${experiment.id}`);
+                    await FetchWrapper.delete(`${hostUrl}/api/v1/experiments/${experiment.id}`);
                 }
-                await FetchWrapper.delete(`${hostUrl}/api/clearDB`);
+                await FetchWrapper.delete(`${hostUrl}/api/v1/clearDB`);
             }
 
             const clearDemoAppData = async () => {
-                await FetchWrapper.delete("/api/logs");
-                await FetchWrapper.delete("/api/sessions");
+                await FetchWrapper.delete("/api/v1/logs");
+                await FetchWrapper.delete("/api/v1/sessions");
             }
 
             gapi.load("auth2", () => {
@@ -112,7 +112,7 @@
                 const loginButton = document.getElementById("login-button");
                 auth2.attachClickHandler(loginButton, {}, async (googleUser) => {
                     const token = googleUser.getAuthResponse().id_token;
-                    const data = await FetchWrapper.post("/api/login", {
+                    const data = await FetchWrapper.post("/api/v1/login", {
                         token: googleUser.getAuthResponse().id_token
                     });
                     if (data.error) {

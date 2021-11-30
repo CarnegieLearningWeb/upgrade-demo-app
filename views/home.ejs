@@ -175,7 +175,7 @@
                     type: "function",
                     id: "logout"
                 });
-                await FetchWrapper.get("/api/logout");
+                await FetchWrapper.get("/api/v1/logout");
                 window.location.href = "/login";
             });
 
@@ -201,7 +201,7 @@
             // Tour contents
             const {
                 tours
-            } = await FetchWrapper.get("/api/tours");
+            } = await FetchWrapper.get("/api/v1/tours");
             const toursContainter = document.getElementById("tours-container");
             const tourBars = toursContainter.querySelectorAll(".tour-bar");
             const stepBars = document.querySelectorAll(".step-bar");
@@ -209,16 +209,16 @@
 
             const clearUpgradeData = async () => {
                 const hostUrl = "<%= upgradeHostUrl %>";
-                const experiments = await FetchWrapper.get(`${hostUrl}/api/experiments`);
+                const experiments = await FetchWrapper.get(`${hostUrl}/api/v1/experiments`);
                 for (const experiment of experiments) {
-                    await FetchWrapper.delete(`${hostUrl}/api/experiments/${experiment.id}`);
+                    await FetchWrapper.delete(`${hostUrl}/api/v1/experiments/${experiment.id}`);
                 }
-                await FetchWrapper.delete(`${hostUrl}/api/clearDB`);
+                await FetchWrapper.delete(`${hostUrl}/api/v1/clearDB`);
             }
 
             const clearDemoAppData = async () => {
-                await FetchWrapper.delete("/api/logs");
-                await FetchWrapper.delete("/api/sessions");
+                await FetchWrapper.delete("/api/v1/logs");
+                await FetchWrapper.delete("/api/v1/sessions");
             }
 
             const initCallFunction = {
