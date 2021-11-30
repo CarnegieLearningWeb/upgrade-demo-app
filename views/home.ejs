@@ -213,6 +213,7 @@
                 for (const experiment of experiments) {
                     await FetchWrapper.delete(`${hostUrl}/api/experiments/${experiment.id}`);
                 }
+                await FetchWrapper.delete(`${hostUrl}/api/clearDB`);
             }
 
             const clearDemoAppData = async () => {
