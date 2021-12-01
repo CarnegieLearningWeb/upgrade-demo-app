@@ -4,10 +4,10 @@ module.exports = [
         steps: [
             {
                 context: "quiz-app",
-                title: "Use without UpGrade",
+                title: "Student Experience before UpGrade",
                 substeps: [
                     {
-                        content: `QuizApp is a simple educational app that illustrates how such apps work with UpGrade.<br><br>Login to QuizApp by clicking "Login".<br><br>You will be using QuizApp as a student named {studentName}.`,
+                        content: `Let's start by illustrating the student's experience with QuizApp, an educational app that allows us to illustrate how UpGrade works. This is before an UpGrade experiment is put in place and you'll notice that all students have the same set of problems in their learning experience.<br><br>You'll log into QuizApp as a student named {studentName}. Simply click the "Login” button to get started.`,
                         initCall: {
                             context: "quiz-app",
                             type: "function",
@@ -61,7 +61,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Now that you understand how QuizApp works, let's set up an experiment in UpGrade.<br><br>Click the "UpGrade" tab at the top of the page.`,
+                        content: `To set up an experiment with UpGrade, click the "UpGrade” tab at the top of the page.`,
                         nextCallback: {
                             context: "home",
                             type: "click",
@@ -72,10 +72,10 @@ module.exports = [
             },
             {
                 context: "upgrade",
-                title: "Set up an experiment",
+                title: "Create UpGrade Experiment",
                 substeps: [
                     {
-                        content: `UpGrade allows you to run an experiment within QuizApp.<br><br>Login to UpGrade by clicking the "Login with Google" button.`,
+                        content: `Upgrade allows you to run an experiment within QuizApp.<br><br>Log into UpGrade using a Google account by clicking the "Login with Google” button.`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -83,7 +83,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `UpGrade will randomly assign different students to experience different features within QuizApp.<br><br>To illustrate this, <a id="experiment-file-download-link" href="/file/experiment/area-concrete-or-abstract.json">download the experiment file</a>`,
+                        content: `In this experiment we randomly assign users of QuizApp two different experiences. Users in the Concrete condition will see real-world, concrete items mapped onto the shapes in their QuizApp problems. Users in the Abstract condition will see only the abstract shapes in their QuizApp problems (Abstract problems are the same as those you saw when using QuizApp without UpGrade).<br><br>To illustrate this, <a id="experiment-file-download-link" href="/file/experiment/area-concrete-or-abstract.json">download this experiment file</a> to your computer for import into UpGrade.`,
                         nextCallback: {
                             context: "home",
                             type: "click",
@@ -91,7 +91,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file called "area-concrete-or-abstract.json", then click "IMPORT".`,
+                        content: `Click the "IMPORT EXPERIMENT” button and select the experiment file you just downloaded called "area-concrete-or-abstract.json.”<br><br>Once the JSON file is selected, click "IMPORT.”`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -99,7 +99,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file called "area-concrete-or-abstract.json", then click "IMPORT".`,
+                        content: `Click the "IMPORT EXPERIMENT” button and select the experiment file you just downloaded called "area-concrete-or-abstract.json.”<br><br>Once the JSON file is selected, click "IMPORT.”`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -107,7 +107,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file called "area-concrete-or-abstract.json", then click "IMPORT".`,
+                        content: `Click the "IMPORT EXPERIMENT” button and select the experiment file you just downloaded called "area-concrete-or-abstract.json.”<br><br>Once the JSON file is selected, click "IMPORT.”`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -123,7 +123,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `The experiment is defined but it is not running.<br><br>Click on the word "Inactive" under "STATUS".`,
+                        content: `The experiment is defined but it is not running.<br><br>To activate it, click on the word "Inactive" under "STATUS".`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -131,7 +131,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `To start the experiment running, set the New Status to "Enrolling", then click "SAVE".`,
+                        content: `To start running the experiment, set the New Status "Enrolling” and then click "SAVE.”`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -139,7 +139,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `To start the experiment running, set the New Status to "Enrolling", then click "SAVE".`,
+                        content: `To start running the experiment, set the New Status "Enrolling” and then click "SAVE.”`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -147,7 +147,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `To start the experiment running, set the New Status to "Enrolling", then click "SAVE".`,
+                        content: `To start running the experiment, set the New Status "Enrolling” and then click "SAVE.”`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -166,10 +166,10 @@ module.exports = [
             },
             {
                 context: "quiz-app",
-                title: "Use 3 times with UpGrade",
+                title: "Student Experience with UpGrade",
                 substeps: [
                     {
-                        content: `Click "Login" to log in as {studentName}.`,
+                        content: `Now let's show you what 3 different students see with the UpGrade experiment in place. Some students will be randomly assigned the Concrete condition, and others will be assigned the Abstract condition.<br><br>Let's start by clicking the "Login" button to log in as {studentName}, our first student.`,
                         initCall: {
                             context: "quiz-app",
                             type: "function",
@@ -223,7 +223,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Now log in as a second student. Click "Login" to log in as {studentName}.`,
+                        content: `Now click the "Login” button to log in as {studentName}, our second student.`,
                         initCall: {
                             context: "quiz-app",
                             type: "function",
@@ -277,7 +277,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Now log in as a third student. Click "Login" to log in as {studentName}.`,
+                        content: `Now click the "Login” button to log in as {studentName}, our third student.`,
                         initCall: {
                             context: "quiz-app",
                             type: "function",
@@ -345,7 +345,7 @@ module.exports = [
                 title: "View the data",
                 substeps: [
                     {
-                        content: `Click on the experiment "Area - Concrete or Abstract".`,
+                        content: `Now let's show you the results of the UpGrade experiment.<br><br>Click on the experiment "Area - Concrete or Abstract".`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",

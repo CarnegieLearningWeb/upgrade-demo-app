@@ -52,10 +52,9 @@
                             <img class="tour-icon recolor-444444" src="/asset/image/arrow-icon.png" alt="Arrow Icon">
                         </div>
                         <div class="steps-container">
-                            <% const contextToAppName=(context)=> { switch (context) { case "quiz-app": return "QuizApp"; case "admin-tool": return "Admin Tool"; case "upgrade": return "UpGrade"; case "dev-console": return "Dev Console";} } %>
                             <% for (const step of tour.steps) { %>
                             <div class="step-bar step-<%= step.context %>">
-                                <p class="step-text"><%= `${contextToAppName(step.context)}: ${step.title}` %></p>
+                                <p class="step-text"><%= step.title %></p>
                             </div>
                             <% } %>
                         </div>
@@ -122,7 +121,7 @@
             const tourModal = new Modal();
 
             // Show introduction modal window
-            confirmModal.confirm("upgrade", "UpGrade Demo Introduction", `We have created a simple app called QuizApp to demonstrate how UpGrade works.<br><br>If you are new to UpGrade, we recommend clicking on the "Welcome Tour" on the left sidebar.`, ["OK"]);
+            confirmModal.confirm("upgrade", "Welcome to the UpGrade Demo", `UpGrade empowers you to optimize learning experiences by deploying fair comparisons of different tools, models, or resources, helping you understand what changes work best for effective learning.<br><br>If you are new to UpGrade, let us show you around. Click on "Welcome Tour" in the left hand menu to see it in action.`, ["OK"]);
 
             // Load iframes
             const iframeWrapper = document.getElementById("iframe-wrapper");
