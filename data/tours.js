@@ -61,7 +61,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Now that you understand how QuizApp works, let's set up an experiment in UpGrade. Click the "UpGrade" tab.`,
+                        content: `Now that you understand how QuizApp works, let's set up an experiment in UpGrade.<br><br>Click the "UpGrade" tab at the top of the page.`,
                         nextCallback: {
                             context: "home",
                             type: "click",
@@ -83,7 +83,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Using UpGrade, you can randomly assign different students to experience different features within QuizApp.<br><br>To illustrate this, <a id="experiment-file-download-link" href="/file/experiment/area-concrete-or-abstract.json">download the experiment file</a>`,
+                        content: `UpGrade will randomly assign different students to experience different features within QuizApp.<br><br>To illustrate this, <a id="experiment-file-download-link" href="/file/experiment/area-concrete-or-abstract.json">download the experiment file</a>`,
                         nextCallback: {
                             context: "home",
                             type: "click",
@@ -91,7 +91,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file you just downloaded, then click "IMPORT".`,
+                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file called "area-concrete-or-abstract.json", then click "IMPORT".`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -99,7 +99,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file you just downloaded, then click "IMPORT".`,
+                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file called "area-concrete-or-abstract.json", then click "IMPORT".`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -107,7 +107,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file you just downloaded, then click "IMPORT".`,
+                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file called "area-concrete-or-abstract.json", then click "IMPORT".`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -115,7 +115,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Click on the imported experiment "Area - Concrete or Abstract".`,
+                        content: `You have now defined an experiment in UpGrade.<br><br>Click on the imported experiment "Area - Concrete or Abstract" to view it.`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -123,7 +123,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Click on the "Inactive" under "STATUS".`,
+                        content: `The experiment is defined but it is not running.<br><br>Click on the word "Inactive" under "STATUS".`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -131,7 +131,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Set the New Status to "Enrolling", then click "SAVE".`,
+                        content: `To start the experiment running, set the New Status to "Enrolling", then click "SAVE".`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -139,7 +139,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Set the New Status to "Enrolling", then click "SAVE".`,
+                        content: `To start the experiment running, set the New Status to "Enrolling", then click "SAVE".`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -147,7 +147,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Set the New Status to "Enrolling", then click "SAVE".`,
+                        content: `To start the experiment running, set the New Status to "Enrolling", then click "SAVE".`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -155,7 +155,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Now we have set up an experiment in UpGrade.<br><br>In order to illustrate how UpGrade randomly changes QuizApp for different students, you're going to log in three times as three different students.<br><br>Click the "QuizApp" tab.`,
+                        content: `Now we have set up and started an experiment in UpGrade.<br><br>In order to illustrate how UpGrade randomly changes QuizApp for different students, you're going to log in three times as three different students.<br><br>Click the "QuizApp" tab at the top of the page.`,
                         nextCallback: {
                             context: "home",
                             type: "click",
@@ -331,7 +331,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Now let's go back to UpGrade and look at the data. Click the "UpGrade" tab.`,
+                        content: `Now let's go back to UpGrade and look at the data.<br><br>Click the "UpGrade" tab at the top of the page.`,
                         nextCallback: {
                             context: "home",
                             type: "click",
@@ -353,7 +353,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `This experiment looks at percent correct and duration to see if they differ when students get Concrete vs. Abstract problems. Scroll down to see the results.<br><br>If you like, explore other UpGrade features or try another tour.`,
+                        content: `This experiment measures percent correct and duration to see if they differ when students get Concrete vs. Abstract problems. Scroll down to see the enrollments by condition.<br><br>Click on "Percent Correct" and "Duration in Seconds" to see the result on these metrics at the bottom of the page.`,
                         buttonTexts: ["Finish Welcome Tour"]
                     }
                 ]

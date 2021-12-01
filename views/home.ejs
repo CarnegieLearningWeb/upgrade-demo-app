@@ -155,7 +155,7 @@
 
             // Send data to UpGrade
             const sendDataToUpgrade = (data) => {
-                upgradeIframe.contentWindow.postMessage(data, upgradeIframe.src.replace(/\/$/, ""));
+                upgradeIframe.contentWindow.postMessage(data, "*");
             }
 
             // Send initial data to UpGrade
@@ -320,9 +320,6 @@
                 },
                 "upgrade": (type, id, onNextCall) => {
                     const onWindowMessage = (event) => {
-                        if (event.origin !== upgradeIframe.src.replace(/\/$/, "")) {
-                            return;
-                        }
                         window.removeEventListener("message", onWindowMessage, true);
                         const data = event.message || event.data;
                         if (data.message === "onNextCall") {
@@ -466,7 +463,7 @@
                                 }
                             });
                         } else {
-                            confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to start the ${tour.name}? Please note this will reset the application data.`, ["Cancel", "Start"], async (buttonText) => {
+                            confirmModal.confirm("upgrade", "UpGrade Demo", `Click "Start" to start the ${tour.name}.`, ["Cancel", "Start"], async (buttonText) => {
                                 if (buttonText === "Start") {
                                     unselectAllStepBars();
                                     tourBar.classList.add("selected");
