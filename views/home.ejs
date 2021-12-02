@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="/css/universal.css" />
     <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/home.css" />
+    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
+    <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
     <script src="/js/modal.js"></script>
@@ -137,7 +139,7 @@
                     }
                     iframe.onerror = reject;
                     iframe.src = src;
-                })
+                });
             }
             await Promise.all([
                 loadIframe(quizAppIframe, "/quiz-app/student/login"),
@@ -221,45 +223,71 @@
             }
 
             const initCallFunction = {
-                "select-nth-student": (args, substep) => {
+                "select-nth-student": async (args, substep) => {
                     const [nth, nameToReplace] = args;
                     const userNameSelect = quizAppIframe.contentDocument.getElementById("username-select");
-                    userNameSelect.selectedIndex = nth;
+                    userNameSelect.selectedIndex = nth; // The "n" starts from 1
                     userNameSelect.dispatchEvent(new Event("change"));
                     const studentName = userNameSelect.options[userNameSelect.selectedIndex].text;
                     substep.content = substep.content.replace(nameToReplace, studentName);
+                },
+                "set-third-student": async (args, substep) => {
+                    const {
+                        students
+                    } = await FetchWrapper.get("/api/v1/students");
+                    const hostUrl = "<%= upgradeHostUrl %>";
+                    const context = "<%= upgradeContext %>";
+                    const expPoint = "area";
+                    const questionTypeExpId = "question_type";
+                    const questionTypeSet = new Set();
+                    let thirdStudentIndex = 3; // This is actually the fourth student's index from the student list (counting from 0)
+                    for (let i = 1; i < students.length; i++) {
+                        const upClient = new UpgradeClient(students[i]._id, hostUrl);
+                        await upClient.init();
+                        const questionTypeExpCondition = await upClient.getExperimentCondition(context, expPoint, questionTypeExpId);
+                        const questionType = questionTypeExpCondition == null ? "Abstract" : questionTypeExpCondition.assignedCondition.conditionCode;
+                        questionTypeSet.add(questionType);
+                        if (questionTypeSet.size === 2 && i > 2) {
+                            thirdStudentIndex = i;
+                            break;
+                        }
+                    }
+                    const welcomeTour = tours.find(tour => tour.name === "Welcome Tour");
+                    const studentExpWithUpGradeStep = welcomeTour.steps.find(step => step.title === "Student Experience with UpGrade");
+                    const selectNthStudentSubsteps = studentExpWithUpGradeStep.substeps.filter(substep => substep.initCall && substep.initCall.id === "select-nth-student");
+                    selectNthStudentSubsteps[2].initCall.args[0] = thirdStudentIndex + 1; // The "n" starts from 1
                 }
             }
 
             const initCall = {
-                "home": (type, id, args, substep) => {
+                "home": async (type, id, args, substep) => {
                     if (type === "function") {
-                        return initCallFunction[id](args, substep);
+                        return await initCallFunction[id](args, substep);
                     }
                     const elem = document.getElementById(id);
                     if (elem) {
                         elem[type](...args);
                     }
                 },
-                "quiz-app": (type, id, args, substep) => {
+                "quiz-app": async (type, id, args, substep) => {
                     if (type === "function") {
-                        return initCallFunction[id](args, substep);
+                        return await initCallFunction[id](args, substep);
                     }
                     const elem = quizAppIframe.contentDocument.getElementById(id);
                     if (elem) {
                         elem[type](...args);
                     }
                 },
-                "admin-tool": (type, id, args, substep) => {
+                "admin-tool": async (type, id, args, substep) => {
                     if (type === "function") {
-                        return initCallFunction[id](args, substep);
+                        return await initCallFunction[id](args, substep);
                     }
                     const elem = adminToolIframe.contentDocument.getElementById(id);
                     if (elem) {
                         elem[type](...args);
                     }
                 },
-                "upgrade": (type, id, args, substep) => {
+                "upgrade": async (type, id, args, substep) => {
                     sendDataToUpgrade({
                         message: "initCall",
                         type,
@@ -267,9 +295,9 @@
                         args
                     });
                 },
-                "dev-console": (type, id, args, substep) => {
+                "dev-console": async (type, id, args, substep) => {
                     if (type === "function") {
-                        return initCallFunction[id](args, substep);
+                        return await initCallFunction[id](args, substep);
                     }
                     const elem = devConsoleIframe.contentDocument.getElementById(id);
                     if (elem) {
@@ -280,49 +308,49 @@
 
             const nextCallback = {
                 "home": (type, id, onNextCall) => {
-                    const onWindowEvent = (event) => {
+                    const onWindowEvent = async (event) => {
                         const elem = document.getElementById(id);
                         if (elem && elem.contains(event.target)) {
                             window.removeEventListener(type, onWindowEvent, true);
-                            onNextCall();
+                            await onNextCall();
                         }
                     }
                     window.addEventListener(type, onWindowEvent, true);
                 },
                 "quiz-app": (type, id, onNextCall) => {
-                    const onWindowEvent = (event) => {
+                    const onWindowEvent = async (event) => {
                         const elem = quizAppIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
                             quizAppIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
                             const hrefModIds = ["login-button", "start-button", "submit-button", "logout-button"];
                             if (hrefModIds.includes(id)) {
-                                quizAppIframe.onload = () => {
+                                quizAppIframe.onload = async () => {
                                     quizAppIframe.onload = null;
-                                    onNextCall();
+                                    await onNextCall();
                                 }
                                 return;
                             }
-                            onNextCall();
+                            await onNextCall();
                         }
                     }
                     quizAppIframe.contentWindow.addEventListener(type, onWindowEvent, true);
                 },
                 "admin-tool": (type, id, onNextCall) => {
-                    const onWindowEvent = (event) => {
+                    const onWindowEvent = async (event) => {
                         const elem = adminToolIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
                             adminToolIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
-                            onNextCall();
+                            await onNextCall();
                         }
                     }
                     adminToolIframe.contentWindow.addEventListener(type, onWindowEvent, true);
                 },
                 "upgrade": (type, id, onNextCall) => {
-                    const onWindowMessage = (event) => {
+                    const onWindowMessage = async (event) => {
                         window.removeEventListener("message", onWindowMessage, true);
                         const data = event.message || event.data;
                         if (data.message === "onNextCall") {
-                            onNextCall();
+                            await onNextCall();
                         }
                     }
                     window.addEventListener("message", onWindowMessage, true);
@@ -333,11 +361,11 @@
                     });
                 },
                 "dev-console": (type, id, onNextCall) => {
-                    const onWindowEvent = (event) => {
+                    const onWindowEvent = async (event) => {
                         const elem = devConsoleIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
                             devConsoleIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
-                            onNextCall();
+                            await onNextCall();
                         }
                     }
                     devConsoleIframe.contentWindow.addEventListener(type, onWindowEvent, true);
@@ -390,18 +418,18 @@
                 firstStepTab.click();
 
                 // Show tour modal
-                const showTourModal = (stepIndex, substepIndex) => {
+                const showTourModal = async (stepIndex, substepIndex) => {
                     const step = tour.steps[stepIndex];
                     const substep = step.substeps[substepIndex];
-                    const onNextCall = () => {
+                    const onNextCall = async () => {
                         if (substepIndex + 1 < step.substeps.length) {
-                            showTourModal(stepIndex, substepIndex + 1);
+                            await showTourModal(stepIndex, substepIndex + 1);
                             return;
                         }
                         if (stepIndex + 1 < tour.steps.length) {
                             stepBars[stepIndex].classList.remove("selected");
                             stepBars[stepIndex + 1].classList.add("selected");
-                            showTourModal(stepIndex + 1, 0);
+                            await showTourModal(stepIndex + 1, 0);
                             return;
                         }
                         unselectAllStepBars();
@@ -410,12 +438,12 @@
                         tourModal.destroy();
                     }
                     if (substep.initCall) {
-                        initCall[substep.initCall.context](substep.initCall.type, substep.initCall.id, substep.initCall.args || [], substep);
+                        await initCall[substep.initCall.context](substep.initCall.type, substep.initCall.id, substep.initCall.args || [], substep);
                     }
                     if (substep.nextCallback) {
                         nextCallback[substep.nextCallback.context](substep.nextCallback.type, substep.nextCallback.id, onNextCall);
                     }
-                    tourModal.tour(step.context, `${step.title} (${substepIndex + 1}/${step.substeps.length})`, substep.content, substep.buttonTexts || [], (buttonText) => {
+                    tourModal.tour(step.context, `${step.title} (${substepIndex + 1}/${step.substeps.length})`, substep.content, substep.buttonTexts || [], async (buttonText) => {
                         if (buttonText === "Close") {
                             confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to quit the ${tour.name}?`, ["Cancel", "Quit"], (buttonText) => {
                                 if (buttonText === "Quit") {
@@ -426,11 +454,11 @@
                                 }
                             });
                         } else {
-                            onNextCall();
+                            await onNextCall();
                         }
                     });
                 }
-                showTourModal(0, 0);
+                await showTourModal(0, 0);
             }
 
             // Handle tour bar clicking (start/quit the tour)

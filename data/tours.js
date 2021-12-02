@@ -156,6 +156,11 @@ module.exports = [
                     },
                     {
                         content: `Now we have set up and started an experiment in UpGrade.<br><br>In order to illustrate how UpGrade randomly changes QuizApp for different students, you're going to log in three times as three different students.<br><br>Click the "QuizApp" tab at the top of the page.`,
+                        initCall: {
+                            context: "home",
+                            type: "function",
+                            id: "set-third-student"
+                        },
                         nextCallback: {
                             context: "home",
                             type: "click",

@@ -75,12 +75,12 @@ app.get("/login", asyncHandler(async (req, res) => {
 
 // Home Page
 app.get("/home", googleAuth, asyncHandler(async (req, res) => {
-    res.render("home", { upgradeHostUrl: UPGRADE_HOST_URL, upgradeBaseUrl: UPGRADE_BASE_URL, tours });
+    res.render("home", { upgradeHostUrl: UPGRADE_HOST_URL, upgradeBaseUrl: UPGRADE_BASE_URL, upgradeContext: UPGRADE_CONTEXT, tours });
 }));
 
 // Download experiment file
 app.get("/file/experiment/:filename", googleAuth, asyncHandler(async (req, res) => {
-    res.download(path.join(__dirname, `public/asset/experiment/${req.params.filename}`)); 
+    res.download(path.join(__dirname, `public/asset/experiment/${req.params.filename}`));
 }));
 
 /* ==================== QuizApp ==================== */
@@ -178,6 +178,19 @@ app.get("/api/v1/logout", googleAuth, asyncHandler(async (req, res) => {
     res.clearCookie("session-token");
     res.status(200).json({
         message: "Successfully logged out the user"
+    });
+}));
+
+// Get students
+app.get("/api/v1/students", googleAuth, asyncHandler(async (req, res) => {
+    const populatedUser = await req.user.populate({ path: "klasses", populate: { path: "students" } });
+    let students = [];
+    for (const klass of populatedUser.klasses) {
+        students.push.apply(students, klass.students);
+    }
+    res.status(200).json({
+        message: "Successfully got students",
+        students
     });
 }));
 
