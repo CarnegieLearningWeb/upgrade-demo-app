@@ -1,9 +1,17 @@
 class FetchWrapper {
+    async getData(response) {
+        const data = await response.json();
+        if (data.error) {
+            throw data.error;
+        }
+        return data;
+    }
     async fetchGetDelete(url, method) {
         const response = await fetch(url, {
-            method
+            method,
+            headers: { "Accept": "application/json", "Content-Type": "application/json" }
         });
-        return await response.json();
+        return await this.getData(response);
     }
     async fetchPostPut(url, method, data = {}) {
         const response = await fetch(url, {
@@ -11,7 +19,7 @@ class FetchWrapper {
             headers: { "Accept": "application/json", "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
-        return await response.json();
+        return await this.getData(response);
     }
     static async get(url) {
         return await this.prototype.fetchGetDelete(url, "GET");

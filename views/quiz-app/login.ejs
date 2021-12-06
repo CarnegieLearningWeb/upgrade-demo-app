@@ -11,11 +11,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
     <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/quiz-app/login.css" />
     <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
     <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
+    <script src="/js/modal.js"></script>
 </head>
 
 <body>
@@ -67,34 +69,38 @@
             // Called on login button click
             let isLoading = false;
             loginForm.addEventListener("submit", async (event) => {
-                event.preventDefault();
-                if (isLoading) {
-                    return;
+                try {
+                    event.preventDefault();
+                    if (isLoading) {
+                        return;
+                    }
+                    isLoading = true;
+
+                    // Create a new session
+                    const data = await FetchWrapper.post("/api/v1/session", {
+                        studentId: userNameSelect.value,
+                        startDate: new Date().toISOString()
+                    });
+                    await LogHandler.info(data.message);
+
+                    // Create and initialize UpgradeClient
+                    const studentId = userNameSelect.value;
+                    const hostUrl = "<%= upgradeHostUrl %>";
+                    const upClient = new UpgradeClient(studentId, hostUrl);
+                    await upClient.init();
+                    await LogHandler.info("Initialized the UpGrade Client Library");
+
+                    // Define context
+                    const context = "<%= upgradeContext %>";
+
+                    // Redirect to the intro page
+                    window.location.href = `/quiz-app/session/${data.session._id}/intro`;
+                } catch (error) {
+                    const modal = new Modal();
+                    modal.confirm("quiz-app", `Error: ${error.status}`, error.message, ["OK"], () => {
+                        window.top.location.href = "/login";
+                    });
                 }
-                isLoading = true;
-
-                // Create a new session
-                const data = await FetchWrapper.post("/api/v1/session", {
-                    studentId: userNameSelect.value,
-                    startDate: new Date().toISOString()
-                });
-                if (data.error) {
-                    return await LogHandler.error(data.error.message);
-                }
-                await LogHandler.info(data.message);
-
-                // Create and initialize UpgradeClient
-                const studentId = userNameSelect.value;
-                const hostUrl = "<%= upgradeHostUrl %>";
-                const upClient = new UpgradeClient(studentId, hostUrl);
-                await upClient.init();
-                await LogHandler.info("Initialized the UpGrade Client Library");
-
-                // Define context
-                const context = "<%= upgradeContext %>";
-
-                // Redirect to the intro page
-                window.location.href = `/quiz-app/session/${data.session._id}/intro`;
             });
 
             // Focus Username Select

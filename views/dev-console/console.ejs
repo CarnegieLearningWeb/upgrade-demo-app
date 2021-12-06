@@ -77,11 +77,10 @@
         // Update the table on select change
         async function updateTable() {
             // Get logs
-            const data = await FetchWrapper.get("/api/v1/logs");
-            if (data.error) {
-                return await LogHandler.error(data.error.message);
-            }
-            const logs = data.logs;
+            const {
+                logs
+            } = await FetchWrapper.get("/api/v1/logs");
+
             const allowedLogLevels = logLevelMap[logLevelSelect.value];
             logRowsWrapper.innerHTML = "";
             for (const log of logs) {
@@ -107,21 +106,30 @@
         topTextElems[2].addEventListener("click", async () => {
             modal.confirm("dev-console", "Dev Console", "Do you want to clear the logs?", ["Cancel", "Clear"], async (buttonText) => {
                 if (buttonText === "Clear") {
-                    const data = await FetchWrapper.delete("/api/v1/logs");
-                    if (data.error) {
-                        return await LogHandler.error(data.error.message);
+                    try {
+                        await FetchWrapper.delete("/api/v1/logs");
+                        updateTable();
+                    } catch (error) {
+                        modal.confirm("dev-console", `Error: ${error.status}`, error.message, ["OK"], () => {
+                            window.top.location.href = "/login";
+                        });
                     }
-                    updateTable();
                 }
             });
         });
 
         window.addEventListener("load", () => {
-            // Add select change event listener
-            logLevelSelect.addEventListener("change", updateTable);
+            try {
+                // Add select change event listener
+                logLevelSelect.addEventListener("change", updateTable);
 
-            // Update the table initially
-            updateTable();
+                // Update the table initially
+                updateTable();
+            } catch (error) {
+                modal.confirm("dev-console", `Error: ${error.status}`, error.message, ["OK"], () => {
+                    window.top.location.href = "/login";
+                });
+            }
         });
     </script>
 </body>

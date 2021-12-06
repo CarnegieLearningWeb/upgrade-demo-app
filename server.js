@@ -17,6 +17,7 @@ const Session = require("./models/session");
 const Log = require("./models/log");
 const asyncHandler = require("./middlewares/async-handler");
 const googleAuth = require("./middlewares/google-auth");
+const loggedInUser = require("./middlewares/logged-in-user");
 const app = express();
 
 // Config Settings
@@ -94,6 +95,9 @@ app.get("/quiz-app/student/login", googleAuth, asyncHandler(async (req, res) => 
 // Intro Page
 app.get("/quiz-app/session/:id/intro", googleAuth, asyncHandler(async (req, res) => {
     const foundSession = await Session.findById(req.params.id);
+    if (!foundSession) {
+        return res.redirect("/quiz-app/student/login");
+    }
     const populatedSession = await foundSession.populate({ path: "student" });
     const message = introMessage(populatedSession.student.name);
     res.render("quiz-app/intro", { message, session: populatedSession, upgradeHostUrl: UPGRADE_HOST_URL });
@@ -102,6 +106,9 @@ app.get("/quiz-app/session/:id/intro", googleAuth, asyncHandler(async (req, res)
 // Problem Page
 app.get("/quiz-app/session/:id/problem", googleAuth, asyncHandler(async (req, res) => {
     const foundSession = await Session.findById(req.params.id);
+    if (!foundSession) {
+        return res.redirect("/quiz-app/student/login");
+    }
     if (foundSession.numAnswered >= problems.length) {
         return res.redirect(`/quiz-app/session/${req.params.id}/outro`);
     }
@@ -111,6 +118,9 @@ app.get("/quiz-app/session/:id/problem", googleAuth, asyncHandler(async (req, re
 // Outro Page
 app.get("/quiz-app/session/:id/outro", googleAuth, asyncHandler(async (req, res) => {
     const foundSession = await Session.findById(req.params.id);
+    if (!foundSession) {
+        return res.redirect("/quiz-app/student/login");
+    }
     const populatedSession = await foundSession.populate({ path: "student" });
     const message = outroMessage(populatedSession.student.name, foundSession.numCorrect);
     res.render("quiz-app/outro", { message, session: populatedSession, upgradeHostUrl: UPGRADE_HOST_URL });
@@ -135,16 +145,40 @@ app.get("/dev-console/console", googleAuth, asyncHandler(async (req, res) => {
 
 // Login the user
 app.post("/api/v1/login", asyncHandler(async (req, res) => {
+    // Verify the token
     const { token } = req.body;
-    const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: GOOGLE_CLIENT_ID
-    });
-    const payload = ticket.getPayload();
-
+    let payload = null;
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: GOOGLE_CLIENT_ID
+        });
+        payload = ticket.getPayload();
+    }
+    catch (err) {
+        throw { status: 401, message: "Failed to authorize the user, please log in" };
+    }
+    // Log in the user if the app is not being used by someone else
+    const loginUser = () => {
+        if (loggedInUser.exists) {
+            const currentDate = new Date();
+            const loginDurationSeconds = Math.round((currentDate - loggedInUser.loggedInDate) / 1000);
+            const inactiveDurationSeconds = Math.round((currentDate - loggedInUser.lastActiveDate) / 1000);
+            if (loginDurationSeconds <= loggedInUser.maxLoginDurationSeconds &&
+                inactiveDurationSeconds <= loggedInUser.maxInactiveDurationSeconds) {
+                throw { status: 403, message: "Sorry, the app is currently being used by someone, please try again later." };
+            }
+        }
+        loggedInUser.email = payload.email;
+        loggedInUser.name = payload.name;
+        loggedInUser.loggedInDate = new Date();
+        loggedInUser.lastActiveDate = loggedInUser.loggedInDate;
+        loggedInUser.exists = true;
+    }
     // Check if the user has signed up
     const foundUser = await User.findOne({ email: payload.email });
     if (foundUser) {
+        loginUser();
         return res.cookie("session-token", token).json({
             message: "Successfully logged in the user"
         });
@@ -168,6 +202,7 @@ app.post("/api/v1/login", asyncHandler(async (req, res) => {
         newKlass.parentUser = newUser._id;
         await newKlass.save();
     }
+    loginUser();
     res.cookie("session-token", token).json({
         message: "Successfully signed up and logged in the user"
     });
@@ -175,6 +210,9 @@ app.post("/api/v1/login", asyncHandler(async (req, res) => {
 
 // Logout the user
 app.get("/api/v1/logout", googleAuth, asyncHandler(async (req, res) => {
+    if (loggedInUser.exists && loggedInUser.email === req.user.email) {
+        loggedInUser.exists = false;
+    }
     res.clearCookie("session-token");
     res.status(200).json({
         message: "Successfully logged out the user"
@@ -219,6 +257,9 @@ app.post("/api/v1/session", googleAuth, asyncHandler(async (req, res) => {
 app.put("/api/v1/session/:id", googleAuth, asyncHandler(async (req, res) => {
     const { currentDate, answer } = req.body;
     const foundSession = await Session.findById(req.params.id);
+    if (!foundSession) {
+        throw { status: 404, message: "Session not found" };
+    }
     foundSession.durationSeconds = Math.round((new Date(currentDate) - new Date(foundSession.startDate)) / 1000);
     if (answer === problems[foundSession.numAnswered].correctAnswer) {
         foundSession.numCorrect++;
@@ -346,13 +387,12 @@ app.use((err, req, res, next) => {
 
     // Print the error to the console
     if (IS_PRODUCTION === "NO") {
-        // Note: How to handle the "Token used too late" error?
         console.error(`Error: ${JSON.stringify(error, null, 2)}`);
     }
     // Respond with HTML page
     if (req.accepts("html")) {
-        // Redirect to login if it's required
-        if (req.loginRequired) {
+        // Redirect to login if failed to authorize the user or the session has expired
+        if (error.status === 401 || error.status === 403) {
             return res.redirect("/login");
         }
         return res.render("error", { error });

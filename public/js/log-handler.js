@@ -1,6 +1,5 @@
 class LogHandler {
     async post(level, message) {
-        console.log(message);
         const date = new Date().toISOString();
         return await FetchWrapper.post("/api/v1/log", { level, date, message });
     }

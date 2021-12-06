@@ -11,11 +11,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
     <link rel="stylesheet" href="/css/universal.css" />
+    <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/quiz-app/outro.css" />
     <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
     <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
+    <script src="/js/modal.js"></script>
 </head>
 
 <body>
@@ -39,49 +41,55 @@
             const logoutButton = document.getElementById("logout-button");
             let isLoading = false;
             logoutButton.addEventListener("click", async () => {
-                if (isLoading) {
-                    return;
-                }
-                isLoading = true;
-
-                // UpGrade Metrics Setup (Note: Need a documentation and maybe a better way to add/post metrics)
-                /* 
-                How to add metrics in UpGrade: Profile -> Metrics -> Add Metrics (add each data one by one)
-                1. First add this
-                {
-                    "metric": "durationSeconds",
-                    "datatype": "continuous"
-                }
-                2. And then this
-                {
-                    "metric": "percentCorrect",
-                    "datatype": "continuous"
-                }
-                3. And then add these metrics to the experiment you want to monitor
-                */
-
-                // Create UpgradeClient
-                const studentId = "<%= session.student._id %>";
-                const hostUrl = "<%= upgradeHostUrl %>";
-                const upClient = new UpgradeClient(studentId, hostUrl);
-
-                // Get the current session and post metrics to UpGrade
-                const metrics = [{
-                    timestamp: new Date().toISOString(), // Note: Do we need to require this from the user?
-                    metrics: {
-                        attributes: {
-                            durationSeconds: Number("<%= session.durationSeconds %>"),
-                            percentCorrect: Number("<%= session.numCorrect / session.numAnswered * 100 %>")
-                        }
+                try {
+                    if (isLoading) {
+                        return;
                     }
-                }];
-                await LogHandler.info("Posting metrics to UpGrade...");
-                await upClient.log(metrics); // Note: Why does the log() function require an array? Any use cases?
+                    isLoading = true;
 
-                await LogHandler.info("<%= session.student.name %> logged out");
+                    // UpGrade Metrics Setup (Note: Need a documentation and maybe a better way to add/post metrics)
+                    /* 
+                    How to add metrics in UpGrade: Profile -> Metrics -> Add Metrics (add each data one by one)
+                    1. First add this
+                    {
+                        "metric": "durationSeconds",
+                        "datatype": "continuous"
+                    }
+                    2. And then this
+                    {
+                        "metric": "percentCorrect",
+                        "datatype": "continuous"
+                    }
+                    3. And then add these metrics to the experiment you want to monitor
+                    */
 
-                // Redirect to the login page
-                window.location.href = "/quiz-app/student/login";
+                    // Create UpgradeClient
+                    const studentId = "<%= session.student._id %>";
+                    const hostUrl = "<%= upgradeHostUrl %>";
+                    const upClient = new UpgradeClient(studentId, hostUrl);
+
+                    // Get the current session and post metrics to UpGrade
+                    const metrics = [{
+                        timestamp: new Date().toISOString(), // Note: Do we need to require this from the user?
+                        metrics: {
+                            attributes: {
+                                durationSeconds: Number("<%= session.durationSeconds %>"),
+                                percentCorrect: Number("<%= session.numCorrect / session.numAnswered * 100 %>")
+                            }
+                        }
+                    }];
+                    await LogHandler.info("Posting metrics to UpGrade...");
+                    await upClient.log(metrics); // Note: Why does the log() function require an array? Any use cases?
+                    await LogHandler.info("<%= session.student.name %> logged out");
+
+                    // Redirect to the login page
+                    window.location.href = "/quiz-app/student/login";
+                } catch (error) {
+                    const modal = new Modal();
+                    modal.confirm("quiz-app", `Error: ${error.status}`, error.message, ["OK"], () => {
+                        window.top.location.href = "/login";
+                    });
+                }
             });
 
             // Focus Logout Button

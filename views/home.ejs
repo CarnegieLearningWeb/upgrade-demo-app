@@ -170,14 +170,20 @@
             // Logout Button
             const logoutButton = document.getElementById("logout-button");
             logoutButton.addEventListener("click", async () => {
-                await LogHandler.info("Logging out the user...");
-                sendDataToUpgrade({
-                    message: "initCall",
-                    type: "function",
-                    id: "logout"
-                });
-                await FetchWrapper.get("/api/v1/logout");
-                window.location.href = "/login";
+                try {
+                    await LogHandler.info("Logging out the user...");
+                    sendDataToUpgrade({
+                        message: "initCall",
+                        type: "function",
+                        id: "logout"
+                    });
+                    await FetchWrapper.get("/api/v1/logout");
+                    window.location.href = "/login";
+                } catch (error) {
+                    confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
+                        window.top.location.href = "/login";
+                    });
+                }
             });
 
             // Tours bar/tab toggle
@@ -200,9 +206,15 @@
             toursBar.classList.remove("loading");
 
             // Tour contents
-            const {
-                tours
-            } = await FetchWrapper.get("/api/v1/tours");
+            let tours = [];
+            try {
+                const data = await FetchWrapper.get("/api/v1/tours");
+                tours = data.tours;
+            } catch (error) {
+                return confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
+                    window.top.location.href = "/login";
+                });
+            }
             const toursContainter = document.getElementById("tours-container");
             const tourBars = toursContainter.querySelectorAll(".tour-bar");
             const stepBars = document.querySelectorAll(".step-bar");
@@ -393,8 +405,14 @@
                 stepBars[0].classList.add("selected");
 
                 // Clear UpGrade and Demo App data
-                await clearUpgradeData();
-                await clearDemoAppData();
+                try {
+                    await clearUpgradeData();
+                    await clearDemoAppData();
+                } catch (error) {
+                    return confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
+                        window.top.location.href = "/login";
+                    });
+                }
 
                 // Reset iframe pages
                 sendDataToUpgrade({
@@ -438,7 +456,13 @@
                         tourModal.destroy();
                     }
                     if (substep.initCall) {
-                        await initCall[substep.initCall.context](substep.initCall.type, substep.initCall.id, substep.initCall.args || [], substep);
+                        try {
+                            await initCall[substep.initCall.context](substep.initCall.type, substep.initCall.id, substep.initCall.args || [], substep);
+                        } catch (error) {
+                            return confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
+                                window.top.location.href = "/login";
+                            });
+                        }
                     }
                     if (substep.nextCallback) {
                         nextCallback[substep.nextCallback.context](substep.nextCallback.type, substep.nextCallback.id, onNextCall);
@@ -514,47 +538,53 @@
                 "dev-console": "F6683F"
             };
 
-            function onTabClick() {
-                for (const tab of tabs) {
-                    const context = tab.id.slice(0, -4); // Remove the last "-tab" from the tab ID
-                    const tabColor = tabColorMap[context];
-                    const tabIcon = tab.querySelector(".tab-top .tab-icon");
-                    const tabText = tab.querySelector(".tab-top .tab-text");
-                    const tabBottom = tab.querySelector(".tab-bottom");
-                    const iframe = document.getElementById(`${context}-iframe`);
-                    if (tab === this) { // If the tab is clicked
-                        switch (context) {
-                            case "quiz-app":
-                                break;
-                            case "admin-tool":
-                                if (iframe.contentWindow.updateTable) {
-                                    iframe.contentWindow.updateTable();
-                                }
-                                break;
-                            case "upgrade":
-                                sendDataToUpgrade({
-                                    message: "initCall",
-                                    type: "click",
-                                    id: "experiments-tab"
-                                });
-                                break;
-                            case "dev-console":
-                                if (iframe.contentWindow.updateTable) {
-                                    iframe.contentWindow.updateTable();
-                                }
-                                break;
+            async function onTabClick() {
+                try {
+                    for (const tab of tabs) {
+                        const context = tab.id.slice(0, -4); // Remove the last "-tab" from the tab ID
+                        const tabColor = tabColorMap[context];
+                        const tabIcon = tab.querySelector(".tab-top .tab-icon");
+                        const tabText = tab.querySelector(".tab-top .tab-text");
+                        const tabBottom = tab.querySelector(".tab-bottom");
+                        const iframe = document.getElementById(`${context}-iframe`);
+                        if (tab === this) { // If the tab is clicked
+                            switch (context) {
+                                case "quiz-app":
+                                    break;
+                                case "admin-tool":
+                                    if (iframe.contentWindow.updateTable) {
+                                        await iframe.contentWindow.updateTable();
+                                    }
+                                    break;
+                                case "upgrade":
+                                    sendDataToUpgrade({
+                                        message: "initCall",
+                                        type: "click",
+                                        id: "experiments-tab"
+                                    });
+                                    break;
+                                case "dev-console":
+                                    if (iframe.contentWindow.updateTable) {
+                                        await iframe.contentWindow.updateTable();
+                                    }
+                                    break;
+                            }
+                            tabIcon.className = `tab-icon recolor-${tabColor}`;
+                            tabText.style.color = `#${tabColor}`;
+                            tabBottom.style.background = `#${tabColor}`;
+                            iframe.style.display = "block";
+                            iframe.focus();
+                            continue;
                         }
-                        tabIcon.className = `tab-icon recolor-${tabColor}`;
-                        tabText.style.color = `#${tabColor}`;
-                        tabBottom.style.background = `#${tabColor}`;
-                        iframe.style.display = "block";
-                        iframe.focus();
-                        continue;
+                        tabIcon.className = "tab-icon recolor-444444";
+                        tabText.style.color = "#444444";
+                        tabBottom.style.background = "transparent";
+                        iframe.style.display = "none";
                     }
-                    tabIcon.className = "tab-icon recolor-444444";
-                    tabText.style.color = "#444444";
-                    tabBottom.style.background = "transparent";
-                    iframe.style.display = "none";
+                } catch (error) {
+                    confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
+                        window.top.location.href = "/login";
+                    });
                 }
             }
             for (const tab of tabs) {

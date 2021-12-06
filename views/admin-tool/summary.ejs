@@ -132,11 +132,10 @@
         // Update the table on select change
         async function updateTable() {
             // Get sessions
-            const data = await FetchWrapper.get("/api/v1/sessions");
-            if (data.error) {
-                return await LogHandler.error(data.error.message);
-            }
-            const sessions = data.sessions;
+            const {
+                sessions
+            } = await FetchWrapper.get("/api/v1/sessions");
+
             if (summaryBySelect.value === "session") {
                 // Update top texts
                 topTextElems[1].innerHTML = "Session Start<br>Date/Time";
@@ -260,12 +259,15 @@
         async function onClearSessionClick(sessionId, studentName) {
             modal.confirm("admin-tool", "Admin Tool", `Do you want to clear the ${studentName}'s session?`, ["Cancel", "Clear"], async (buttonText) => {
                 if (buttonText === "Clear") {
-                    const data = await FetchWrapper.delete(`/api/v1/session/${sessionId}`);
-                    if (data.error) {
-                        return await LogHandler.error(data.error.message);
+                    try {
+                        const data = await FetchWrapper.delete(`/api/v1/session/${sessionId}`);
+                        await LogHandler.info(data.message);
+                        updateTable();
+                    } catch (error) {
+                        modal.confirm("admin-tool", `Error: ${error.status}`, error.message, ["OK"], () => {
+                            window.top.location.href = "/login";
+                        });
                     }
-                    await LogHandler.info(data.message);
-                    updateTable();
                 }
             });
         }
@@ -274,23 +276,32 @@
         async function onResetSessionClick(studentId, studentName) {
             modal.confirm("admin-tool", "Admin Tool", `Do you want to clear all ${studentName}'s sessions?`, ["Cancel", "Clear"], async (buttonText) => {
                 if (buttonText === "Clear") {
-                    const data = await FetchWrapper.delete(`/api/v1/sessions/student/${studentId}`);
-                    if (data.error) {
-                        return await LogHandler.error(data.error.message);
+                    try {
+                        const data = await FetchWrapper.delete(`/api/v1/sessions/student/${studentId}`);
+                        await LogHandler.info(data.message);
+                        updateTable();
+                    } catch (error) {
+                        modal.confirm("admin-tool", `Error: ${error.status}`, error.message, ["OK"], () => {
+                            window.top.location.href = "/login";
+                        });
                     }
-                    await LogHandler.info(data.message);
-                    updateTable();
                 }
             });
         }
 
         window.addEventListener("load", () => {
-            // Add select change event listeners
-            summaryBySelect.addEventListener("change", updateTable);
-            classPeriodSelect.addEventListener("change", updateTable);
+            try {
+                // Add select change event listeners
+                summaryBySelect.addEventListener("change", updateTable);
+                classPeriodSelect.addEventListener("change", updateTable);
 
-            // Update the table initially
-            updateTable();
+                // Update the table initially
+                updateTable();
+            } catch (error) {
+                modal.confirm("admin-tool", `Error: ${error.status}`, error.message, ["OK"], () => {
+                    window.top.location.href = "/login";
+                });
+            }
         });
     </script>
 </body>
