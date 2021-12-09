@@ -160,7 +160,7 @@ app.post("/api/v1/login", asyncHandler(async (req, res) => {
     }
     // Log in the user if the app is not being used by someone else
     const loginUser = () => {
-        if (loggedInUser.exists) {
+        if (loggedInUser.exists && loggedInUser.email !== payload.email) {
             const currentDate = new Date();
             const loginDurationSeconds = Math.round((currentDate - loggedInUser.loggedInDate) / 1000);
             const inactiveDurationSeconds = Math.round((currentDate - loggedInUser.lastActiveDate) / 1000);
