@@ -321,6 +321,10 @@
             const nextCallback = {
                 "home": (type, id, onNextCall) => {
                     const onWindowEvent = async (event) => {
+                        if (!selectedTourBar) {
+                            window.removeEventListener(type, onWindowEvent, true);
+                            return;
+                        }
                         const elem = document.getElementById(id);
                         if (elem && elem.contains(event.target)) {
                             window.removeEventListener(type, onWindowEvent, true);
@@ -331,6 +335,10 @@
                 },
                 "quiz-app": (type, id, onNextCall) => {
                     const onWindowEvent = async (event) => {
+                        if (!selectedTourBar) {
+                            quizAppIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            return;
+                        }
                         const elem = quizAppIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
                             quizAppIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
@@ -338,6 +346,9 @@
                             if (hrefModIds.includes(id)) {
                                 quizAppIframe.onload = async () => {
                                     quizAppIframe.onload = null;
+                                    if (!selectedTourBar) {
+                                        return;
+                                    }
                                     await onNextCall();
                                 }
                                 return;
@@ -349,6 +360,10 @@
                 },
                 "admin-tool": (type, id, onNextCall) => {
                     const onWindowEvent = async (event) => {
+                        if (!selectedTourBar) {
+                            adminToolIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            return;
+                        }
                         const elem = adminToolIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
                             adminToolIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
@@ -360,6 +375,9 @@
                 "upgrade": (type, id, onNextCall) => {
                     const onWindowMessage = async (event) => {
                         window.removeEventListener("message", onWindowMessage, true);
+                        if (!selectedTourBar) {
+                            return;
+                        }
                         const data = event.message || event.data;
                         if (data.message === "onNextCall") {
                             await onNextCall();
@@ -374,6 +392,10 @@
                 },
                 "dev-console": (type, id, onNextCall) => {
                     const onWindowEvent = async (event) => {
+                        if (!selectedTourBar) {
+                            devConsoleIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            return;
+                        }
                         const elem = devConsoleIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
                             devConsoleIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
