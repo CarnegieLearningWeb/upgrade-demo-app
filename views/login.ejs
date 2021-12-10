@@ -116,6 +116,17 @@
                     await FetchWrapper.delete(`${hostUrl}/api/experiments/${experiment.id}`);
                 }
                 await FetchWrapper.delete(`${hostUrl}/api/clearDB`);
+                await FetchWrapper.post(`${hostUrl}/api/metric/save`, {
+                    metricUnit: [{
+                            metric: "durationSeconds",
+                            datatype: "continuous"
+                        },
+                        {
+                            metric: "percentCorrect",
+                            datatype: "continuous"
+                        }
+                    ]
+                });
             }
 
             const clearDemoAppData = async () => {
