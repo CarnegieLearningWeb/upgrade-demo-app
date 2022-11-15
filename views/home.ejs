@@ -598,6 +598,7 @@
                                     break;
                                 case "dev-console":
                                     if (iframe.contentWindow.updateTable) {
+                                        iframe.style.display = "block";
                                         await iframe.contentWindow.updateTable();
                                     }
                                     break;
