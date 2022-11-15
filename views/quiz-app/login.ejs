@@ -42,7 +42,7 @@
                 </div>
                 <div class="login-group">
                     <label class="login-label" for="password-input">Password:</label>
-                    <input type="password" class="login-input" id="password-input" name="password" minlength="8" required readonly>
+                    <input type="text" class="login-input" id="password-input" name="password" minlength="8" required readonly autocomplete="off">
                 </div>
             </div>
             <div id="button-wrapper">
@@ -63,7 +63,7 @@
                 const passwordMinLength = 8;
                 const passwordMaxLength = 16;
                 const passwordLength = passwordMinLength + value.charCodeAt(value.length - 1) % (passwordMaxLength - passwordMinLength + 1);
-                passwordInput.value = value.substring(0, passwordLength);
+                passwordInput.value = value.substring(0, passwordLength).replace(/(.)/g, "•");
             });
 
             // Called on login button click
