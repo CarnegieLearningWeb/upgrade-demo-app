@@ -97,15 +97,16 @@
                     const site = "login";
                     const target = "motivational_support_type";
                     const condition = await upClient.getExperimentCondition(context, site, target);
-                    const motivationalSupportType = condition == null ? "No Support" : condition.assignedCondition.conditionCode;
+                    const motivationalSupportType = condition == null ? null : condition.assignedCondition.conditionCode;
                     await upClient.markExperimentPoint(site, motivationalSupportType, target);
-                    if (condition) {
+                    if (motivationalSupportType) {
                         await LogHandler.info(`Reached the decision point 'Area - No Support (Default) / Mindset / Utility Value' - Got condition '${motivationalSupportType}'`);
                     }
                     const redirectToIntroPage = () => {
                         window.location.href = `/quiz-app/session/${data.session._id}/intro`;
                     }
                     switch (motivationalSupportType) {
+                        case null:
                         case "No Support":
                             redirectToIntroPage();
                             break;
