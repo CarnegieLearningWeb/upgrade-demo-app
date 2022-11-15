@@ -1,4 +1,5 @@
 # UpGrade Demo App
+<img src="screenshot.png" alt="Screenshot" width="1000"/>
 
 ## Description
 An app to demonstrate UpGrade, an open-source platform to support large-scale A/B testing in educational applications. Learn more at www.upgradeplatform.org
