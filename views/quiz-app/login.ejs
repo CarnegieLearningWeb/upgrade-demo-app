@@ -69,6 +69,8 @@
             // Called on login button click
             let isLoading = false;
             loginForm.addEventListener("submit", async (event) => {
+                // Modal
+                const modal = new Modal();
                 try {
                     event.preventDefault();
                     if (isLoading) {
@@ -90,19 +92,36 @@
                     await upClient.init();
                     await LogHandler.info("Initialized the UpGrade Client Library");
 
-                    // Define context
+                    // Motivational Support Type (default: No Support)
                     const context = "<%= upgradeContext %>";
-
-                    // Redirect to the intro page
-                    window.location.href = `/quiz-app/session/${data.session._id}/intro`;
+                    const site = "login";
+                    const target = "motivational_support_type";
+                    const condition = await upClient.getExperimentCondition(context, site, target);
+                    const motivationalSupportType = condition == null ? "No Support" : condition.assignedCondition.conditionCode;
+                    await upClient.markExperimentPoint(site, motivationalSupportType, target);
+                    if (condition) {
+                        await LogHandler.info(`Reached the decision point 'Area - No Support (Default) / Mindset / Utility Value' - Got condition '${motivationalSupportType}'`);
+                    }
+                    const redirectToIntroPage = () => {
+                        window.location.href = `/quiz-app/session/${data.session._id}/intro`;
+                    }
+                    switch (motivationalSupportType) {
+                        case "No Support":
+                            redirectToIntroPage();
+                            break;
+                        case "Mindset":
+                            modal.confirm("quiz-app", "QuizApp", "Did you know your brain grows as you learn?", ["Close"], redirectToIntroPage);
+                            break;
+                        case "Utility Value":
+                            modal.confirm("quiz-app", "QuizApp", "Did you know that 86% of jobs require math?", ["Close"], redirectToIntroPage);
+                            break;
+                    }
                 } catch (error) {
-                    const modal = new Modal();
                     modal.confirm("quiz-app", `Error: ${error.status}`, error.message, ["OK"], () => {
                         window.top.location.href = "/login";
                     });
                 }
             });
-
             // Focus Username Select
             userNameSelect.focus();
         });
