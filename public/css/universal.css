@@ -20,6 +20,8 @@ button, select, input {
     border-radius: 5px;
     font-size: 16px;
     -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 button {
