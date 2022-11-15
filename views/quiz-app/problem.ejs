@@ -57,7 +57,7 @@
                 const site = "area";
                 const target = "question_type";
                 const condition = await upClient.getExperimentCondition(context, site, target);
-                const questionType = condition == null ? null : condition.assignedCondition.conditionCode;
+                const questionType = condition && condition.assignedCondition.conditionCode;
                 await upClient.markExperimentPoint(site, questionType, target);
                 if (questionType) {
                     await LogHandler.info(`Reached the decision point 'Area - Abstract (Default) or Concrete' - Got condition '${questionType}'`);
