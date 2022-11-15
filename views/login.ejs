@@ -12,7 +12,8 @@
     <link rel="stylesheet" href="/css/universal.css" />
     <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/login.css" />
-    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/smoothscroll-polyfill@0.4.4/dist/smoothscroll.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
     <script src="/js/modal.js"></script>
@@ -53,14 +54,7 @@
                 </div>
             </div>
             <div id="main-bottom">
-                <div id="login-button" class="unselectable">
-                    <div id="logo-wrapper">
-                        <img id="google-logo" src="/asset/image/google-logo.png" alt="Google Logo">
-                    </div>
-                    <div id="text-wrapper">
-                        <p id="button-text">Sign in with Google</p>
-                    </div>
-                </div>
+                <div id="login-button"></div>
                 <div id="link-wrapper">
                     <p id="link-text">If you want to learn more about UpGrade, please visit <a href="https://www.upgradeplatform.org/">www.upgradeplatform.org</a></p>
                 </div>
@@ -75,13 +69,6 @@
             // Modal
             const modal = new Modal();
 
-            // If the device is mobile, alert the message and redirect to the upgrade website
-            const isMobile = (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf("IEMobile") !== -1);
-            if (isMobile) {
-                alert("Sorry, the app is not available on mobile devices yet. Please use a desktop browser.");
-                window.location.href = "https://www.upgradeplatform.org/";
-                return;
-            }
             // Show/Hide the demo video overlay when the screenshot is clicked
             const upgradeScreenshot = document.getElementById("upgrade-screenshot");
             const demoVideoOverlay = document.getElementById("demo-video-overlay");
@@ -104,7 +91,7 @@
 
                 // Scroll to the bottom of the page
                 window.scrollTo({
-                    top: document.body.scrollHeight,
+                    top: document.body.scrollHeight / 2,
                     behavior: "smooth"
                 });
             });
@@ -134,37 +121,38 @@
                 await FetchWrapper.delete("/api/v1/sessions");
             }
 
-            gapi.load("auth2", () => {
-                // Retrieve the singleton for the GoogleAuth library and set up the client.
-                const auth2 = gapi.auth2.init({
-                    client_id: "<%= googleClientId %>",
-                    cookiepolicy: "single_host_origin"
-                });
-                const loginButton = document.getElementById("login-button");
-                auth2.attachClickHandler(loginButton, {}, async (googleUser) => {
-                    try {
-                        const token = googleUser.getAuthResponse().id_token;
-                        const data = await FetchWrapper.post("/api/v1/login", {
-                            token: googleUser.getAuthResponse().id_token
-                        });
-                        await LogHandler.info(data.message);
-                        await auth2.signOut();
+            const handleCredentialResponse = async (response) => {
+                try {
+                    const data = await FetchWrapper.post("/api/v1/login", {
+                        credential: response.credential
+                    });
+                    await LogHandler.info(data.message);
 
-                        // Clear UpGrade and Demo App data
-                        await clearUpgradeData();
-                        await clearDemoAppData();
-                        window.location.href = "/home";
-                    } catch (error) {
-                        modal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"]);
-                    }
-                }, (error) => {
-                    console.log(JSON.stringify(error, null, 2));
-                });
+                    // Clear UpGrade and Demo App data
+                    await clearUpgradeData();
+                    await clearDemoAppData();
+                    window.location.href = "/home";
+                } catch (error) {
+                    modal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"]);
+                }
+            }
+
+            google.accounts.id.initialize({
+                client_id: "<%= googleClientId %>",
+                callback: handleCredentialResponse
             });
+            google.accounts.id.renderButton(
+                document.getElementById("login-button"), {
+                    theme: "filled_blue",
+                    width: 300
+                }
+            );
+            // also display the one tap dialog
+            // google.accounts.id.prompt();
 
             // Scroll to the bottom of the page
             window.scrollTo({
-                top: document.body.scrollHeight,
+                top: document.body.scrollHeight / 2,
                 behavior: "smooth"
             });
         });

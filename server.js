@@ -146,11 +146,11 @@ app.get("/dev-console/console", googleAuth, asyncHandler(async (req, res) => {
 // Login the user
 app.post("/api/v1/login", asyncHandler(async (req, res) => {
     // Verify the token
-    const { token } = req.body;
+    const { credential } = req.body;
     let payload = null;
     try {
         const ticket = await client.verifyIdToken({
-            idToken: token,
+            idToken: credential,
             audience: GOOGLE_CLIENT_ID
         });
         payload = ticket.getPayload();
@@ -179,7 +179,7 @@ app.post("/api/v1/login", asyncHandler(async (req, res) => {
     const foundUser = await User.findOne({ email: payload.email });
     if (foundUser) {
         loginUser();
-        return res.cookie("session-token", token).json({
+        return res.cookie("session-token", credential).json({
             message: "Successfully logged in the user"
         });
     }
@@ -203,7 +203,7 @@ app.post("/api/v1/login", asyncHandler(async (req, res) => {
         await newKlass.save();
     }
     loginUser();
-    res.cookie("session-token", token).json({
+    res.cookie("session-token", credential).json({
         message: "Successfully signed up and logged in the user"
     });
 }));

@@ -3,6 +3,7 @@
 #wrapper {
     width: 100%;
     height: 100%;
+    min-height: calc(88px + 6px + 544px + 150px);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -78,7 +79,7 @@
 }
 
 strong {
-    font-weight: 800;
+    font-weight: 700;
 }
 
 .headline-large {
@@ -88,14 +89,14 @@ strong {
 }
 
 .headline-medium {
-    font-size: 20px;
+    font-size: 18px;
     line-height: 28px;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 #headline-left {
-    width: 400px;
-    min-width: 400px;
+    width: 360px;
+    min-width: 360px;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -130,7 +131,7 @@ strong {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 }
 
@@ -140,7 +141,7 @@ strong {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: center;
+    align-items: flex-start;
 }
 
 #headline-right-bottom {
@@ -166,60 +167,6 @@ strong {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-#login-button {
-    margin-top: 48px;
-    width: 250px;
-    height: 48px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 5px;
-    background: #3F68F6;
-    cursor: pointer;
-}
-
-#login-button:hover {
-    background: #325BE9;
-}
-
-#login-button:active {
-    background: #264FDD;
-}
-
-#logo-wrapper {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid#3F68F6;
-    border-radius: 5px;
-    background: #FFFFFF;
-}
-
-#google-logo {
-    margin-left: 2px;
-    width: 22px;
-    height: 22px;
-}
-
-#text-wrapper {
-    width: calc(250px - 48px);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-#button-text {
-    font-size: 16px;
-    font-weight: 600;
-    color: #FFFFFF;
 }
 
 #link-wrapper {
