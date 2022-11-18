@@ -358,7 +358,15 @@ module.exports = [
                         }
                     },
                     {
-                        content: `This experiment measures percent correct and duration to see if they differ when students get Concrete vs. Abstract problems. Click on the "Data" tab on the far right side of the page to see the enrollments by condition.<br><br>Click on "Percent Correct" and "Duration in Seconds" to see the result on these metrics at the bottom of the page.`,
+                        content: `Click on the "Data" tab to see the results.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-detail-data-tab"
+                        }
+                    },
+                    {
+                        content: `This experiment measures percent correct and duration to see if they differ when students get Concrete vs. Abstract problems. Scroll down to see the enrollments by condition.<br><br>Click on "Percent Correct" and "Duration in Seconds" to see the result on these metrics at the bottom of the page.`,
                         buttonTexts: ["Finish Welcome Tour"]
                     }
                 ]
