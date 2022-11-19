@@ -16,6 +16,7 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
+    <script src="/js/data-resetter.js"></script>
     <script src="/js/modal.js"></script>
 </head>
 
@@ -66,6 +67,9 @@
     </div>
     <script>
         window.addEventListener("load", () => {
+            // Data resetter
+            const dataResetter = new DataResetter("<%= upgradeHostUrl %>");
+
             // Modal
             const modal = new Modal();
 
@@ -96,31 +100,6 @@
                 });
             });
 
-            const clearUpgradeData = async () => {
-                const hostUrl = "<%= upgradeHostUrl %>";
-                const experiments = await FetchWrapper.get(`${hostUrl}/api/experiments`);
-                for (const experiment of experiments) {
-                    await FetchWrapper.delete(`${hostUrl}/api/experiments/${experiment.id}`);
-                }
-                await FetchWrapper.delete(`${hostUrl}/api/clearDB`);
-                await FetchWrapper.post(`${hostUrl}/api/metric/save`, {
-                    metricUnit: [{
-                            metric: "durationSeconds",
-                            datatype: "continuous"
-                        },
-                        {
-                            metric: "percentCorrect",
-                            datatype: "continuous"
-                        }
-                    ]
-                });
-            }
-
-            const clearDemoAppData = async () => {
-                await FetchWrapper.delete("/api/v1/logs");
-                await FetchWrapper.delete("/api/v1/sessions");
-            }
-
             const handleCredentialResponse = async (response) => {
                 try {
                     const data = await FetchWrapper.post("/api/v1/login", {
@@ -128,9 +107,10 @@
                     });
                     await LogHandler.info(data.message);
 
-                    // Clear UpGrade and Demo App data
-                    await clearUpgradeData();
-                    await clearDemoAppData();
+                    // Clear data and save metrics
+                    await dataResetter.clearUpgradeData();
+                    await dataResetter.clearDemoAppData();
+                    await dataResetter.saveMetrics();
                     window.location.href = "/home";
                 } catch (error) {
                     modal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"]);

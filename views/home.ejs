@@ -16,6 +16,7 @@
     <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
+    <script src="/js/data-resetter.js"></script>
     <script src="/js/modal.js"></script>
 </head>
 
@@ -117,6 +118,12 @@
             // Show iframe loading animation
             const iframeLoadingAnimation = document.getElementById("iframe-loading-animation");
             iframeLoadingAnimation.style.opacity = 1;
+
+            // Host URL
+            const hostUrl = "<%= upgradeHostUrl %>";
+
+            // Data resetter
+            const dataResetter = new DataResetter(hostUrl);
 
             // Modals
             const confirmModal = new Modal();
@@ -220,31 +227,6 @@
             const stepBars = document.querySelectorAll(".step-bar");
             let selectedTourBar = null;
 
-            const clearUpgradeData = async () => {
-                const hostUrl = "<%= upgradeHostUrl %>";
-                const experiments = await FetchWrapper.get(`${hostUrl}/api/experiments`);
-                for (const experiment of experiments) {
-                    await FetchWrapper.delete(`${hostUrl}/api/experiments/${experiment.id}`);
-                }
-                await FetchWrapper.delete(`${hostUrl}/api/clearDB`);
-                await FetchWrapper.post(`${hostUrl}/api/metric/save`, {
-                    metricUnit: [{
-                            metric: "durationSeconds",
-                            datatype: "continuous"
-                        },
-                        {
-                            metric: "percentCorrect",
-                            datatype: "continuous"
-                        }
-                    ]
-                });
-            }
-
-            const clearDemoAppData = async () => {
-                await FetchWrapper.delete("/api/v1/logs");
-                await FetchWrapper.delete("/api/v1/sessions");
-            }
-
             const initCallFunction = {
                 "select-nth-student": async (args, substep) => {
                     const [nth, nameToReplace] = args;
@@ -258,17 +240,19 @@
                     const {
                         students
                     } = await FetchWrapper.get("/api/v1/students");
-                    const hostUrl = "<%= upgradeHostUrl %>";
                     const context = "<%= upgradeContext %>";
-                    const expPoint = "area";
-                    const questionTypeExpId = "question_type";
+                    const site = "area";
+                    const target = "question_type";
                     const questionTypeSet = new Set();
                     let thirdStudentIndex = 3; // This is actually the fourth student's index from the student list (counting from 0)
                     for (let i = 1; i < students.length; i++) {
                         const upClient = new UpgradeClient(students[i]._id, hostUrl);
                         await upClient.init();
-                        const questionTypeExpCondition = await upClient.getExperimentCondition(context, expPoint, questionTypeExpId);
-                        const questionType = questionTypeExpCondition == null ? "Abstract" : questionTypeExpCondition.assignedCondition.conditionCode;
+                        const condition = await upClient.getExperimentCondition(context, site, target);
+                        const questionType = condition && condition.assignedCondition.conditionCode;
+                        if (questionType == null) {
+                            continue;
+                        }
                         questionTypeSet.add(questionType);
                         if (questionTypeSet.size === 2 && i > 2) {
                             thirdStudentIndex = i;
@@ -437,10 +421,11 @@
                 // Select the first step bar
                 stepBars[0].classList.add("selected");
 
-                // Clear UpGrade and Demo App data
                 try {
-                    await clearUpgradeData();
-                    await clearDemoAppData();
+                    // Clear data and save metrics
+                    await dataResetter.clearUpgradeData();
+                    await dataResetter.clearDemoAppData();
+                    await dataResetter.saveMetrics();
                 } catch (error) {
                     return confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
                         window.top.location.href = "/login";
