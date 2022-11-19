@@ -62,6 +62,11 @@ module.exports = [
                     },
                     {
                         content: `To set up an experiment with UpGrade, click the "UpGrade" tab at the top of the page.`,
+                        initCall: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "logout"
+                        },
                         nextCallback: {
                             context: "home",
                             type: "click",
@@ -72,10 +77,15 @@ module.exports = [
             },
             {
                 context: "upgrade",
-                title: "Create UpGrade Experiment",
+                title: "Set up an Experiment in UpGrade",
                 substeps: [
                     {
                         content: `Upgrade allows you to run an experiment within QuizApp.<br><br>Log into UpGrade using a Google account by clicking the "Login with Google" button.`,
+                        initCall: {
+                            context: "home",
+                            type: "function",
+                            id: "create-experiment-area-concrete-or-abstract"
+                        },
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -83,39 +93,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `In this experiment we randomly assign users of QuizApp two different experiences. Users in the Concrete condition will see real-world, concrete items mapped onto the shapes in their QuizApp problems. Users in the Abstract condition will see only the abstract shapes in their QuizApp problems (Abstract problems are the same as those you saw when using QuizApp without UpGrade).<br><br>To illustrate this, <a id="experiment-file-download-link" href="/file/experiment/area-concrete-or-abstract.json">download this experiment file</a> to your computer for import into UpGrade.`,
-                        nextCallback: {
-                            context: "home",
-                            type: "click",
-                            id: "experiment-file-download-link"
-                        }
-                    },
-                    {
-                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file you just downloaded called "area-concrete-or-abstract.json."<br><br>Once the JSON file is selected, click "IMPORT."`,
-                        nextCallback: {
-                            context: "upgrade",
-                            type: "click",
-                            id: "import-experiment-button"
-                        }
-                    },
-                    {
-                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file you just downloaded called "area-concrete-or-abstract.json."<br><br>Once the JSON file is selected, click "IMPORT."`,
-                        nextCallback: {
-                            context: "upgrade",
-                            type: "click",
-                            id: "import-experiment-choose-file-button"
-                        }
-                    },
-                    {
-                        content: `Click the "IMPORT EXPERIMENT" button and select the experiment file you just downloaded called "area-concrete-or-abstract.json."<br><br>Once the JSON file is selected, click "IMPORT."`,
-                        nextCallback: {
-                            context: "upgrade",
-                            type: "click",
-                            id: "import-experiment-import-button"
-                        }
-                    },
-                    {
-                        content: `You have now defined an experiment in UpGrade.<br><br>Click on the imported experiment "Area - Concrete or Abstract" to view it.`,
+                        content: `In this experiment we randomly assign users of QuizApp two different experiences. Users in the Concrete condition will see real-world, concrete items mapped onto the shapes in their QuizApp problems. Users in the Abstract condition will see only the abstract shapes in their QuizApp problems (Abstract problems are the same as those you saw when using QuizApp without UpGrade).<br><br>To illustrate this, click on the defined experiment "Area - Concrete or Abstract".`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
