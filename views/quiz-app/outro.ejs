@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/css/universal.css" />
     <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/quiz-app/outro.css" />
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
     <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
@@ -68,18 +69,46 @@
                     const hostUrl = "<%= upgradeHostUrl %>";
                     const upClient = new UpgradeClient(studentId, hostUrl);
 
-                    // Get the current session and post metrics to UpGrade
-                    const metrics = [{
-                        timestamp: new Date().toISOString(), // Note: Do we need to require this from the user?
-                        metrics: {
-                            attributes: {
-                                durationSeconds: Number("<%= session.durationSeconds %>"),
-                                percentCorrect: Number("<%= session.numCorrect / session.numAnswered * 100 %>")
+                    // Post metrics to UpGrade
+                    const sessionId = "<%= session._id %>";
+                    const durationSeconds = Number("<%= session.durationSeconds %>");
+                    const percentCorrect = Number("<%= session.numCorrect / session.numAnswered * 100 %>");
+                    const metrics = {
+                        "@context": "http://purl.imsglobal.org/ctx/caliper/v1p2",
+                        type: "GradeEvent",
+                        id: sessionId,
+                        actor: {
+                            type: "Person",
+                            id: studentId
+                        },
+                        action: "Graded",
+                        eventTime: new Date().toISOString(),
+                        object: {
+                            type: "Attempt",
+                            id: sessionId
+                        },
+                        generated: {
+                            id: sessionId,
+                            type: "Score",
+                            attempt: {
+                                id: sessionId,
+                                type: "Attempt",
+                                assignee: studentId,
+                                assignable: "area_questions",
+                                duration: moment.duration(durationSeconds, "s").toISOString(), // Convert to ISO 8601 duration format
+                                maxScore: 100,
+                                scoreGiven: percentCorrect,
+                                extensions: {
+                                    metrics: {
+                                        attributes: {},
+                                        groupedMetrics: []
+                                    }
+                                }
                             }
                         }
-                    }];
+                    };
                     await LogHandler.info("Posting metrics to UpGrade...");
-                    await upClient.log(metrics); // Note: Why does the log() function require an array? Any use cases?
+                    await upClient.logCaliper(metrics);
                     await LogHandler.info("<%= session.student.name %> logged out");
 
                     // Redirect to the login page
