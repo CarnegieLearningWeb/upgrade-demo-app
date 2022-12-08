@@ -12,11 +12,11 @@ class DataResetter {
     async saveMetrics() {
         await FetchWrapper.post(`${this.hostUrl}/api/metric/save`, {
             metricUnit: [{
-                metric: "durationSeconds",
+                metric: "duration",
                 datatype: "continuous"
             },
             {
-                metric: "percentCorrect",
+                metric: "scoreGiven",
                 datatype: "continuous"
             }
             ]
