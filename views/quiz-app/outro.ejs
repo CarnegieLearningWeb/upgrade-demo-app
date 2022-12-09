@@ -91,14 +91,14 @@
                         generated: {
                             id: sessionId,
                             type: "Score",
+                            maxScore: 100,
+                            scoreGiven: percentCorrect,
                             attempt: {
                                 id: sessionId,
                                 type: "Attempt",
                                 assignee: studentId,
                                 assignable: "area_questions",
                                 duration: moment.duration(durationSeconds, "s").toISOString(), // Convert to ISO 8601 duration format
-                                maxScore: 100,
-                                scoreGiven: percentCorrect,
                                 extensions: {
                                     metrics: {
                                         attributes: {},
