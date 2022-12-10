@@ -49,7 +49,7 @@
                 </div>
                 <div id="tours-container" class="loading">
                     <% for (const tour of tours) { %>
-                    <div class="tour-bar shadowed ">
+                    <div class="tour-bar shadowed">
                         <div class="tour-wrapper">
                             <p class="tour-text"><%= tour.name %></p>
                             <img class="tour-icon recolor-444444" src="/asset/image/arrow-icon.png" alt="Arrow Icon">
@@ -224,7 +224,6 @@
             }
             const toursContainter = document.getElementById("tours-container");
             const tourBars = toursContainter.querySelectorAll(".tour-bar");
-            const stepBars = document.querySelectorAll(".step-bar");
             let selectedTourBar = null;
 
             const initCallFunction = {
@@ -411,6 +410,7 @@
             };
 
             const unselectAllStepBars = () => {
+                const stepBars = toursContainter.querySelectorAll(".step-bar");
                 for (const stepBar of stepBars) {
                     if (stepBar.classList.contains("selected")) {
                         stepBar.classList.remove("selected");
@@ -418,7 +418,7 @@
                 }
             }
 
-            const startTour = async (tour) => {
+            const startTour = async (tour, stepBars) => {
                 // Show iframe loading animation
                 quizAppIframe.style.display = "none";
                 adminToolIframe.style.display = "none";
@@ -516,6 +516,7 @@
             for (let i = 0; i < tourBars.length; i++) {
                 const tourBar = tourBars[i];
                 const tourWrapper = tourBar.querySelector(".tour-wrapper");
+                const stepBars = tourBar.querySelectorAll(".step-bar");
                 const tour = tours[i];
                 tourWrapper.addEventListener("click", () => {
                     if (tourBar.classList.contains("selected")) {
@@ -537,7 +538,7 @@
                                     tourBar.classList.add("selected");
                                     selectedTourBar = tourBar;
                                     tourModal.destroy();
-                                    await startTour(tour);
+                                    await startTour(tour, stepBars);
                                 }
                             });
                         } else {
@@ -546,7 +547,7 @@
                                     unselectAllStepBars();
                                     tourBar.classList.add("selected");
                                     selectedTourBar = tourBar;
-                                    await startTour(tour);
+                                    await startTour(tour, stepBars);
                                 }
                             });
                         }
