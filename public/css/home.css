@@ -147,6 +147,10 @@
     border-top: solid 1px #B7B9BC;
 }
 
+.tour-bar:hover {
+    background: #F8F8F8;
+}
+
 .tour-wrapper {
     width: 100%;
     height: 57px;
