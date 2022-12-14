@@ -93,19 +93,29 @@ module.exports = [
                         }
                     },
                     {
-                        content: `In this experiment we randomly assign users of QuizApp two different experiences. Users in the Concrete condition will see real-world, concrete items mapped onto the shapes in their QuizApp problems. Users in the Abstract condition will see only the abstract shapes in their QuizApp problems (Abstract problems are the same as those you saw when using QuizApp without UpGrade).<br><br>To illustrate this, click on the defined experiment "Area - Concrete or Abstract".`,
+                        content: `In this experiment we randomly assign users of QuizApp two different experiences. Users in the Concrete condition will see real-world, concrete items mapped onto the shapes in their QuizApp problems. Users in the Abstract condition will see only the abstract shapes in their QuizApp problems (Abstract problems are the same as those you saw when using QuizApp without UpGrade).<br><br>To illustrate this, click on the defined experiment "Area - Concrete or Abstract."`,
                         nextCallback: {
                             context: "upgrade",
-                            type: "click",
-                            id: "experiment-name-area-concrete-or-abstract"
+                            type: "function",
+                            id: "on-experiment-click",
+                            args: ["Area - Concrete or Abstract", true]
                         }
                     },
                     {
-                        content: `The experiment is defined but it is not running.<br><br>To activate it, click on the word "Inactive" under "STATUS".`,
+                        content: `The experiment is defined but it is not running.<br><br>To activate it, click on the word "Inactive" under "STATUS."`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
-                            id: "experiment-detail-status"
+                            id: "experiment-details-overview-status"
+                        }
+                    },
+                    {
+                        content: `To start running the experiment, set the New Status "Enrolling" and then click "SAVE."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["change-experiment-status-modal-new-status", "innerText", "Enrolling", true]
                         }
                     },
                     {
@@ -113,23 +123,7 @@ module.exports = [
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
-                            id: "experiment-detail-status-new-status-select"
-                        }
-                    },
-                    {
-                        content: `To start running the experiment, set the New Status "Enrolling" and then click "SAVE."`,
-                        nextCallback: {
-                            context: "upgrade",
-                            type: "click",
-                            id: "experiment-detail-status-new-status-select-enrolling"
-                        }
-                    },
-                    {
-                        content: `To start running the experiment, set the New Status "Enrolling" and then click "SAVE."`,
-                        nextCallback: {
-                            context: "upgrade",
-                            type: "click",
-                            id: "experiment-detail-status-save-button"
+                            id: "change-experiment-status-modal-save-button"
                         }
                     },
                     {
@@ -328,11 +322,12 @@ module.exports = [
                 title: "View the data",
                 substeps: [
                     {
-                        content: `Now let's show you the results of the UpGrade experiment.<br><br>Click on the experiment "Area - Concrete or Abstract".`,
+                        content: `Now let's show you the results of the UpGrade experiment.<br><br>Click on the experiment "Area - Concrete or Abstract."`,
                         nextCallback: {
                             context: "upgrade",
-                            type: "click",
-                            id: "experiment-name-area-concrete-or-abstract"
+                            type: "function",
+                            id: "on-experiment-click",
+                            args: ["Area - Concrete or Abstract", true]
                         }
                     },
                     {
@@ -340,12 +335,360 @@ module.exports = [
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
-                            id: "experiment-detail-data-tab"
+                            id: "experiment-details-data-tab"
                         }
                     },
                     {
                         content: `This experiment measures percent correct and duration to see if they differ when students get Concrete vs. Abstract problems. Scroll down to see the enrollments by condition.<br><br>Click on "Percent Correct" and "Duration in Seconds" to see the result on these metrics at the bottom of the page.`,
                         buttonTexts: ["Finish Welcome Tour"]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        name: "Experiment UI Tour",
+        steps: [
+            {
+                context: "upgrade",
+                title: "Open the Experiment Stepper",
+                substeps: [
+                    {
+                        content: `Let's learn how to create an experiment in UpGrade.<br><br>Log into UpGrade using a Google account by clicking the "Login with Google" button.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "login-with-google-button"
+                        }
+                    },
+                    {
+                        content: `Click the "ADD EXPERIMENT" button to start the experiment creation process.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "add-experiment-button"
+                        }
+                    }
+                ]
+            },
+            {
+                context: "upgrade",
+                title: "Complete the Overview Step",
+                substeps: [
+                    {
+                        content: `Let's name this experiment "Concrete or Abstract." Please type it into the "Name" field.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-overview-name", "value", "Concrete or Abstract", false]
+                        }
+                    },
+                    {
+                        content: `Click on the "App Context" drop-down and select "add." The App Context indicates where the experiment will run.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-overview-app-context", "innerText", "add", true]
+                        }
+                    },
+                    {
+                        content: `Click on the "Unit of Assignment" drop-down and select "Individual." This sets whether the condition will be assigned individually or by group (e.g. school, class, teacher).`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-overview-unit-of-assignment", "innerText", "Individual", true]
+                        }
+                    },
+                    {
+                        content: `Click on the "Consistency Rule" drop-down and select "Individual." This sets whether the conditions will be consistent across the group or not. This will be further explained in another tour.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-overview-consistency-rule", "innerText", "Individual", true]
+                        }
+                    },
+                    {
+                        content: `Click the "Next" button at the bottom to move to the next step.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-overview-next-button"
+                        }
+                    }
+                ]
+            },
+            {
+                context: "upgrade",
+                title: "Complete the Design Step",
+                substeps: [
+                    {
+                        content: `Let's define a decision point for this experiment. A decision point is a place in the client application where the condition is assigned.<br><br>Click "Add Decision Point" to add a decision point.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-design-add-decision-point-button"
+                        }
+                    },
+                    {
+                        content: `A decision point consists of Site and Target. Type "area" into the "Site" field, and type "question_type" into the "Target" field.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-design-decision-points-row1-site", "value", "area", true]
+                        }
+                    },
+                    {
+                        content: `A decision point consists of Site and Target. Type "area" into the "Site" field, and type "question_type" into the "Target" field.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-design-decision-points-row1-target", "value", "question_type", true]
+                        }
+                    },
+                    {
+                        content: `Click on the "Exlude If Reached" checkbox to enable it. This will exclude participants who have previously reached the decision point.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-design-decision-points-row1-exclude-if-reached", "checked", true, true]
+                        }
+                    },
+                    {
+                        content: `Now let's define conditions for this experiment. Click "Add Condition" to add a condition.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-design-add-condition-button"
+                        }
+                    },
+                    {
+                        content: `Type "Abstract" into the "Condition" field and then click "Add Condition" again to add another condition.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-design-conditions-row1-condition", "value", "Abstract", true]
+                        }
+                    },
+                    {
+                        content: `Type "Abstract" into the "Condition" field and then click "Add Condition" again to add another condition.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-design-add-condition-button"
+                        }
+                    },
+                    {
+                        content: `Type "Concrete" into the "Condition" field.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-design-conditions-row2-condition", "value", "Concrete", true]
+                        }
+                    },
+                    {
+                        content: `Now we have defined a desicion point and conditions. Click the "Next" button at the bottom to move to the next step.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-design-next-button"
+                        }
+                    }
+                ]
+            },
+            {
+                context: "upgrade",
+                title: "Complete the Participants Step",
+                substeps: [
+                    {
+                        content: `Here you can define a list of participants to include or exclude. Click on the "Inclusion Criteria" drop-down and select "Include All Except" to include all participants.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-participants-inclusion-criteria", "innerText", "Include All Except...", true]
+                        }
+                    },
+                    {
+                        content: `Click the "Next" button at the bottom to move to the next step.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-participants-next-button"
+                        }
+                    }
+                ]
+            },
+            {
+                context: "upgrade",
+                title: "Complete the Metrics Step",
+                substeps: [
+                    {
+                        content: `Let's define the metrics for this experiment. Click "Add Metric" to add a metric.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-metrics-add-metric-button"
+                        }
+                    },
+                    {
+                        content: `Type "durationSeconds" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-metrics-metrics-row1-metric", "value", "durationSeconds", true]
+                        }
+                    },
+                    {
+                        content: `Type "durationSeconds" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-metrics-metrics-row1-statistic", "innerText", "Mean", true]
+                        }
+                    },
+                    {
+                        content: `Type "Duration in Seconds (Mean)" into the "Display Name" field, and then click "Add Metric" again to add another metric."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-metrics-metrics-row1-display-name", "value", "Duration in Seconds (Mean)", false]
+                        }
+                    },
+                    {
+                        content: `Type "Duration in Seconds (Mean)" into the "Display Name" field, and then click "Add Metric" again to add another metric."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-metrics-add-metric-button"
+                        }
+                    },
+                    {
+                        content: `Type "percentCorrect" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-metrics-metrics-row2-metric", "value", "percentCorrect", true]
+                        }
+                    },
+                    {
+                        content: `Type "percentCorrect" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-metrics-metrics-row2-statistic", "innerText", "Mean", true]
+                        }
+                    },
+                    {
+                        content: `Type "Percent Correct (Mean)" into the "Display Name" field."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-metrics-metrics-row2-display-name", "value", "Percent Correct (Mean)", false]
+                        }
+                    },
+                    {
+                        content: `Now we have defined the metrics. Click the "Next" button at the bottom to move to the next step.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-metrics-next-button"
+                        }
+                    }
+                ]
+            },
+            {
+                context: "upgrade",
+                title: "Complete the Schedule Step",
+                substeps: [
+                    {
+                        content: `Here you can schedule the experiment to start and end at a specific date and time. Click the "Next" button at the bottom to move to the final step.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-schedule-next-button"
+                        }
+                    }
+                ]
+            },
+            {
+                context: "upgrade",
+                title: "Complete the Post Rule Step",
+                substeps: [
+                    {
+                        content: `Here you can define what condition the partipants will see after the experiment ends. Click on the "Post Rule" drop-down and select "Continue" to make the participants continue getting the assigned condition even after the experiment ends.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-post-rule-post-rule", "innerText", "Continue", true]
+                        }
+                    },
+                    {
+                        content: `Click the "Create" button at the bottom to create the experiment.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-post-rule-create-button"
+                        }
+                    }
+                ]
+            },
+            {
+                context: "upgrade",
+                title: "Start the Experiment",
+                substeps: [
+                    {
+                        content: `You have now created an experiment in UpGrade.<br><br>Click on the experiment "Concrete or Abstract" to view it.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-experiment-click",
+                            args: ["Concrete or Abstract", false]
+                        }
+                    },
+                    {
+                        content: `The experiment is defined but it is not running.<br><br>To activate it, click on the word "Inactive" under "STATUS."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-details-overview-status"
+                        }
+                    },
+                    {
+                        content: `To start running the experiment, set the New Status "Enrolling" and then click "SAVE."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["change-experiment-status-modal-new-status", "innerText", "Enrolling", true]
+                        }
+                    },
+                    {
+                        content: `To start running the experiment, set the New Status "Enrolling" and then click "SAVE."`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "change-experiment-status-modal-save-button"
+                        }
+                    },
+                    {
+                        content: `Now we have set up and started an experiment in UpGrade.<br><br>Feel free to log into QuizApp to see if you get the "Concrete" or "Abstract" condition. You can come back to the experiment details page and see the results on the "Data" tab.`,
+                        buttonTexts: ["Finish Experiment UI Tour"]
                     }
                 ]
             }

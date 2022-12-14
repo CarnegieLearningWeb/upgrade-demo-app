@@ -322,7 +322,7 @@
             };
 
             const nextCallback = {
-                "home": (type, id, onNextCall) => {
+                "home": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
                         if (!selectedTourBar) {
                             window.removeEventListener(type, onWindowEvent, true);
@@ -336,7 +336,7 @@
                     }
                     window.addEventListener(type, onWindowEvent, true);
                 },
-                "quiz-app": (type, id, onNextCall) => {
+                "quiz-app": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
                         if (!selectedTourBar) {
                             quizAppIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
@@ -361,7 +361,7 @@
                     }
                     quizAppIframe.contentWindow.addEventListener(type, onWindowEvent, true);
                 },
-                "admin-tool": (type, id, onNextCall) => {
+                "admin-tool": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
                         if (!selectedTourBar) {
                             adminToolIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
@@ -375,7 +375,7 @@
                     }
                     adminToolIframe.contentWindow.addEventListener(type, onWindowEvent, true);
                 },
-                "upgrade": (type, id, onNextCall) => {
+                "upgrade": (type, id, args, onNextCall) => {
                     const onWindowMessage = async (event) => {
                         window.removeEventListener("message", onWindowMessage, true);
                         if (!selectedTourBar) {
@@ -390,10 +390,11 @@
                     sendDataToUpgrade({
                         message: "nextCallback",
                         type,
-                        id
+                        id,
+                        args
                     });
                 },
-                "dev-console": (type, id, onNextCall) => {
+                "dev-console": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
                         if (!selectedTourBar) {
                             devConsoleIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
@@ -431,7 +432,8 @@
                 stepBars[0].classList.add("selected");
 
                 try {
-                    // Clear data and save metrics
+                    // Clear all data and save metrics
+                    await dataResetter.deleteAllExperiments();
                     await dataResetter.clearUpgradeData();
                     await dataResetter.clearDemoAppData();
                     await dataResetter.saveMetrics();
@@ -492,7 +494,7 @@
                         }
                     }
                     if (substep.nextCallback) {
-                        nextCallback[substep.nextCallback.context](substep.nextCallback.type, substep.nextCallback.id, onNextCall);
+                        nextCallback[substep.nextCallback.context](substep.nextCallback.type, substep.nextCallback.id, substep.nextCallback.args || [], onNextCall);
                     }
                     tourModal.tour(step.context, `${step.title} (${substepIndex + 1}/${step.substeps.length})`, substep.content, substep.buttonTexts || [], async (buttonText) => {
                         if (buttonText === "Close") {
