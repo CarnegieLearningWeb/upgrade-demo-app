@@ -470,7 +470,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Click on the "Exlude If Reached" checkbox to enable it.<br><br>This will exclude participants who have previously reached the decision point.`,
+                        content: `Click on the "Exlude If Reached" checkbox to enable it. This will exclude participants who have previously reached the decision point.`,
                         nextCallback: {
                             context: "upgrade",
                             type: "function",

@@ -410,4 +410,13 @@
     margin-left: 5px;
     margin-right: 5px;
     cursor: pointer;
+    color: #4D76FF;
+}
+
+.copy-to-clipboard-button:hover {
+    color: #2F58E6;
+}
+
+.copy-to-clipboard-button:active {
+    color: #254EDC;
 }
