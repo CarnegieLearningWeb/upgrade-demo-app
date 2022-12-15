@@ -8,6 +8,7 @@
     <meta name="keywords" content="UpGrade, Demo, App" />
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
     <link rel="stylesheet" href="/css/universal.css" />
     <link rel="stylesheet" href="/css/modal.css" />
@@ -114,6 +115,28 @@
         </div>
     </div>
     <script>
+        // Select the text from textNode, and copy it to clipboard
+        const copyToClipboard = (textNode, text) => {
+            if (textNode.nodeType !== Node.TEXT_NODE) {
+                return false;
+            }
+            const content = textNode.textContent;
+            const selectFrom = content.indexOf(text);
+            const selectTo = selectFrom + text.length;
+            const range = document.createRange();
+            range.setStart(textNode, selectFrom);
+            range.setEnd(textNode, selectTo);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try { // Security exception may be thrown by some browsers
+                return document.execCommand("copy");
+            } catch (error) {
+                console.error(error);
+                return false;
+            }
+        }
+
         window.addEventListener("load", async () => {
             // Show iframe loading animation
             const iframeLoadingAnimation = document.getElementById("iframe-loading-animation");
@@ -271,6 +294,22 @@
                     const response = await fetch("/asset/experiment/area-concrete-or-abstract.json");
                     const json = await response.json();
                     await FetchWrapper.post(`${hostUrl}/api/experiments`, json);
+                },
+                "insert-copy-to-clipboard-buttons": async (args, substep) => {
+                    let position = 0;
+                    for (const text of args) {
+                        const startIndex = substep.content.indexOf(text, position);
+                        if (startIndex > 0 && substep.content[startIndex - 1] === '"') {
+                            const endIndex = startIndex + text.length - 1;
+                            // Insert the copy-to-clipboard button right next to the closing double quote
+                            const insertIndex = substep.content.indexOf('"', endIndex) + 1;
+                            if (insertIndex) {
+                                const elemToInsert = `<i class="copy-to-clipboard-button fa fa-clone" onclick='copyToClipboard(this.previousSibling, "${text}");'></i>`;
+                                substep.content = substep.content.slice(0, insertIndex) + elemToInsert + substep.content.slice(insertIndex).trim();
+                                position = insertIndex + elemToInsert.length;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -467,7 +506,7 @@
                 // Show tour modal
                 const showTourModal = async (stepIndex, substepIndex) => {
                     const step = tour.steps[stepIndex];
-                    const substep = step.substeps[substepIndex];
+                    const substep = Object.assign({}, step.substeps[substepIndex]); // Clone the substep to keep the original
                     const onNextCall = async () => {
                         if (substepIndex + 1 < step.substeps.length) {
                             await showTourModal(stepIndex, substepIndex + 1);

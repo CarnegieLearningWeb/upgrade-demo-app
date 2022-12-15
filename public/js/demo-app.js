@@ -128,11 +128,10 @@ if (window.self !== window.top) {
       const id = args[0];
       const property = args[1];
       const value = args[2];
-      const isCaseSensitive = args[3];
       let intervalId = null;
       const clock = () => {
         const elem = getElementById(id);
-        if (elem && property in elem && isCaseSensitive ? elem[property] === value : elem[property].toLowerCase() === value.toLowerCase()) {
+        if (elem && property in elem && elem[property] === value) {
           clearInterval(intervalId);
           onNextCall();
         }
@@ -141,10 +140,9 @@ if (window.self !== window.top) {
     },
     'on-experiment-click': (args, onNextCall) => {
       const experimentName = args[0];
-      const isCaseSensitive = args[1];
       const onWindowClick = (event) => {
         const elem = Array.from(document.querySelectorAll('div.experiment-list-table-container a.experiment-name')).find(
-          (elem) => isCaseSensitive ? elem.innerText === experimentName : elem.innerText.toLowerCase() === experimentName.toLowerCase()
+          (elem) => elem.innerText === experimentName
         );
         if (elem && elem.contains(event.target)) {
           window.removeEventListener('click', onWindowClick, true);

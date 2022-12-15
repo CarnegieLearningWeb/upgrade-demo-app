@@ -403,3 +403,11 @@
         transform: rotate(360deg);
     }
 }
+
+/* ==================== tour ==================== */
+
+.copy-to-clipboard-button {
+    margin-left: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+}
