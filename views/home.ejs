@@ -399,9 +399,6 @@
                             if (hrefModIds.includes(id)) {
                                 quizAppIframe.onload = async () => {
                                     quizAppIframe.onload = null;
-                                    if (!selectedTourBar) {
-                                        return;
-                                    }
                                     await onNextCall();
                                 }
                                 return;
@@ -459,6 +456,7 @@
             }
 
             const quitTour = () => {
+                quizAppIframe.onload = null;
                 sendDataToUpgrade({
                     message: "initCall",
                     type: "function",
