@@ -248,6 +248,7 @@
             const toursContainter = document.getElementById("tours-container");
             const tourBars = toursContainter.querySelectorAll(".tour-bar");
             let selectedTourBar = null;
+            let activeWindowEvent = null;
 
             const initCallFunction = {
                 "select-nth-student": async (args, substep) => {
@@ -360,30 +361,40 @@
                 },
             };
 
+            const removeActiveWindowEvent = () => {
+                if (activeWindowEvent) {
+                    activeWindowEvent.target.removeEventListener(activeWindowEvent.type, activeWindowEvent.callback, true);
+                    activeWindowEvent = null;
+                }
+            }
+
+            const addWindowEvent = (target, type, callback) => {
+                removeActiveWindowEvent();
+                target.addEventListener(type, callback, true);
+                activeWindowEvent = {
+                    target,
+                    type,
+                    callback
+                };
+            }
+
             const nextCallback = {
                 "home": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
-                        if (!selectedTourBar) {
-                            window.removeEventListener(type, onWindowEvent, true);
-                            return;
-                        }
                         const elem = document.getElementById(id);
                         if (elem && elem.contains(event.target)) {
-                            window.removeEventListener(type, onWindowEvent, true);
+                            removeActiveWindowEvent();
                             await onNextCall();
                         }
                     }
-                    window.addEventListener(type, onWindowEvent, true);
+                    addWindowEvent(window, type, onWindowEvent);
                 },
                 "quiz-app": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
-                        if (!selectedTourBar) {
-                            quizAppIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
-                            return;
-                        }
                         const elem = quizAppIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
-                            quizAppIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            removeActiveWindowEvent();
+                            // Note: This seems a bit hacky, maybe there's a better way to handle this
                             const hrefModIds = ["login-button", "start-button", "submit-button", "logout-button"];
                             if (hrefModIds.includes(id)) {
                                 quizAppIframe.onload = async () => {
@@ -398,34 +409,27 @@
                             await onNextCall();
                         }
                     }
-                    quizAppIframe.contentWindow.addEventListener(type, onWindowEvent, true);
+                    addWindowEvent(quizAppIframe.contentWindow, type, onWindowEvent);
                 },
                 "admin-tool": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
-                        if (!selectedTourBar) {
-                            adminToolIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
-                            return;
-                        }
                         const elem = adminToolIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
-                            adminToolIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            removeActiveWindowEvent();
                             await onNextCall();
                         }
                     }
-                    adminToolIframe.contentWindow.addEventListener(type, onWindowEvent, true);
+                    addWindowEvent(adminToolIframe.contentWindow, type, onWindowEvent);
                 },
                 "upgrade": (type, id, args, onNextCall) => {
                     const onWindowMessage = async (event) => {
-                        window.removeEventListener("message", onWindowMessage, true);
-                        if (!selectedTourBar) {
-                            return;
-                        }
                         const data = event.message || event.data;
                         if (data.message === "onNextCall") {
+                            removeActiveWindowEvent();
                             await onNextCall();
                         }
                     }
-                    window.addEventListener("message", onWindowMessage, true);
+                    addWindowEvent(window, "message", onWindowMessage);
                     sendDataToUpgrade({
                         message: "nextCallback",
                         type,
@@ -435,17 +439,13 @@
                 },
                 "dev-console": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
-                        if (!selectedTourBar) {
-                            devConsoleIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
-                            return;
-                        }
                         const elem = devConsoleIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
-                            devConsoleIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            removeActiveWindowEvent();
                             await onNextCall();
                         }
                     }
-                    devConsoleIframe.contentWindow.addEventListener(type, onWindowEvent, true);
+                    addWindowEvent(devConsoleIframe.contentWindow, type, onWindowEvent);
                 }
             };
 
@@ -458,7 +458,20 @@
                 }
             }
 
-            const startTour = async (tour, stepBars) => {
+            const quitTour = () => {
+                sendDataToUpgrade({
+                    message: "initCall",
+                    type: "function",
+                    id: "remove-active-window-event"
+                });
+                removeActiveWindowEvent();
+                unselectAllStepBars();
+                selectedTourBar.classList.remove("selected");
+                selectedTourBar = null;
+                tourModal.destroy();
+            }
+
+            const startTour = async (tour, tourBar, stepBars) => {
                 // Show iframe loading animation
                 quizAppIframe.style.display = "none";
                 adminToolIframe.style.display = "none";
@@ -466,6 +479,10 @@
                 devConsoleIframe.style.display = "none";
                 iframeLoadingAnimation.style.display = "block";
                 iframeWrapper.classList.add("loading");
+
+                // Set the selected tour bar
+                tourBar.classList.add("selected");
+                selectedTourBar = tourBar;
 
                 // Select the first step bar
                 stepBars[0].classList.add("selected");
@@ -518,10 +535,7 @@
                             await showTourModal(stepIndex + 1, 0);
                             return;
                         }
-                        unselectAllStepBars();
-                        selectedTourBar.classList.remove("selected");
-                        selectedTourBar = null;
-                        tourModal.destroy();
+                        quitTour();
                     }
                     if (substep.initCall) {
                         try {
@@ -539,10 +553,7 @@
                         if (buttonText === "Close") {
                             confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to quit the ${tour.name}?`, ["Cancel", "Quit"], (buttonText) => {
                                 if (buttonText === "Quit") {
-                                    unselectAllStepBars();
-                                    selectedTourBar.classList.remove("selected");
-                                    selectedTourBar = null;
-                                    tourModal.destroy();
+                                    quitTour();
                                 }
                             });
                         } else {
@@ -563,10 +574,7 @@
                     if (tourBar.classList.contains("selected")) {
                         confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to quit the ${tour.name}?`, ["Cancel", "Quit"], (buttonText) => {
                             if (buttonText === "Quit") {
-                                unselectAllStepBars();
-                                tourBar.classList.remove("selected");
-                                selectedTourBar = null;
-                                tourModal.destroy();
+                                quitTour();
                             }
                         });
                     } else {
@@ -574,21 +582,14 @@
                             const selectedTourText = selectedTourBar.querySelector(".tour-text");
                             confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to quit the ${selectedTourText.innerText} and start the ${tour.name}? Please note this will reset the application data.`, ["Cancel", "Yes"], async (buttonText) => {
                                 if (buttonText === "Yes") {
-                                    unselectAllStepBars();
-                                    selectedTourBar.classList.remove("selected");
-                                    tourBar.classList.add("selected");
-                                    selectedTourBar = tourBar;
-                                    tourModal.destroy();
-                                    await startTour(tour, stepBars);
+                                    quitTour();
+                                    await startTour(tour, tourBar, stepBars);
                                 }
                             });
                         } else {
                             confirmModal.confirm("upgrade", "UpGrade Demo", `Click "Start" to start the ${tour.name}.`, ["Cancel", "Start"], async (buttonText) => {
                                 if (buttonText === "Start") {
-                                    unselectAllStepBars();
-                                    tourBar.classList.add("selected");
-                                    selectedTourBar = tourBar;
-                                    await startTour(tour, stepBars);
+                                    await startTour(tour, tourBar, stepBars);
                                 }
                             });
                         }

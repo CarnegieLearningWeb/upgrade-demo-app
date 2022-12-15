@@ -96,12 +96,40 @@ if (window.self !== window.top) {
     return null;
   };
 
+  let activeClockId = null;
+  let activeWindowEvent = null;
+
+  const removeActiveWindowEvent = () => {
+    if (activeClockId) {
+      clearInterval(activeClockId);
+      activeClockId = null;
+    }
+    if (activeWindowEvent) {
+      activeWindowEvent.target.removeEventListener(activeWindowEvent.type, activeWindowEvent.callback, true);
+      activeWindowEvent = null;
+    }
+  }
+
+  const addWindowEvent = (target, type, callback) => {
+    removeActiveWindowEvent();
+    if (type === 'clock') {
+      activeClockId = target.setInterval(callback, 500);
+      return;
+    }
+    target.addEventListener(type, callback, true);
+    activeWindowEvent = {
+      target,
+      type,
+      callback
+    };
+  }
+
   // A set of functions that do more than triggering an event
   const initCallFunction = {
     'set-zoom-level': (args) => {
       document.body.style.zoom = args[0];
     },
-    logout: () => {
+    'logout': () => {
       const elem = getElementById('signout-button');
       if (elem) {
         elem.click();
@@ -109,6 +137,9 @@ if (window.self !== window.top) {
         gapi.auth2.getAuthInstance().signOut();
       }
     },
+    'remove-active-window-event': () => {
+      removeActiveWindowEvent();
+    }
   };
 
   // Used to call a function or trigger event on element
@@ -128,15 +159,14 @@ if (window.self !== window.top) {
       const id = args[0];
       const property = args[1];
       const value = args[2];
-      let intervalId = null;
       const clock = () => {
         const elem = getElementById(id);
         if (elem && property in elem && elem[property] === value) {
-          clearInterval(intervalId);
+          removeActiveWindowEvent();
           onNextCall();
         }
       };
-      intervalId = window.setInterval(clock, 500);
+      addWindowEvent(window, 'clock', clock);
     },
     'on-experiment-click': (args, onNextCall) => {
       const experimentName = args[0];
@@ -145,11 +175,11 @@ if (window.self !== window.top) {
           (elem) => elem.innerText === experimentName
         );
         if (elem && elem.contains(event.target)) {
-          window.removeEventListener('click', onWindowClick, true);
+          removeActiveWindowEvent();
           onNextCall();
         }
       };
-      window.addEventListener('click', onWindowClick, true);
+      addWindowEvent(window, 'click', onWindowClick);
     }
   };
 
@@ -161,11 +191,11 @@ if (window.self !== window.top) {
     const onWindowEvent = (event) => {
       const elem = getElementById(id);
       if (elem && elem.contains(event.target)) {
-        window.removeEventListener(type, onWindowEvent, true);
+        removeActiveWindowEvent();
         onNextCall();
       }
     };
-    window.addEventListener(type, onWindowEvent, true);
+    addWindowEvent(window, type, onWindowEvent);
   };
 
   // Receive data from the demo app
