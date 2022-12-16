@@ -124,29 +124,38 @@ if (window.self !== window.top) {
     };
   }
 
+  const closeOpenedModals = () => {
+    const modalButtonsSelector = 'div.cdk-overlay-pane button.mat-raised-button';
+    const modalCloseButton = Array.from(document.querySelectorAll(modalButtonsSelector)).find((elem) => elem.innerText === 'CLOSE');
+    if (modalCloseButton) {
+      modalCloseButton.click();
+      const confirmCloseButton = Array.from(document.querySelectorAll(modalButtonsSelector)).find((elem) => elem.innerText === 'Yes');
+      if (confirmCloseButton) {
+        confirmCloseButton.click();
+      }
+    }
+  }
+
   // A set of functions that do more than triggering an event
   const initCallFunction = {
     'set-zoom-level': (args) => {
       document.body.style.zoom = args[0];
     },
     'logout': () => {
-      // Close any potentially opened modals
-      const modalButtonsSelector = 'div.cdk-overlay-pane button.mat-raised-button';
-      const modalCloseButton = Array.from(document.querySelectorAll(modalButtonsSelector)).find((elem) => elem.innerText === 'CLOSE');
-      if (modalCloseButton) {
-        modalCloseButton.click();
-        const confirmCloseButton = Array.from(document.querySelectorAll(modalButtonsSelector)).find((elem) => elem.innerText === 'Yes');
-        if (confirmCloseButton) {
-          confirmCloseButton.click();
-        }
-      }
-      // Sign out from UpGrade
+      closeOpenedModals();
       const signOutButton = getElementById('signout-button');
       if (signOutButton) {
         signOutButton.click();
       } else if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
         gapi.auth2.getAuthInstance().signOut();
       }
+    },
+    'on-upgrade-tab-click': () => {
+      if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
+        return closeOpenedModals();
+      }
+      const experimentsTab = getElementById('experiments-tab');
+      experimentsTab.click();
     },
     'remove-active-window-event': () => {
       removeActiveWindowEvent();
