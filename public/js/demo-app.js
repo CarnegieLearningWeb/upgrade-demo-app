@@ -17,6 +17,8 @@ if (window.self !== window.top) {
       // Experiment Stepper - Overview Step
       case 'experiment-stepper-overview-name':
         return document.querySelectorAll('form.experiment-overview input.mat-input-element')[0];
+      case 'experiment-stepper-overview-description':
+        return document.querySelectorAll('form.experiment-overview input.mat-input-element')[1];
       case 'experiment-stepper-overview-app-context':
         return document.querySelectorAll('form.experiment-overview div.mat-select-value')[0];
       case 'experiment-stepper-overview-unit-of-assignment':

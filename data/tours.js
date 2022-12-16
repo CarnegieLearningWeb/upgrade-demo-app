@@ -84,7 +84,7 @@ module.exports = [
                         initCall: {
                             context: "home",
                             type: "function",
-                            id: "create-experiment-area-concrete-or-abstract"
+                            id: "create-experiment-area-question-type"
                         },
                         nextCallback: {
                             context: "upgrade",
@@ -93,12 +93,12 @@ module.exports = [
                         }
                     },
                     {
-                        content: `In this experiment we randomly assign users of QuizApp two different experiences. Users in the Concrete condition will see real-world, concrete items mapped onto the shapes in their QuizApp problems. Users in the Abstract condition will see only the abstract shapes in their QuizApp problems (Abstract problems are the same as those you saw when using QuizApp without UpGrade).<br><br>To illustrate this, click on the defined experiment "Area - Concrete or Abstract."`,
+                        content: `In this experiment we randomly assign users of QuizApp two different experiences. Users in the Concrete condition will see real-world, concrete items mapped onto the shapes in their QuizApp problems. Users in the Abstract condition will see only the abstract shapes in their QuizApp problems (Abstract problems are the same as those you saw when using QuizApp without UpGrade).<br><br>To illustrate this, click on the defined experiment "Area - Question Type."`,
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
                             id: "on-experiment-click",
-                            args: ["Area - Concrete or Abstract"]
+                            args: ["Area - Question Type"]
                         }
                     },
                     {
@@ -322,12 +322,12 @@ module.exports = [
                 title: "View the data",
                 substeps: [
                     {
-                        content: `Now let's show you the results of the UpGrade experiment.<br><br>Click on the experiment "Area - Concrete or Abstract."`,
+                        content: `Now let's show you the results of the UpGrade experiment.<br><br>Click on the experiment "Area - Question Type."`,
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
                             id: "on-experiment-click",
-                            args: ["Area - Concrete or Abstract"]
+                            args: ["Area - Question Type"]
                         }
                     },
                     {
@@ -339,7 +339,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `This experiment measures percent correct and duration to see if they differ when students get Concrete vs. Abstract problems. Scroll down to see the enrollments by condition.<br><br>Click on "Percent Correct" and "Duration in Seconds" to see the result on these metrics at the bottom of the page.`,
+                        content: `This experiment measures percent correct and duration to see if they differ when students get Concrete vs. Abstract problems. Scroll down to see the enrollments by condition.<br><br>Click on "Percent Correct (Mean)" and "Duration in Seconds (Mean)" to see the result on these metrics at the bottom of the page.`,
                         buttonTexts: ["Finish Welcome Tour"]
                     }
                 ]
@@ -376,18 +376,33 @@ module.exports = [
                 title: "Complete the Overview Step",
                 substeps: [
                     {
-                        content: `In our example experiment, we're going to compare two different approaches to displaying geometric area problems. Let's name our experiment "Area - Concrete or Abstract."<br><br>Type this into the "Name" field.`,
+                        content: `In our example experiment, we're going to compare two different approaches to displaying geometric area problems. The experiment can be named anything, but for this tour, I name it "Area - Question Type."<br><br>Type this into the "Name" field or or press the copy button to copy and paste the text.`,
                         initCall: {
                             context: "home",
                             type: "function",
                             id: "insert-copy-to-clipboard-buttons",
-                            args: ["Area - Concrete or Abstract"]
+                            args: ["Area - Question Type"]
                         },
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
                             id: "on-value-match",
-                            args: ["experiment-stepper-overview-name", "value", "Area - Concrete or Abstract"]
+                            args: ["experiment-stepper-overview-name", "value", "Area - Question Type"]
+                        }
+                    },
+                    {
+                        content: `In the "Description" field, we can optionally add more details about the experiment.<br><br>Let's type "Concrete or Abstract" here.`,
+                        initCall: {
+                            context: "home",
+                            type: "function",
+                            id: "insert-copy-to-clipboard-buttons",
+                            args: ["Concrete or Abstract"]
+                        },
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["experiment-stepper-overview-description", "value", "Concrete or Abstract"]
                         }
                     },
                     {
@@ -409,7 +424,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `To manage consistency of learner experiences, click on the "Consistency Rule" drop-down and select "Individual."<br><br>To learn more about how the Consistency Rule, see the UpGrade documentation (<a href="https://docs.google.com/document/d/1X-DBcyz7nTwk_MLg8kYfWg1Uspb9bx0y9OEgi_T0tLI/edit?usp=sharing" target="_blank" rel="noopener noreferrer">link</a>).`,
+                        content: `To manage consistency of learner experiences, click on the "Consistency Rule" drop-down and select "Individual."<br><br>To learn more about the Consistency Rule, see the <a href="https://upgrade-platform.gitbook.io/upgrade-documentation/glossary" target="_blank" rel="noopener noreferrer">UpGrade glossary</a> in the documentation.`,
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
@@ -432,7 +447,7 @@ module.exports = [
                 title: "Complete the Design Step",
                 substeps: [
                     {
-                        content: `Let's define a decision point for this experiment. A decision point is a place in the client application where the condition is assigned.<br><br>Click "Add Decision Point" to add a decision point.`,
+                        content: `Now we'll define a decision point for this experiment. A decision point is a place in the client application where the condition will be assigned.<br><br>Click "Add Decision Point" to add a decision point.`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -470,7 +485,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Click on the "Exlude If Reached" checkbox to enable it. This will exclude participants who have previously reached the decision point.`,
+                        content: `Click on the "Exclude If Reached" checkbox to enable it. This will exclude participants who have previously reached the decision point.`,
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
@@ -479,7 +494,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Now let's define conditions for this experiment.<br><br>Click "Add Condition" to add a condition.`,
+                        content: `Now let's define the conditions for this experiment.<br><br>Click "Add Condition" to add a condition.`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -531,7 +546,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Now we have defined a desicion point and conditions.<br><br>Click the "Next" button at the bottom to move to the next step.`,
+                        content: `Now we have defined a decision point and conditions.<br><br>Click the "Next" button at the bottom to move to the next step.`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
@@ -731,12 +746,12 @@ module.exports = [
                 title: "Start the Experiment",
                 substeps: [
                     {
-                        content: `You have now created an experiment in UpGrade.<br><br>Click on the experiment "Area - Concrete or Abstract" to view it.`,
+                        content: `You have now created an experiment in UpGrade.<br><br>Click on the experiment "Area - Question Type" to view it.`,
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
                             id: "on-experiment-click",
-                            args: ["Area - Concrete or Abstract"]
+                            args: ["Area - Question Type"]
                         }
                     },
                     {

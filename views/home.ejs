@@ -294,12 +294,12 @@
                     const selectNthStudentSubsteps = studentExpWithUpGradeStep.substeps.filter(substep => substep.initCall && substep.initCall.id === "select-nth-student");
                     selectNthStudentSubsteps[2].initCall.args[0] = thirdStudentIndex + 1; // The "n" starts from 1
                 },
-                "create-experiment-area-concrete-or-abstract": async (args, substep) => {
+                "create-experiment-area-question-type": async (args, substep) => {
                     // Delete all existing experiments
                     await dataResetter.deleteAllExperiments();
 
                     // Create an experiment with the JSON file
-                    const response = await fetch("/asset/experiment/area-concrete-or-abstract.json");
+                    const response = await fetch("/asset/experiment/Area - Question Type.json");
                     const json = await response.json();
                     await FetchWrapper.post(`${hostUrl}/api/experiments`, json);
                 },
