@@ -131,10 +131,11 @@ if (window.self !== window.top) {
     },
     'logout': () => {
       // Close any potentially opened modals
-      const modalCloseButton = Array.from(document.querySelectorAll('div.cdk-overlay-pane button.mat-raised-button')).find((elem) => elem.innerText === 'CLOSE');
+      const modalButtonsSelector = 'div.cdk-overlay-pane button.mat-raised-button';
+      const modalCloseButton = Array.from(document.querySelectorAll(modalButtonsSelector)).find((elem) => elem.innerText === 'CLOSE');
       if (modalCloseButton) {
         modalCloseButton.click();
-        const confirmCloseButton = Array.from(document.querySelectorAll('div.cdk-overlay-pane button.mat-raised-button')).find((elem) => elem.innerText === 'Yes');
+        const confirmCloseButton = Array.from(document.querySelectorAll(modalButtonsSelector)).find((elem) => elem.innerText === 'Yes');
         if (confirmCloseButton) {
           confirmCloseButton.click();
         }
@@ -181,9 +182,7 @@ if (window.self !== window.top) {
     'on-experiment-click': (args, onNextCall) => {
       const experimentName = args[0];
       const onWindowClick = (event) => {
-        const elem = Array.from(document.querySelectorAll('div.experiment-list-table-container a.experiment-name')).find(
-          (elem) => elem.innerText === experimentName
-        );
+        const elem = Array.from(document.querySelectorAll('div.experiment-list-table-container a.experiment-name')).find((elem) => elem.innerText === experimentName);
         if (elem && elem.contains(event.target)) {
           removeActiveWindowEvent();
           onNextCall();
