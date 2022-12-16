@@ -130,9 +130,19 @@ if (window.self !== window.top) {
       document.body.style.zoom = args[0];
     },
     'logout': () => {
-      const elem = getElementById('signout-button');
-      if (elem) {
-        elem.click();
+      // Close any potentially opened modals
+      const modalCloseButton = Array.from(document.querySelectorAll('div.cdk-overlay-pane button.mat-raised-button')).find((elem) => elem.innerText === 'CLOSE');
+      if (modalCloseButton) {
+        modalCloseButton.click();
+        const confirmCloseButton = Array.from(document.querySelectorAll('div.cdk-overlay-pane button.mat-raised-button')).find((elem) => elem.innerText === 'Yes');
+        if (confirmCloseButton) {
+          confirmCloseButton.click();
+        }
+      }
+      // Sign out from UpGrade
+      const signOutButton = getElementById('signout-button');
+      if (signOutButton) {
+        signOutButton.click();
       } else if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
         gapi.auth2.getAuthInstance().signOut();
       }

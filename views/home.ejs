@@ -505,12 +505,6 @@
                 }
 
                 // Reset iframe pages
-                sendDataToUpgrade({
-                    message: "initCall",
-                    type: "function",
-                    id: "logout"
-                });
-
                 await Promise.all([
                     loadIframe(quizAppIframe, quizAppIframe.src),
                     loadIframe(adminToolIframe, adminToolIframe.src),
@@ -524,6 +518,13 @@
                 // Click the first step tab
                 const firstStepTab = document.getElementById(`${tour.steps[0].context}-tab`);
                 firstStepTab.click();
+
+                // Logout UpGrade
+                sendDataToUpgrade({
+                    message: "initCall",
+                    type: "function",
+                    id: "logout"
+                });
 
                 // Show tour modal
                 const showTourModal = async (stepIndex, substepIndex) => {
