@@ -391,18 +391,18 @@ module.exports = [
                         }
                     },
                     {
-                        content: `In the "Description" field, we can optionally add more details about the experiment.<br><br>Let's type "Concrete or Abstract" here.`,
+                        content: `In the "Description" field, we can optionally add more details about the experiment.<br><br>Let's type "This experiment randomly assigns individual users to get either concrete or abstract area problems." here.`,
                         initCall: {
                             context: "home",
                             type: "function",
                             id: "insert-copy-to-clipboard-buttons",
-                            args: ["Concrete or Abstract"]
+                            args: ["This experiment randomly assigns individual users to get either concrete or abstract area problems."]
                         },
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
                             id: "on-value-match",
-                            args: ["experiment-stepper-overview-description", "value", "Concrete or Abstract"]
+                            args: ["experiment-stepper-overview-description", "value", "This experiment randomly assigns individual users to get either concrete or abstract area problems."]
                         }
                     },
                     {
