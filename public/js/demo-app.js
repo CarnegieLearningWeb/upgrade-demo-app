@@ -126,10 +126,10 @@ if (window.self !== window.top) {
 
   const closeOpenedModals = () => {
     const modalButtonsSelector = 'div.cdk-overlay-pane button.mat-raised-button';
-    const modalCloseButton = Array.from(document.querySelectorAll(modalButtonsSelector)).find((elem) => elem.innerText === 'CLOSE');
+    const modalCloseButton = Array.from(document.querySelectorAll(modalButtonsSelector)).find((elem) => elem.innerText.toLowerCase() === 'close');
     if (modalCloseButton) {
       modalCloseButton.click();
-      const confirmCloseButton = Array.from(document.querySelectorAll(modalButtonsSelector)).find((elem) => elem.innerText === 'Yes');
+      const confirmCloseButton = Array.from(document.querySelectorAll(modalButtonsSelector)).find((elem) => elem.innerText.toLowerCase() === 'yes');
       if (confirmCloseButton) {
         confirmCloseButton.click();
       }
