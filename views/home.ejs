@@ -8,6 +8,7 @@
     <meta name="keywords" content="UpGrade, Demo, App" />
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=0.75, maximum-scale=0.75" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;lang=en" />
     <link rel="stylesheet" href="/css/universal.css" />
     <link rel="stylesheet" href="/css/modal.css" />
@@ -114,6 +115,35 @@
         </div>
     </div>
     <script>
+        // Select the text and copy it to clipboard
+        const copyToClipboard = (buttonElem, text) => {
+            // Get the target text node to select text from
+            const textNode = buttonElem.previousSibling;
+            if (textNode.nodeType !== Node.TEXT_NODE) {
+                return false;
+            }
+            // Select the text range to copy
+            const content = textNode.textContent;
+            const selectFrom = content.indexOf(text);
+            const selectTo = selectFrom + text.length;
+            const range = document.createRange();
+            range.setStart(textNode, selectFrom);
+            range.setEnd(textNode, selectTo);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try { // Security exception may be thrown by some browsers
+                return document.execCommand("copy");
+            } catch (error) {
+                console.error(error);
+                return false;
+            } finally {
+                // Create a blink effect
+                buttonElem.style.visibility = "hidden";
+                window.setTimeout(() => buttonElem.style.visibility = "visible", 100);
+            }
+        }
+
         window.addEventListener("load", async () => {
             // Show iframe loading animation
             const iframeLoadingAnimation = document.getElementById("iframe-loading-animation");
@@ -225,6 +255,7 @@
             const toursContainter = document.getElementById("tours-container");
             const tourBars = toursContainter.querySelectorAll(".tour-bar");
             let selectedTourBar = null;
+            let activeWindowEvent = null;
 
             const initCallFunction = {
                 "select-nth-student": async (args, substep) => {
@@ -263,14 +294,30 @@
                     const selectNthStudentSubsteps = studentExpWithUpGradeStep.substeps.filter(substep => substep.initCall && substep.initCall.id === "select-nth-student");
                     selectNthStudentSubsteps[2].initCall.args[0] = thirdStudentIndex + 1; // The "n" starts from 1
                 },
-                "create-experiment-area-concrete-or-abstract": async (args, substep) => {
+                "create-experiment-area-question-type": async (args, substep) => {
                     // Delete all existing experiments
                     await dataResetter.deleteAllExperiments();
 
                     // Create an experiment with the JSON file
-                    const response = await fetch("/asset/experiment/area-concrete-or-abstract.json");
+                    const response = await fetch("/asset/experiment/Area - Question Type.json");
                     const json = await response.json();
                     await FetchWrapper.post(`${hostUrl}/api/experiments`, json);
+                },
+                "insert-copy-to-clipboard-buttons": async (args, substep) => {
+                    let position = 0;
+                    for (const text of args) {
+                        const startIndex = substep.content.indexOf(text, position);
+                        if (startIndex > 0 && substep.content[startIndex - 1] === '"') {
+                            const endIndex = startIndex + text.length - 1;
+                            // Insert the copy-to-clipboard button right next to the closing double quote
+                            const insertIndex = substep.content.indexOf('"', endIndex) + 1;
+                            if (insertIndex) {
+                                const elemToInsert = `<i class="copy-to-clipboard-button fa-regular fa-copy" onclick='copyToClipboard(this, "${text}");'></i>`;
+                                substep.content = substep.content.slice(0, insertIndex) + elemToInsert + substep.content.slice(insertIndex).trim();
+                                position = insertIndex + elemToInsert.length;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -321,37 +368,44 @@
                 },
             };
 
+            const removeActiveWindowEvent = () => {
+                if (activeWindowEvent) {
+                    activeWindowEvent.target.removeEventListener(activeWindowEvent.type, activeWindowEvent.callback, true);
+                    activeWindowEvent = null;
+                }
+            }
+
+            const addWindowEvent = (target, type, callback) => {
+                removeActiveWindowEvent();
+                target.addEventListener(type, callback, true);
+                activeWindowEvent = {
+                    target,
+                    type,
+                    callback
+                };
+            }
+
             const nextCallback = {
-                "home": (type, id, onNextCall) => {
+                "home": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
-                        if (!selectedTourBar) {
-                            window.removeEventListener(type, onWindowEvent, true);
-                            return;
-                        }
                         const elem = document.getElementById(id);
                         if (elem && elem.contains(event.target)) {
-                            window.removeEventListener(type, onWindowEvent, true);
+                            removeActiveWindowEvent();
                             await onNextCall();
                         }
                     }
-                    window.addEventListener(type, onWindowEvent, true);
+                    addWindowEvent(window, type, onWindowEvent);
                 },
-                "quiz-app": (type, id, onNextCall) => {
+                "quiz-app": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
-                        if (!selectedTourBar) {
-                            quizAppIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
-                            return;
-                        }
                         const elem = quizAppIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
-                            quizAppIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            removeActiveWindowEvent();
+                            // Note: This seems a bit hacky, maybe there's a better way to handle this
                             const hrefModIds = ["login-button", "start-button", "submit-button", "logout-button"];
                             if (hrefModIds.includes(id)) {
                                 quizAppIframe.onload = async () => {
                                     quizAppIframe.onload = null;
-                                    if (!selectedTourBar) {
-                                        return;
-                                    }
                                     await onNextCall();
                                 }
                                 return;
@@ -359,53 +413,43 @@
                             await onNextCall();
                         }
                     }
-                    quizAppIframe.contentWindow.addEventListener(type, onWindowEvent, true);
+                    addWindowEvent(quizAppIframe.contentWindow, type, onWindowEvent);
                 },
-                "admin-tool": (type, id, onNextCall) => {
+                "admin-tool": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
-                        if (!selectedTourBar) {
-                            adminToolIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
-                            return;
-                        }
                         const elem = adminToolIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
-                            adminToolIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            removeActiveWindowEvent();
                             await onNextCall();
                         }
                     }
-                    adminToolIframe.contentWindow.addEventListener(type, onWindowEvent, true);
+                    addWindowEvent(adminToolIframe.contentWindow, type, onWindowEvent);
                 },
-                "upgrade": (type, id, onNextCall) => {
+                "upgrade": (type, id, args, onNextCall) => {
                     const onWindowMessage = async (event) => {
-                        window.removeEventListener("message", onWindowMessage, true);
-                        if (!selectedTourBar) {
-                            return;
-                        }
                         const data = event.message || event.data;
                         if (data.message === "onNextCall") {
+                            removeActiveWindowEvent();
                             await onNextCall();
                         }
                     }
-                    window.addEventListener("message", onWindowMessage, true);
+                    addWindowEvent(window, "message", onWindowMessage);
                     sendDataToUpgrade({
                         message: "nextCallback",
                         type,
-                        id
+                        id,
+                        args
                     });
                 },
-                "dev-console": (type, id, onNextCall) => {
+                "dev-console": (type, id, args, onNextCall) => {
                     const onWindowEvent = async (event) => {
-                        if (!selectedTourBar) {
-                            devConsoleIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
-                            return;
-                        }
                         const elem = devConsoleIframe.contentDocument.getElementById(id);
                         if (elem && elem.contains(event.target)) {
-                            devConsoleIframe.contentWindow.removeEventListener(type, onWindowEvent, true);
+                            removeActiveWindowEvent();
                             await onNextCall();
                         }
                     }
-                    devConsoleIframe.contentWindow.addEventListener(type, onWindowEvent, true);
+                    addWindowEvent(devConsoleIframe.contentWindow, type, onWindowEvent);
                 }
             };
 
@@ -418,7 +462,21 @@
                 }
             }
 
-            const startTour = async (tour, stepBars) => {
+            const quitTour = () => {
+                quizAppIframe.onload = null;
+                sendDataToUpgrade({
+                    message: "initCall",
+                    type: "function",
+                    id: "remove-active-window-event"
+                });
+                removeActiveWindowEvent();
+                unselectAllStepBars();
+                selectedTourBar.classList.remove("selected");
+                selectedTourBar = null;
+                tourModal.destroy();
+            }
+
+            const startTour = async (tour, tourBar, stepBars) => {
                 // Show iframe loading animation
                 quizAppIframe.style.display = "none";
                 adminToolIframe.style.display = "none";
@@ -427,11 +485,16 @@
                 iframeLoadingAnimation.style.display = "block";
                 iframeWrapper.classList.add("loading");
 
+                // Set the selected tour bar
+                tourBar.classList.add("selected");
+                selectedTourBar = tourBar;
+
                 // Select the first step bar
                 stepBars[0].classList.add("selected");
 
                 try {
-                    // Clear data and save metrics
+                    // Clear all data and save metrics
+                    await dataResetter.deleteAllExperiments();
                     await dataResetter.clearUpgradeData();
                     await dataResetter.clearDemoAppData();
                     await dataResetter.saveMetrics();
@@ -447,7 +510,6 @@
                     type: "function",
                     id: "logout"
                 });
-
                 await Promise.all([
                     loadIframe(quizAppIframe, quizAppIframe.src),
                     loadIframe(adminToolIframe, adminToolIframe.src),
@@ -465,7 +527,7 @@
                 // Show tour modal
                 const showTourModal = async (stepIndex, substepIndex) => {
                     const step = tour.steps[stepIndex];
-                    const substep = step.substeps[substepIndex];
+                    const substep = Object.assign({}, step.substeps[substepIndex]); // Clone the substep to keep the original
                     const onNextCall = async () => {
                         if (substepIndex + 1 < step.substeps.length) {
                             await showTourModal(stepIndex, substepIndex + 1);
@@ -477,10 +539,7 @@
                             await showTourModal(stepIndex + 1, 0);
                             return;
                         }
-                        unselectAllStepBars();
-                        selectedTourBar.classList.remove("selected");
-                        selectedTourBar = null;
-                        tourModal.destroy();
+                        quitTour();
                     }
                     if (substep.initCall) {
                         try {
@@ -492,16 +551,13 @@
                         }
                     }
                     if (substep.nextCallback) {
-                        nextCallback[substep.nextCallback.context](substep.nextCallback.type, substep.nextCallback.id, onNextCall);
+                        nextCallback[substep.nextCallback.context](substep.nextCallback.type, substep.nextCallback.id, substep.nextCallback.args || [], onNextCall);
                     }
                     tourModal.tour(step.context, `${step.title} (${substepIndex + 1}/${step.substeps.length})`, substep.content, substep.buttonTexts || [], async (buttonText) => {
                         if (buttonText === "Close") {
                             confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to quit the ${tour.name}?`, ["Cancel", "Quit"], (buttonText) => {
                                 if (buttonText === "Quit") {
-                                    unselectAllStepBars();
-                                    selectedTourBar.classList.remove("selected");
-                                    selectedTourBar = null;
-                                    tourModal.destroy();
+                                    quitTour();
                                 }
                             });
                         } else {
@@ -522,10 +578,7 @@
                     if (tourBar.classList.contains("selected")) {
                         confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to quit the ${tour.name}?`, ["Cancel", "Quit"], (buttonText) => {
                             if (buttonText === "Quit") {
-                                unselectAllStepBars();
-                                tourBar.classList.remove("selected");
-                                selectedTourBar = null;
-                                tourModal.destroy();
+                                quitTour();
                             }
                         });
                     } else {
@@ -533,21 +586,14 @@
                             const selectedTourText = selectedTourBar.querySelector(".tour-text");
                             confirmModal.confirm("upgrade", "UpGrade Demo", `Do you want to quit the ${selectedTourText.innerText} and start the ${tour.name}? Please note this will reset the application data.`, ["Cancel", "Yes"], async (buttonText) => {
                                 if (buttonText === "Yes") {
-                                    unselectAllStepBars();
-                                    selectedTourBar.classList.remove("selected");
-                                    tourBar.classList.add("selected");
-                                    selectedTourBar = tourBar;
-                                    tourModal.destroy();
-                                    await startTour(tour, stepBars);
+                                    quitTour();
+                                    await startTour(tour, tourBar, stepBars);
                                 }
                             });
                         } else {
                             confirmModal.confirm("upgrade", "UpGrade Demo", `Click "Start" to start the ${tour.name}.`, ["Cancel", "Start"], async (buttonText) => {
                                 if (buttonText === "Start") {
-                                    unselectAllStepBars();
-                                    tourBar.classList.add("selected");
-                                    selectedTourBar = tourBar;
-                                    await startTour(tour, stepBars);
+                                    await startTour(tour, tourBar, stepBars);
                                 }
                             });
                         }
@@ -587,8 +633,8 @@
                                 case "upgrade":
                                     sendDataToUpgrade({
                                         message: "initCall",
-                                        type: "click",
-                                        id: "experiments-tab"
+                                        type: "function",
+                                        id: "on-upgrade-tab-click"
                                     });
                                     break;
                                 case "dev-console":
