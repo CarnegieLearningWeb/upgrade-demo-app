@@ -339,7 +339,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `This experiment measures percent correct and duration to see if they differ when students get Concrete vs. Abstract problems. Scroll down to see the enrollments by condition.<br><br>Click on "Percent Correct (Mean)" and "Duration in Seconds (Mean)" to see the result on these metrics at the bottom of the page.`,
+                        content: `This experiment measures score given and duration to see if they differ when students get Concrete vs. Abstract problems. Scroll down to see the enrollments by condition.<br><br>Click on "Score Given (Mean)" and "Duration in Seconds (Mean)" to see the result on these metrics at the bottom of the page.`,
                         buttonTexts: ["Finish Welcome Tour"]
                     }
                 ]
@@ -591,27 +591,27 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Type "durationSeconds" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
+                        content: `Type "duration" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
                         initCall: {
                             context: "home",
                             type: "function",
                             id: "insert-copy-to-clipboard-buttons",
-                            args: ["durationSeconds"]
+                            args: ["duration"]
                         },
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
                             id: "on-value-match",
-                            args: ["experiment-stepper-metrics-metrics-row1-metric", "value", "durationSeconds"]
+                            args: ["experiment-stepper-metrics-metrics-row1-metric", "value", "duration"]
                         }
                     },
                     {
-                        content: `Type "durationSeconds" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
+                        content: `Type "duration" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
                         initCall: {
                             context: "home",
                             type: "function",
                             id: "insert-copy-to-clipboard-buttons",
-                            args: ["durationSeconds"]
+                            args: ["duration"]
                         },
                         nextCallback: {
                             context: "upgrade",
@@ -650,27 +650,27 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Type "percentCorrect" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
+                        content: `Type "scoreGiven" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
                         initCall: {
                             context: "home",
                             type: "function",
                             id: "insert-copy-to-clipboard-buttons",
-                            args: ["percentCorrect"]
+                            args: ["scoreGiven"]
                         },
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
                             id: "on-value-match",
-                            args: ["experiment-stepper-metrics-metrics-row2-metric", "value", "percentCorrect"]
+                            args: ["experiment-stepper-metrics-metrics-row2-metric", "value", "scoreGiven"]
                         }
                     },
                     {
-                        content: `Type "percentCorrect" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
+                        content: `Type "scoreGiven" into the "Metric" field, and click on the "Statistic" drop-down and select "Mean."`,
                         initCall: {
                             context: "home",
                             type: "function",
                             id: "insert-copy-to-clipboard-buttons",
-                            args: ["percentCorrect"]
+                            args: ["scoreGiven"]
                         },
                         nextCallback: {
                             context: "upgrade",
@@ -680,18 +680,18 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Type "Percent Correct (Mean)" into the "Display Name" field."`,
+                        content: `Type "Score Given (Mean)" into the "Display Name" field."`,
                         initCall: {
                             context: "home",
                             type: "function",
                             id: "insert-copy-to-clipboard-buttons",
-                            args: ["Percent Correct (Mean)"]
+                            args: ["Score Given (Mean)"]
                         },
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
                             id: "on-value-match",
-                            args: ["experiment-stepper-metrics-metrics-row2-display-name", "value", "Percent Correct (Mean)"]
+                            args: ["experiment-stepper-metrics-metrics-row2-display-name", "value", "Score Given (Mean)"]
                         }
                     },
                     {
