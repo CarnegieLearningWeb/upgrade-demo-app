@@ -109,6 +109,7 @@
                         }
                     };
                     await LogHandler.info("Posting metrics to UpGrade...");
+                    console.log(JSON.stringify(metrics, null, 2));
                     await upClient.logCaliper(metrics);
                     await LogHandler.info("<%= session.student.name %> logged out");
 
