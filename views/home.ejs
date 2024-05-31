@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/css/universal.css" />
     <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/home.css" />
-    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@4.2.0/dist/bundle.min.js"></script>
     <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
@@ -276,14 +276,13 @@
                     const questionTypeSet = new Set();
                     let thirdStudentIndex = 3; // This is actually the fourth student's index from the student list (counting from 0)
                     for (let i = 1; i < students.length; i++) {
-                        const upClient = new UpgradeClient(students[i]._id, hostUrl);
+                        const upClient = new UpgradeClient(students[i]._id, hostUrl, context);
                         await upClient.init();
-                        const condition = await upClient.getExperimentCondition(context, site, target);
-                        const questionType = condition && condition.assignedCondition.conditionCode;
-                        if (questionType == null) {
+                        const assignment = await upClient.getDecisionPointAssignment(site, target);
+                        if (assignment == null) {
                             continue;
                         }
-                        questionTypeSet.add(questionType);
+                        questionTypeSet.add(assignment.getCondition());
                         if (questionTypeSet.size === 2 && i > 2) {
                             thirdStudentIndex = i;
                             break;

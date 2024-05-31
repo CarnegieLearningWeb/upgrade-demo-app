@@ -88,8 +88,9 @@ module.exports = [
                         },
                         nextCallback: {
                             context: "upgrade",
-                            type: "click",
-                            id: "login-with-google-button"
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["upgrade-logo-link", "innerText", "UpGrade"]
                         }
                     },
                     {
@@ -357,8 +358,9 @@ module.exports = [
                         content: `We're going to walk through the steps of how to create an experiment in UpGrade.<br><br>Log into UpGrade using a Google account by clicking the "Login with Google" button.`,
                         nextCallback: {
                             context: "upgrade",
-                            type: "click",
-                            id: "login-with-google-button"
+                            type: "function",
+                            id: "on-value-match",
+                            args: ["upgrade-logo-link", "innerText", "UpGrade"]
                         }
                     },
                     {

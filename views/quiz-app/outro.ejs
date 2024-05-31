@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/css/universal.css" />
     <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/quiz-app/outro.css" />
-    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@4.2.0/dist/bundle.min.js"></script>
     <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
@@ -66,7 +66,8 @@
                     // Create UpgradeClient
                     const studentId = "<%= session.student._id %>";
                     const hostUrl = "<%= upgradeHostUrl %>";
-                    const upClient = new UpgradeClient(studentId, hostUrl);
+                    const context = "<%= upgradeContext %>";
+                    const upClient = new UpgradeClient(studentId, hostUrl, context);
 
                     // Get the current session and post metrics to UpGrade
                     const metrics = [{

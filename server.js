@@ -123,7 +123,7 @@ app.get("/quiz-app/session/:id/outro", googleAuth, asyncHandler(async (req, res)
     }
     const populatedSession = await foundSession.populate({ path: "student" });
     const message = outroMessage(populatedSession.student.name, foundSession.numCorrect);
-    res.render("quiz-app/outro", { message, session: populatedSession, upgradeHostUrl: UPGRADE_HOST_URL });
+    res.render("quiz-app/outro", { message, session: populatedSession, upgradeHostUrl: UPGRADE_HOST_URL, upgradeContext: UPGRADE_CONTEXT });
 }));
 
 /* ==================== Admin Tool ==================== */
