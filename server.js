@@ -30,6 +30,10 @@ const UPGRADE_BASE_URL = config.UPGRADE_BASE_URL;
 const UPGRADE_CONTEXT = config.UPGRADE_CONTEXT;
 const IS_PRODUCTION = config.IS_PRODUCTION;
 
+
+// DeprecationWarning: Mongoose: the `strictQuery` option will be switched back to `false` by default in Mongoose 7. Use `mongoose.set('strictQuery', false);` if you want to prepare for this change. Or use `mongoose.set('strictQuery', true);` to suppress this warning.
+mongoose.set("strictQuery", false);
+
 // Database connection
 const connectDatabase = async () => {
     mongoose.Promise = global.Promise;
@@ -71,7 +75,7 @@ app.get("/", asyncHandler(async (req, res) => {
 
 // Login Page
 app.get("/login", asyncHandler(async (req, res) => {
-    res.render("login", { googleClientId: GOOGLE_CLIENT_ID, upgradeHostUrl: UPGRADE_HOST_URL });
+    res.render("login", { googleClientId: GOOGLE_CLIENT_ID, upgradeHostUrl: UPGRADE_HOST_URL, upgradeContext: UPGRADE_CONTEXT });
 }));
 
 // Home Page

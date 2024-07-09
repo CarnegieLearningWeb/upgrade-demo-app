@@ -149,11 +149,10 @@
             const iframeLoadingAnimation = document.getElementById("iframe-loading-animation");
             iframeLoadingAnimation.style.opacity = 1;
 
-            // Host URL
-            const hostUrl = "<%= upgradeHostUrl %>";
-
             // Data resetter
-            const dataResetter = new DataResetter(hostUrl);
+            const hostUrl = "<%= upgradeHostUrl %>";
+            const context = "<%= upgradeContext %>";
+            const dataResetter = new DataResetter(hostUrl, context);
 
             // Modals
             const confirmModal = new Modal();
