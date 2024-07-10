@@ -67,8 +67,9 @@
     </div>
     <script>
         window.addEventListener("load", () => {
-            // Data resetter
-            const dataResetter = new DataResetter("<%= upgradeHostUrl %>");
+            const hostUrl = "<%= upgradeHostUrl %>";
+            const context = "<%= upgradeContext %>";
+            const dataResetter = new DataResetter(hostUrl, context);
 
             // Modal
             const modal = new Modal();

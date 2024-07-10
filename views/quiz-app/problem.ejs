@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/css/universal.css" />
     <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/quiz-app/problem.css" />
-    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@1.1.7/dist/bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@5.0.12/dist/browser/index.js"></script>
     <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
@@ -50,16 +50,17 @@
                 // Create UpgradeClient
                 const studentId = "<%= session.student %>";
                 const hostUrl = "<%= upgradeHostUrl %>";
-                const upClient = new UpgradeClient(studentId, hostUrl);
+                const context = "<%= upgradeContext %>";
+                const upClient = new UpgradeClient(studentId, hostUrl, context);
 
                 // Question Type (default: Abstract)
-                const context = "<%= upgradeContext %>";
                 const site = "area";
                 const target = "question_type";
-                const condition = await upClient.getExperimentCondition(context, site, target);
-                const questionType = condition && condition.assignedCondition.conditionCode;
-                await upClient.markExperimentPoint(site, questionType, target);
-                if (questionType) {
+                const assignment = await upClient.getDecisionPointAssignment(site, target);
+                const questionType = assignment && assignment.getCondition();
+                let markStatus = "no condition assigned";
+                if (questionType !== null) {
+                    markStatus = "condition applied";
                     await LogHandler.info(`Reached the decision point 'Area - Abstract (Default) or Concrete' - Got condition '${questionType}'`);
                 }
                 const description = document.getElementById("description");
@@ -89,7 +90,10 @@
                         }
                         concretes.forEach(concrete => concrete.style.display = "block");
                         break;
+                    default:
+                        markStatus = "condition not applied";
                 }
+                await assignment.markDecisionPoint(markStatus);
 
                 // Answer Submission Form
                 const answerForm = document.getElementById("answer-form");

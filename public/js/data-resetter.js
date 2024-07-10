@@ -1,6 +1,7 @@
 class DataResetter {
-    constructor(hostUrl) {
+    constructor(hostUrl, context) {
         this.hostUrl = hostUrl;
+        this.context = context;
     }
     async clearUpgradeData() {
         await FetchWrapper.delete(`${this.hostUrl}/api/clearDB`);
@@ -19,7 +20,8 @@ class DataResetter {
                 metric: "percentCorrect",
                 datatype: "continuous"
             }
-            ]
+            ],
+            context: [this.context]
         });
     }
     async deleteExperiment(experimentId) {
