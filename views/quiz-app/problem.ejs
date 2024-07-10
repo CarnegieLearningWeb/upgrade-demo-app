@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/css/universal.css" />
     <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/quiz-app/problem.css" />
-    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@4.2.0/dist/bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@5.0.12/dist/browser/index.js"></script>
     <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
@@ -59,7 +59,7 @@
                 const assignment = await upClient.getDecisionPointAssignment(site, target);
                 const questionType = assignment && assignment.getCondition();
                 let markStatus = "no condition assigned";
-                if (questionType != null) {
+                if (questionType !== null) {
                     markStatus = "condition applied";
                     await LogHandler.info(`Reached the decision point 'Area - Abstract (Default) or Concrete' - Got condition '${questionType}'`);
                 }
@@ -93,7 +93,7 @@
                     default:
                         markStatus = "condition not applied";
                 }
-                await upClient.markExperimentPoint(site, questionType, markStatus, target);
+                await assignment.markDecisionPoint(markStatus);
 
                 // Answer Submission Form
                 const answerForm = document.getElementById("answer-form");

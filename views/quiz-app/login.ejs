@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/css/universal.css" />
     <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/quiz-app/login.css" />
-    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@4.2.0/dist/bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/upgrade_client_lib@5.0.12/dist/browser/index.js"></script>
     <script src="/js/upgrade-client-lib.js"></script>
     <script src="/js/fetch-wrapper.js"></script>
     <script src="/js/log-handler.js"></script>
@@ -99,7 +99,7 @@
                     const assignment = await upClient.getDecisionPointAssignment(site, target);
                     const motivationalSupportType = assignment && assignment.getCondition();
                     let markStatus = "no condition assigned";
-                    if (motivationalSupportType != null) {
+                    if (motivationalSupportType !== null) {
                         markStatus = "condition applied";
                         await LogHandler.info(`Reached the decision point 'Area - No Support (Default) / Mindset / Utility Value' - Got condition '${motivationalSupportType}'`);
                     }
@@ -120,7 +120,7 @@
                         default:
                             markStatus = "condition not applied";
                     }
-                    await upClient.markExperimentPoint(site, motivationalSupportType, markStatus, target);
+                    await assignment.markDecisionPoint(markStatus);
                 } catch (error) {
                     modal.confirm("quiz-app", `Error: ${error.status}`, error.message, ["OK"], () => {
                         window.top.location.href = "/login";

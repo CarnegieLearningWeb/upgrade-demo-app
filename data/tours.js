@@ -80,7 +80,7 @@ module.exports = [
                 title: "Set up an Experiment in UpGrade",
                 substeps: [
                     {
-                        content: `Upgrade allows you to run an experiment within QuizApp.<br><br>Log into UpGrade using a Google account by clicking the "Login with Google" button.`,
+                        content: `Upgrade allows you to run an experiment within QuizApp.<br><br>Log into UpGrade using a Google account by clicking the "Sign in with Google" button.`,
                         initCall: {
                             context: "home",
                             type: "function",
@@ -355,7 +355,7 @@ module.exports = [
                 title: "Open the Experiment Stepper",
                 substeps: [
                     {
-                        content: `We're going to walk through the steps of how to create an experiment in UpGrade.<br><br>Log into UpGrade using a Google account by clicking the "Login with Google" button.`,
+                        content: `We're going to walk through the steps of how to create an experiment in UpGrade.<br><br>Log into UpGrade using a Google account by clicking the "Sign in with Google" button.`,
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
@@ -496,6 +496,14 @@ module.exports = [
                         }
                     },
                     {
+                        content: `Click the checkmark icon to confirm and create a row.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-design-decision-points-row1-confirm-button"
+                        }
+                    },
+                    {
                         content: `Now let's define the conditions for this experiment.<br><br>Click "Add Condition" to add a condition.`,
                         nextCallback: {
                             context: "upgrade",
@@ -504,7 +512,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Type "Abstract" into the "Condition" field and then click "Add Condition" again to add another condition.`,
+                        content: `Type "Abstract" into the "Condition" field, and then click the checkmark icon to confirm and create a row.`,
                         initCall: {
                             context: "home",
                             type: "function",
@@ -519,7 +527,7 @@ module.exports = [
                         }
                     },
                     {
-                        content: `Type "Abstract" into the "Condition" field and then click "Add Condition" again to add another condition.`,
+                        content: `Type "Abstract" into the "Condition" field, and then click the checkmark icon to confirm and create a row.`,
                         initCall: {
                             context: "home",
                             type: "function",
@@ -529,11 +537,19 @@ module.exports = [
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
+                            id: "experiment-stepper-design-conditions-row1-confirm"
+                        }
+                    },
+                    {
+                        content: `Click "Add Condition" again to add another condition.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
                             id: "experiment-stepper-design-add-condition-button"
                         }
                     },
                     {
-                        content: `Type "Concrete" into the "Condition" field.`,
+                        content: `Type "Concrete" into the "Condition" field, and then click the checkmark icon to confirm and create a row.`,
                         initCall: {
                             context: "home",
                             type: "function",
@@ -545,6 +561,20 @@ module.exports = [
                             type: "function",
                             id: "on-value-match",
                             args: ["experiment-stepper-design-conditions-row2-condition", "value", "Concrete"]
+                        }
+                    },
+                    {
+                        content: `Type "Concrete" into the "Condition" field, and then click the checkmark icon to confirm and create a row.`,
+                        initCall: {
+                            context: "home",
+                            type: "function",
+                            id: "insert-copy-to-clipboard-buttons",
+                            args: ["Concrete"]
+                        },
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-design-conditions-row2-confirm"
                         }
                     },
                     {
@@ -562,12 +592,20 @@ module.exports = [
                 title: "Complete the Participants Step",
                 substeps: [
                     {
-                        content: `Here you can define a list of participants to include or exclude.<br><br>Click on the "Inclusion Criteria" drop-down and select "Include All Except" to include all participants.`,
+                        content: `Here you can define a list of participants to include or exclude.<br><br>Click "Add Member" to add a member.`,
+                        nextCallback: {
+                            context: "upgrade",
+                            type: "click",
+                            id: "experiment-stepper-participants-add-member-button"
+                        }
+                    },
+                    {
+                        content: `Click on the "Type" drop-down and select "All."`,
                         nextCallback: {
                             context: "upgrade",
                             type: "function",
                             id: "on-value-match",
-                            args: ["experiment-stepper-participants-inclusion-criteria", "innerText", "Include All Except..."]
+                            args: ["experiment-stepper-participants-include-row1-type", "innerText", "All"]
                         }
                     },
                     {
