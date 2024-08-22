@@ -1,17 +1,16 @@
 class DataResetter {
-    constructor(hostUrl, context) {
-        this.hostUrl = hostUrl;
+    constructor(context) {
         this.context = context;
     }
     async clearUpgradeData() {
-        await FetchWrapper.delete(`${this.hostUrl}/api/clearDB`);
+        await FetchWrapper.delete("/api/v1/upgrade/clearDB");
     }
     async clearDemoAppData() {
         await FetchWrapper.delete("/api/v1/logs");
         await FetchWrapper.delete("/api/v1/sessions");
     }
     async saveMetrics() {
-        await FetchWrapper.post(`${this.hostUrl}/api/metric/save`, {
+        await FetchWrapper.post("/api/v1/upgrade/metric/save", {
             metricUnit: [{
                 metric: "durationSeconds",
                 datatype: "continuous"
@@ -25,12 +24,17 @@ class DataResetter {
         });
     }
     async deleteExperiment(experimentId) {
-        await FetchWrapper.delete(`${this.hostUrl}/api/experiments/${experimentId}`);
+        await FetchWrapper.delete(`/api/v1/upgrade/experiments/${experimentId}`);
     }
     async deleteAllExperiments() {
-        const experiments = await FetchWrapper.get(`${this.hostUrl}/api/experiments`);
+        const experiments = await FetchWrapper.get("/api/v1/upgrade/experiments");
         for (const experiment of experiments) {
             await this.deleteExperiment(experiment.id);
         }
+    }
+    async createExperiment(experimentFilePath) {
+        const response = await fetch(experimentFilePath);
+        const json = await response.json();
+        await FetchWrapper.post("/api/v1/upgrade/experiments", json);
     }
 }

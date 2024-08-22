@@ -4,3 +4,5 @@ node_modules
 .DS_Store
 # ignore the .env file with your secret info
 .env
+# ignore upgrade service account key file
+upgrade-service-account-key.json

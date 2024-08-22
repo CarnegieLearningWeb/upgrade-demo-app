@@ -152,7 +152,7 @@
             // Data resetter
             const hostUrl = "<%= upgradeHostUrl %>";
             const context = "<%= upgradeContext %>";
-            const dataResetter = new DataResetter(hostUrl, context);
+            const dataResetter = new DataResetter(context);
 
             // Modals
             const confirmModal = new Modal();
@@ -269,7 +269,6 @@
                     const {
                         students
                     } = await FetchWrapper.get("/api/v1/students");
-                    const context = "<%= upgradeContext %>";
                     const site = "area";
                     const target = "question_type";
                     const questionTypeSet = new Set();
@@ -297,9 +296,7 @@
                     await dataResetter.deleteAllExperiments();
 
                     // Create an experiment with the JSON file
-                    const response = await fetch("/asset/experiment/Area - Question Type.json");
-                    const json = await response.json();
-                    await FetchWrapper.post(`${hostUrl}/api/experiments`, json);
+                    await dataResetter.createExperiment("/asset/experiment/Area - Question Type.json");
                 },
                 "insert-copy-to-clipboard-buttons": async (args, substep) => {
                     let position = 0;

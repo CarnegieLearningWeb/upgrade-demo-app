@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const favicon = require("serve-favicon");
+const axios = require("axios");
 const mongoose = require("mongoose");
 const { OAuth2Client } = require("google-auth-library");
 const path = require("path");
@@ -17,6 +18,7 @@ const Session = require("./models/session");
 const Log = require("./models/log");
 const asyncHandler = require("./middlewares/async-handler");
 const googleAuth = require("./middlewares/google-auth");
+const upgradeAuth = require("./middlewares/upgrade-auth");
 const loggedInUser = require("./middlewares/logged-in-user");
 const app = express();
 
@@ -66,6 +68,15 @@ app.use(favicon(path.join(__dirname, "public/asset/favicon/favicon.ico")));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "views")));
 
+// Create an axios instance for Upgrade API requests
+const upgradeApiClient = axios.create({
+    baseURL: UPGRADE_HOST_URL,
+    headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+});
+
 /* ==================== Login/Home ==================== */
 
 // Root Page
@@ -75,7 +86,7 @@ app.get("/", asyncHandler(async (req, res) => {
 
 // Login Page
 app.get("/login", asyncHandler(async (req, res) => {
-    res.render("login", { googleClientId: GOOGLE_CLIENT_ID, upgradeHostUrl: UPGRADE_HOST_URL, upgradeContext: UPGRADE_CONTEXT });
+    res.render("login", { googleClientId: GOOGLE_CLIENT_ID, upgradeContext: UPGRADE_CONTEXT });
 }));
 
 // Home Page
@@ -365,6 +376,74 @@ app.get("/api/v1/tours", googleAuth, asyncHandler(async (req, res) => {
         message: "Successfully got tours",
         tours
     });
+}));
+
+/* ==================== UpGrade proxy endpoints ==================== */
+
+// Get experiments
+app.get("/api/v1/upgrade/experiments", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
+    try {
+        const response = await upgradeApiClient.get("/api/experiments", {
+            headers: { "Authorization": `Bearer ${req.upgradeToken}` }
+        });
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        throw { status: error.response?.status || 500, message: error.message };
+    }
+}));
+
+// Create a new experiment
+app.post("/api/v1/upgrade/experiments", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
+    try {
+        const response = await upgradeApiClient.post("/api/experiments", req.body, {
+            headers: {
+                "Authorization": `Bearer ${req.upgradeToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        throw { status: error.response?.status || 500, message: error.message };
+    }
+}));
+
+// Delete an experiment by ID
+app.delete("/api/v1/upgrade/experiments/:experimentId", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
+    try {
+        const response = await upgradeApiClient.delete(`/api/experiments/${req.params.experimentId}`, {
+            headers: { "Authorization": `Bearer ${req.upgradeToken}` }
+        });
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        throw { status: error.response?.status || 500, message: error.message };
+    }
+}));
+
+// Save the metrics data
+app.post("/api/v1/upgrade/metric/save", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
+    try {
+        const response = await upgradeApiClient.post("/api/metric/save", req.body, {
+            headers: {
+                "Authorization": `Bearer ${req.upgradeToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        throw { status: error.response?.status || 500, message: error.message };
+    }
+}));
+
+// Clear the database
+app.delete("/api/v1/upgrade/clearDB", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
+    try {
+        const response = await upgradeApiClient.delete("/api/clearDB", {
+            headers: { "Authorization": `Bearer ${req.upgradeToken}` }
+        });
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        throw { status: error.response?.status || 500, message: error.message };
+    }
 }));
 
 /* ==================== Errors ==================== */
