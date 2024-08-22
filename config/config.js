@@ -6,5 +6,6 @@ module.exports = {
     UPGRADE_HOST_URL: process.env.UPGRADE_HOST_URL || "",
     UPGRADE_BASE_URL: process.env.UPGRADE_BASE_URL || "",
     UPGRADE_CONTEXT: process.env.UPGRADE_CONTEXT || "",
+    UPGRADE_SERVICE_ACCOUNT_KEY_PATH: process.env.UPGRADE_SERVICE_ACCOUNT_KEY_PATH || "",
     IS_PRODUCTION: process.env.IS_PRODUCTION || "NO"
 };
