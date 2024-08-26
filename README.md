@@ -25,7 +25,7 @@ IS_PRODUCTION={Whether the app is in production mode or not (YES or NO)}
 ```
 5. Run the following commands in the Terminal:
 ```
-npm install dependencies
+npm install
 npm start
 ```
 6. Open your web browser and navigate to http://localhost:8080
