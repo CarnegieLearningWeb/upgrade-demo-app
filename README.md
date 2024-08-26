@@ -21,6 +21,7 @@ GOOGLE_CLIENT_ID={Google OAuth 2.0 Client ID}
 UPGRADE_HOST_URL={UpGrade Backend Host URL (e.g. http://localhost:3030)}
 UPGRADE_BASE_URL={UpGrade Frontend Base URL (e.g. http://localhost:4200)}
 UPGRADE_CONTEXT={Name of the UpGrade Experiment Context (e.g. app)}
+UPGRADE_SERVICE_ACCOUNT_KEY_PATH={Path to the UpGrade Service Account Key file}
 IS_PRODUCTION={Whether the app is in production mode or not (YES or NO)}
 ```
 5. Run the following commands in the Terminal:
