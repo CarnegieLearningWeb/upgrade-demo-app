@@ -24,14 +24,13 @@ const app = express();
 
 // Config Settings
 const PORT = config.PORT;
+const MODE = config.MODE;
 const MONGODB_URI = config.MONGODB_URI;
 const GOOGLE_CLIENT_ID = config.GOOGLE_CLIENT_ID;
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 const UPGRADE_HOST_URL = config.UPGRADE_HOST_URL;
 const UPGRADE_BASE_URL = config.UPGRADE_BASE_URL;
 const UPGRADE_CONTEXT = config.UPGRADE_CONTEXT;
-const IS_PRODUCTION = config.IS_PRODUCTION;
-
 
 // DeprecationWarning: Mongoose: the `strictQuery` option will be switched back to `false` by default in Mongoose 7. Use `mongoose.set('strictQuery', false);` if you want to prepare for this change. Or use `mongoose.set('strictQuery', true);` to suppress this warning.
 mongoose.set("strictQuery", false);
@@ -70,7 +69,9 @@ app.use(express.static(path.join(__dirname, "views")));
 
 // Create an axios instance for Upgrade API requests
 const upgradeApiClient = axios.create({
-    baseURL: UPGRADE_HOST_URL,
+    baseURL: UPGRADE_HOST_URL.includes("localhost")
+        ? UPGRADE_HOST_URL.replace("localhost", "host.docker.internal")
+        : UPGRADE_HOST_URL,
     headers: {
         "Accept": "application/json",
         "Content-Type": "application/json"
@@ -354,9 +355,9 @@ app.delete("/api/v1/logs", googleAuth, asyncHandler(async (req, res) => {
     });
 }));
 
-// Reset the database (only for non-production)
+// Reset the database (only for development)
 app.get("/api/v1/reset", googleAuth, asyncHandler(async (req, res, next) => {
-    if (IS_PRODUCTION !== "NO") {
+    if (MODE !== "DEV") {
         return next();
     }
     console.log("Resetting the database...");
@@ -469,7 +470,7 @@ app.use((err, req, res, next) => {
     res.status(error.status);
 
     // Print the error to the console
-    if (IS_PRODUCTION === "NO") {
+    if (MODE === "DEV") {
         console.error(`Error: ${JSON.stringify(error, null, 2)}`);
     }
     // Respond with HTML page
