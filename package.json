@@ -17,7 +17,7 @@
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "google-auth-library": "^7.10.0",
-    "mongoose": "^6.12.0",
+    "mongoose": "^6.13.5",
     "serve-favicon": "^2.5.0"
   },
   "devDependencies": {
