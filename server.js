@@ -69,7 +69,7 @@ app.use(express.static(path.join(__dirname, "views")));
 
 // Create an axios instance for Upgrade API requests
 const upgradeApiClient = axios.create({
-    baseURL: UPGRADE_HOST_URL.includes("localhost")
+    baseURL: process.env.IS_DOCKER && UPGRADE_HOST_URL.includes("localhost")
         ? UPGRADE_HOST_URL.replace("localhost", "host.docker.internal")
         : UPGRADE_HOST_URL,
     headers: {
@@ -438,7 +438,7 @@ app.post("/api/v1/upgrade/metric/save", googleAuth, upgradeAuth, asyncHandler(as
 // Clear the database
 app.delete("/api/v1/upgrade/clearDB", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
     try {
-        const response = await upgradeApiClient.delete("/api/clearDB", {
+        const response = await upgradeApiClient.delete("/api/v5/clearDB", {
             headers: { "Authorization": `Bearer ${req.upgradeToken}` }
         });
         res.status(response.status).json(response.data);

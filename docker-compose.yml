@@ -5,6 +5,7 @@ services:
       - "${PORT}:8080"
     environment:
       - NODE_ENV=${MODE}
+      - IS_DOCKER=true
     env_file:
       - .env
     volumes:
