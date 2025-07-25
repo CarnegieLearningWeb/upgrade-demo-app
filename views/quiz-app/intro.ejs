@@ -42,13 +42,13 @@
                 const startButton = document.getElementById("start-button");
                 startButton.addEventListener("click", () => {
                     // Redirect to the problem page
-                    window.location.href = "/quiz-app/session/<%= session._id %>/problem";
+                    window.location.href = "/upgrade-demo/quiz-app/session/<%= session._id %>/problem";
                 });
                 startButton.focus();
             } catch (error) {
                 const modal = new Modal();
                 modal.confirm("quiz-app", `Error: ${error.status}`, error.message, ["OK"], () => {
-                    window.top.location.href = "/login";
+                    window.top.location.href = "/upgrade-demo/login";
                 });
             }
         });

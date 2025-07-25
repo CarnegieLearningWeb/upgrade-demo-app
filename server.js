@@ -38,7 +38,7 @@ mongoose.set("strictQuery", false);
 // Database connection
 const connectDatabase = async () => {
     mongoose.Promise = global.Promise;
-    await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    await mongoose.connect(MONGODB_URI);
     console.log("Database is connected");
 }
 
@@ -78,41 +78,57 @@ const upgradeApiClient = axios.create({
     }
 });
 
+/* ==================== Health Check ==================== */
+
+// Health check endpoint
+app.get("/upgrade-demo/health", (req, res) => {
+    res.status(200).json({
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        service: "upgrade-demo-app"
+    });
+});
+
 /* ==================== Login/Home ==================== */
 
 // Root Page
+app.get("/upgrade-demo/", asyncHandler(async (req, res) => {
+    res.redirect("/upgrade-demo/home");
+}));
+
+// Root redirect (for backwards compatibility)
 app.get("/", asyncHandler(async (req, res) => {
-    res.redirect("/home");
+    res.redirect("/upgrade-demo/home");
 }));
 
 // Login Page
-app.get("/login", asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/login", asyncHandler(async (req, res) => {
     res.render("login", { googleClientId: GOOGLE_CLIENT_ID, upgradeContext: UPGRADE_CONTEXT });
 }));
 
 // Home Page
-app.get("/home", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/home", googleAuth, asyncHandler(async (req, res) => {
     res.render("home", { upgradeHostUrl: UPGRADE_HOST_URL, upgradeBaseUrl: UPGRADE_BASE_URL, upgradeContext: UPGRADE_CONTEXT, tours });
 }));
 
 // Download experiment file
-app.get("/file/experiment/:filename", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/file/experiment/:filename", googleAuth, asyncHandler(async (req, res) => {
     res.download(path.join(__dirname, `public/asset/experiment/${req.params.filename}`));
 }));
 
 /* ==================== QuizApp ==================== */
 
 // Login Page
-app.get("/quiz-app/student/login", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/quiz-app/student/login", googleAuth, asyncHandler(async (req, res) => {
     const populatedUser = await req.user.populate({ path: "klasses", populate: { path: "students" } });
     res.render("quiz-app/login", { klasses: populatedUser.klasses, upgradeHostUrl: UPGRADE_HOST_URL, upgradeContext: UPGRADE_CONTEXT });
 }));
 
 // Intro Page
-app.get("/quiz-app/session/:id/intro", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/quiz-app/session/:id/intro", googleAuth, asyncHandler(async (req, res) => {
     const foundSession = await Session.findById(req.params.id);
     if (!foundSession) {
-        return res.redirect("/quiz-app/student/login");
+        return res.redirect("/upgrade-demo/quiz-app/student/login");
     }
     const populatedSession = await foundSession.populate({ path: "student" });
     const message = introMessage(populatedSession.student.name);
@@ -120,22 +136,22 @@ app.get("/quiz-app/session/:id/intro", googleAuth, asyncHandler(async (req, res)
 }));
 
 // Problem Page
-app.get("/quiz-app/session/:id/problem", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/quiz-app/session/:id/problem", googleAuth, asyncHandler(async (req, res) => {
     const foundSession = await Session.findById(req.params.id);
     if (!foundSession) {
-        return res.redirect("/quiz-app/student/login");
+        return res.redirect("/upgrade-demo/quiz-app/student/login");
     }
     if (foundSession.numAnswered >= problems.length) {
-        return res.redirect(`/quiz-app/session/${req.params.id}/outro`);
+        return res.redirect(`/upgrade-demo/quiz-app/session/${req.params.id}/outro`);
     }
     res.render("quiz-app/problem", { problem: problems[foundSession.numAnswered], session: foundSession, upgradeHostUrl: UPGRADE_HOST_URL, upgradeContext: UPGRADE_CONTEXT });
 }));
 
 // Outro Page
-app.get("/quiz-app/session/:id/outro", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/quiz-app/session/:id/outro", googleAuth, asyncHandler(async (req, res) => {
     const foundSession = await Session.findById(req.params.id);
     if (!foundSession) {
-        return res.redirect("/quiz-app/student/login");
+        return res.redirect("/upgrade-demo/quiz-app/student/login");
     }
     const populatedSession = await foundSession.populate({ path: "student" });
     const message = outroMessage(populatedSession.student.name, foundSession.numCorrect);
@@ -145,7 +161,7 @@ app.get("/quiz-app/session/:id/outro", googleAuth, asyncHandler(async (req, res)
 /* ==================== Admin Tool ==================== */
 
 // Summary Page
-app.get("/admin-tool/summary", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/admin-tool/summary", googleAuth, asyncHandler(async (req, res) => {
     const populatedUser = await req.user.populate({ path: "klasses", populate: { path: "students" } });
     res.render("admin-tool/summary", { klasses: populatedUser.klasses });
 }));
@@ -153,14 +169,14 @@ app.get("/admin-tool/summary", googleAuth, asyncHandler(async (req, res) => {
 /* ==================== Dev Console ==================== */
 
 // Console Page
-app.get("/dev-console/console", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/dev-console/console", googleAuth, asyncHandler(async (req, res) => {
     res.render("dev-console/console");
 }));
 
 /* ==================== API ==================== */
 
 // Login the user
-app.post("/api/v1/login", asyncHandler(async (req, res) => {
+app.post("/upgrade-demo/api/v1/login", asyncHandler(async (req, res) => {
     // Verify the token
     const { credential } = req.body;
     let payload = null;
@@ -225,7 +241,7 @@ app.post("/api/v1/login", asyncHandler(async (req, res) => {
 }));
 
 // Logout the user
-app.get("/api/v1/logout", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/api/v1/logout", googleAuth, asyncHandler(async (req, res) => {
     if (loggedInUser.exists && loggedInUser.email === req.user.email) {
         loggedInUser.exists = false;
     }
@@ -236,7 +252,7 @@ app.get("/api/v1/logout", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Get students
-app.get("/api/v1/students", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/api/v1/students", googleAuth, asyncHandler(async (req, res) => {
     const populatedUser = await req.user.populate({ path: "klasses", populate: { path: "students" } });
     let students = [];
     for (const klass of populatedUser.klasses) {
@@ -249,7 +265,7 @@ app.get("/api/v1/students", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Get sessions
-app.get("/api/v1/sessions", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/api/v1/sessions", googleAuth, asyncHandler(async (req, res) => {
     const populatedSessions = await Session.find({ user: req.user._id }).populate({ path: "klass" }).populate({ path: "student" });
     res.status(200).json({
         message: "Successfully got sessions",
@@ -258,7 +274,7 @@ app.get("/api/v1/sessions", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Create a new session
-app.post("/api/v1/session", googleAuth, asyncHandler(async (req, res) => {
+app.post("/upgrade-demo/api/v1/session", googleAuth, asyncHandler(async (req, res) => {
     const { studentId, startDate } = req.body;
     const foundStudent = await Student.findById(studentId);
     const newSession = new Session({ user: req.user._id, klass: foundStudent.parentKlass, student: foundStudent._id, startDate, durationSeconds: 0, numAnswered: 0, numCorrect: 0 });
@@ -270,7 +286,7 @@ app.post("/api/v1/session", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Update a session by ID
-app.put("/api/v1/session/:id", googleAuth, asyncHandler(async (req, res) => {
+app.put("/upgrade-demo/api/v1/session/:id", googleAuth, asyncHandler(async (req, res) => {
     const { currentDate, answer } = req.body;
     const foundSession = await Session.findById(req.params.id);
     if (!foundSession) {
@@ -289,7 +305,7 @@ app.put("/api/v1/session/:id", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Delete a session by ID
-app.delete("/api/v1/session/:id", googleAuth, asyncHandler(async (req, res) => {
+app.delete("/upgrade-demo/api/v1/session/:id", googleAuth, asyncHandler(async (req, res) => {
     const deletedSession = await Session.findByIdAndDelete(req.params.id);
     res.status(200).json({
         message: "Successfully deleted the session",
@@ -298,7 +314,7 @@ app.delete("/api/v1/session/:id", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Clear sessions
-app.delete("/api/v1/sessions", googleAuth, asyncHandler(async (req, res) => {
+app.delete("/upgrade-demo/api/v1/sessions", googleAuth, asyncHandler(async (req, res) => {
     const result = await Session.deleteMany({ user: req.user._id });
     res.status(200).json({
         message: "Successfully cleared sessions",
@@ -307,7 +323,7 @@ app.delete("/api/v1/sessions", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Delete sessions by class
-app.delete("/api/v1/sessions/class/:id", googleAuth, asyncHandler(async (req, res) => {
+app.delete("/upgrade-demo/api/v1/sessions/class/:id", googleAuth, asyncHandler(async (req, res) => {
     const foundKlass = await Klass.findById(req.params.id);
     const result = await Session.deleteMany({ klass: foundKlass._id });
     res.status(200).json({
@@ -317,7 +333,7 @@ app.delete("/api/v1/sessions/class/:id", googleAuth, asyncHandler(async (req, re
 }));
 
 // Delete sessions by student
-app.delete("/api/v1/sessions/student/:id", googleAuth, asyncHandler(async (req, res) => {
+app.delete("/upgrade-demo/api/v1/sessions/student/:id", googleAuth, asyncHandler(async (req, res) => {
     const foundStudent = await Student.findById(req.params.id);
     const result = await Session.deleteMany({ student: foundStudent._id });
     res.status(200).json({
@@ -327,7 +343,7 @@ app.delete("/api/v1/sessions/student/:id", googleAuth, asyncHandler(async (req, 
 }));
 
 // Get logs
-app.get("/api/v1/logs", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/api/v1/logs", googleAuth, asyncHandler(async (req, res) => {
     const foundLogs = await Log.find({ user: req.user._id });
     res.status(200).json({
         message: "Successfully got logs",
@@ -336,7 +352,7 @@ app.get("/api/v1/logs", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Create a new log
-app.post("/api/v1/log", googleAuth, asyncHandler(async (req, res) => {
+app.post("/upgrade-demo/api/v1/log", googleAuth, asyncHandler(async (req, res) => {
     const { level, date, message } = req.body;
     const newLog = new Log({ user: req.user._id, level, date, message });
     await newLog.save();
@@ -347,7 +363,7 @@ app.post("/api/v1/log", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Clear logs
-app.delete("/api/v1/logs", googleAuth, asyncHandler(async (req, res) => {
+app.delete("/upgrade-demo/api/v1/logs", googleAuth, asyncHandler(async (req, res) => {
     const result = await Log.deleteMany({ user: req.user._id });
     res.status(200).json({
         message: "Successfully cleared logs",
@@ -356,7 +372,7 @@ app.delete("/api/v1/logs", googleAuth, asyncHandler(async (req, res) => {
 }));
 
 // Reset the database (only for development)
-app.get("/api/v1/reset", googleAuth, asyncHandler(async (req, res, next) => {
+app.get("/upgrade-demo/api/v1/reset", googleAuth, asyncHandler(async (req, res, next) => {
     if (MODE !== "DEV") {
         return next();
     }
@@ -372,7 +388,7 @@ app.get("/api/v1/reset", googleAuth, asyncHandler(async (req, res, next) => {
 }));
 
 // Get tours
-app.get("/api/v1/tours", googleAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/api/v1/tours", googleAuth, asyncHandler(async (req, res) => {
     res.status(200).json({
         message: "Successfully got tours",
         tours
@@ -382,7 +398,7 @@ app.get("/api/v1/tours", googleAuth, asyncHandler(async (req, res) => {
 /* ==================== UpGrade proxy endpoints ==================== */
 
 // Get experiments
-app.get("/api/v1/upgrade/experiments", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
+app.get("/upgrade-demo/api/v1/upgrade/experiments", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
     try {
         const response = await upgradeApiClient.get("/api/experiments", {
             headers: { "Authorization": `Bearer ${req.upgradeToken}` }
@@ -394,7 +410,7 @@ app.get("/api/v1/upgrade/experiments", googleAuth, upgradeAuth, asyncHandler(asy
 }));
 
 // Create a new experiment
-app.post("/api/v1/upgrade/experiments", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
+app.post("/upgrade-demo/api/v1/upgrade/experiments", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
     try {
         const response = await upgradeApiClient.post("/api/experiments", req.body, {
             headers: {
@@ -409,7 +425,7 @@ app.post("/api/v1/upgrade/experiments", googleAuth, upgradeAuth, asyncHandler(as
 }));
 
 // Delete an experiment by ID
-app.delete("/api/v1/upgrade/experiments/:experimentId", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
+app.delete("/upgrade-demo/api/v1/upgrade/experiments/:experimentId", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
     try {
         const response = await upgradeApiClient.delete(`/api/experiments/${req.params.experimentId}`, {
             headers: { "Authorization": `Bearer ${req.upgradeToken}` }
@@ -421,7 +437,7 @@ app.delete("/api/v1/upgrade/experiments/:experimentId", googleAuth, upgradeAuth,
 }));
 
 // Save the metrics data
-app.post("/api/v1/upgrade/metric/save", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
+app.post("/upgrade-demo/api/v1/upgrade/metric/save", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
     try {
         const response = await upgradeApiClient.post("/api/metric/save", req.body, {
             headers: {
@@ -436,7 +452,7 @@ app.post("/api/v1/upgrade/metric/save", googleAuth, upgradeAuth, asyncHandler(as
 }));
 
 // Clear the database
-app.delete("/api/v1/upgrade/clearDB", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
+app.delete("/upgrade-demo/api/v1/upgrade/clearDB", googleAuth, upgradeAuth, asyncHandler(async (req, res) => {
     try {
         const response = await upgradeApiClient.delete("/api/v5/clearDB", {
             headers: { "Authorization": `Bearer ${req.upgradeToken}` }
@@ -450,6 +466,11 @@ app.delete("/api/v1/upgrade/clearDB", googleAuth, upgradeAuth, asyncHandler(asyn
 /* ==================== Errors ==================== */
 
 // API not found
+app.get("/upgrade-demo/api/v1/*", (req, res) => {
+    throw { status: 404, message: "API not found" };
+});
+
+// Legacy API redirect (for backwards compatibility)
 app.get("/api/v1/*", (req, res) => {
     throw { status: 404, message: "API not found" };
 });
@@ -477,7 +498,7 @@ app.use((err, req, res, next) => {
     if (req.accepts("html")) {
         // Redirect to login if failed to authorize the user or the session has expired
         if (error.status === 401 || error.status === 403) {
-            return res.redirect("/login");
+            return res.redirect("/upgrade-demo/login");
         }
         return res.render("error", { error });
     }
