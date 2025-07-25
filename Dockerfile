@@ -1,5 +1,6 @@
 # Use an official Node.js runtime as the base image
-FROM node:18.17-alpine
+ARG IMAGE_REPO
+FROM ${IMAGE_REPO:-public.ecr.aws/docker/library/node}:22.14-alpine
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
