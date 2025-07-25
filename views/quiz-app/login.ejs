@@ -104,7 +104,7 @@
                         await LogHandler.info(`Reached the decision point 'Area - No Support (Default) / Mindset / Utility Value' - Got condition '${motivationalSupportType}'`);
                     }
                     const redirectToIntroPage = () => {
-                        window.location.href = `/quiz-app/session/${data.session._id}/intro`;
+                        window.location.href = `/upgrade-demo/quiz-app/session/${data.session._id}/intro`;
                     }
                     switch (motivationalSupportType) {
                         case null:
@@ -123,7 +123,7 @@
                     await assignment.markDecisionPoint(markStatus);
                 } catch (error) {
                     modal.confirm("quiz-app", `Error: ${error.status}`, error.message, ["OK"], () => {
-                        window.top.location.href = "/login";
+                        window.top.location.href = "/upgrade-demo/login";
                     });
                 }
             });

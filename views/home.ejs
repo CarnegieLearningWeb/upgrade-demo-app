@@ -178,10 +178,10 @@
                 });
             }
             await Promise.all([
-                loadIframe(quizAppIframe, "/quiz-app/student/login"),
-                loadIframe(adminToolIframe, "/admin-tool/summary"),
+                loadIframe(quizAppIframe, "/upgrade-demo/quiz-app/student/login"),
+                loadIframe(adminToolIframe, "/upgrade-demo/admin-tool/summary"),
                 loadIframe(upgradeIframe, "<%= upgradeBaseUrl %>"),
-                loadIframe(devConsoleIframe, "/dev-console/console")
+                loadIframe(devConsoleIframe, "/upgrade-demo/dev-console/console")
             ]);
 
             // Remove loading class
@@ -214,10 +214,10 @@
                         id: "logout"
                     });
                     await FetchWrapper.get("/api/v1/logout");
-                    window.location.href = "/login";
+                    window.location.href = "/upgrade-demo/login";
                 } catch (error) {
                     confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
-                        window.top.location.href = "/login";
+                        window.top.location.href = "/upgrade-demo/login";
                     });
                 }
             });
@@ -248,7 +248,7 @@
                 tours = data.tours;
             } catch (error) {
                 return confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
-                    window.top.location.href = "/login";
+                    window.top.location.href = "/upgrade-demo/login";
                 });
             }
             const toursContainter = document.getElementById("tours-container");
@@ -495,7 +495,7 @@
                     await dataResetter.saveMetrics();
                 } catch (error) {
                     return confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
-                        window.top.location.href = "/login";
+                        window.top.location.href = "/upgrade-demo/login";
                     });
                 }
 
@@ -541,7 +541,7 @@
                             await initCall[substep.initCall.context](substep.initCall.type, substep.initCall.id, substep.initCall.args || [], substep);
                         } catch (error) {
                             return confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
-                                window.top.location.href = "/login";
+                                window.top.location.href = "/upgrade-demo/login";
                             });
                         }
                     }
@@ -653,7 +653,7 @@
                     }
                 } catch (error) {
                     confirmModal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"], () => {
-                        window.top.location.href = "/login";
+                        window.top.location.href = "/upgrade-demo/login";
                     });
                 }
             }

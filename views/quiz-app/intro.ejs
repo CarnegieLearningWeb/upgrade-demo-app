@@ -48,7 +48,7 @@
             } catch (error) {
                 const modal = new Modal();
                 modal.confirm("quiz-app", `Error: ${error.status}`, error.message, ["OK"], () => {
-                    window.top.location.href = "/login";
+                    window.top.location.href = "/upgrade-demo/login";
                 });
             }
         });
