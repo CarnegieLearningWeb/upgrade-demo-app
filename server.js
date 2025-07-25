@@ -38,7 +38,7 @@ mongoose.set("strictQuery", false);
 // Database connection
 const connectDatabase = async () => {
     mongoose.Promise = global.Promise;
-    await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    await mongoose.connect(MONGODB_URI);
     console.log("Database is connected");
 }
 
