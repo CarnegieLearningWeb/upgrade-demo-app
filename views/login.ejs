@@ -110,7 +110,7 @@
                     await dataResetter.clearUpgradeData();
                     await dataResetter.clearDemoAppData();
                     await dataResetter.saveMetrics();
-                    window.location.href = "/upgrade-demo/home";
+                    window.location.href = "/home";
                 } catch (error) {
                     modal.confirm("upgrade", `Error: ${error.status}`, error.message, ["OK"]);
                 }
