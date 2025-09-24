@@ -265,7 +265,7 @@
                         updateTable();
                     } catch (error) {
                         modal.confirm("admin-tool", `Error: ${error.status}`, error.message, ["OK"], () => {
-                            window.top.location.href = "/upgrade-demo/login";
+                            window.top.location.href = "/login";
                         });
                     }
                 }
@@ -282,7 +282,7 @@
                         updateTable();
                     } catch (error) {
                         modal.confirm("admin-tool", `Error: ${error.status}`, error.message, ["OK"], () => {
-                            window.top.location.href = "/upgrade-demo/login";
+                            window.top.location.href = "/login";
                         });
                     }
                 }
@@ -299,7 +299,7 @@
                 updateTable();
             } catch (error) {
                 modal.confirm("admin-tool", `Error: ${error.status}`, error.message, ["OK"], () => {
-                    window.top.location.href = "/upgrade-demo/login";
+                    window.top.location.href = "/login";
                 });
             }
         });

@@ -7,14 +7,14 @@ class FetchWrapper {
         return data;
     }
     async fetchGetDelete(url, method) {
-        const response = await fetch(`/upgrade-demo${url}`, {
+        const response = await fetch(url, {
             method,
             headers: { "Accept": "application/json", "Content-Type": "application/json" }
         });
         return await this.getData(response);
     }
     async fetchPostPut(url, method, data = {}) {
-        const response = await fetch(`/upgrade-demo${url}`, {
+        const response = await fetch(url, {
             method,
             headers: { "Accept": "application/json", "Content-Type": "application/json" },
             body: JSON.stringify(data)

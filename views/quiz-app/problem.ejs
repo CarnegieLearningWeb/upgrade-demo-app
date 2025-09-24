@@ -115,10 +115,10 @@
                         await LogHandler.info(data.message);
 
                         // Reload the problem page
-                        window.location.href = "/upgrade-demo/quiz-app/session/<%= session._id %>/problem";
+                        window.location.href = "/quiz-app/session/<%= session._id %>/problem";
                     } catch (error) {
                         modal.confirm("quiz-app", `Error: ${error.status}`, error.message, ["OK"], () => {
-                            window.top.location.href = "/upgrade-demo/login";
+                            window.top.location.href = "/login";
                         });
                     }
                 });
@@ -126,7 +126,7 @@
                 answerInput.focus();
             } catch (error) {
                 modal.confirm("quiz-app", `Error: ${error.status}`, error.message, ["OK"], () => {
-                    window.top.location.href = "/upgrade-demo/login";
+                    window.top.location.href = "/login";
                 });
             }
         });

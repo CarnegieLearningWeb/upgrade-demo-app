@@ -84,11 +84,11 @@
                     await LogHandler.info("<%= session.student.name %> logged out");
 
                     // Redirect to the login page
-                    window.location.href = "/upgrade-demo/quiz-app/student/login";
+                    window.location.href = "/quiz-app/student/login";
                 } catch (error) {
                     const modal = new Modal();
                     modal.confirm("quiz-app", `Error: ${error.status}`, error.message, ["OK"], () => {
-                        window.top.location.href = "/upgrade-demo/login";
+                        window.top.location.href = "/login";
                     });
                 }
             });
