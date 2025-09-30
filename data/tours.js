@@ -786,16 +786,7 @@ module.exports = [
                 title: "Start the Experiment",
                 substeps: [
                     {
-                        content: `You have now created an experiment in UpGrade.<br><br>Click on the experiment "Area - Question Type" to view it.`,
-                        nextCallback: {
-                            context: "upgrade",
-                            type: "function",
-                            id: "on-experiment-click",
-                            args: ["Area - Question Type"]
-                        }
-                    },
-                    {
-                        content: `The experiment is defined but it is not running.<br><br>To activate it, click on the word "Inactive" under "STATUS."`,
+                        content: `You have now created an experiment in UpGrade.<br><br>The experiment is defined but it is not running.<br><br>To activate it, click on the word "Inactive" under "STATUS."`,
                         nextCallback: {
                             context: "upgrade",
                             type: "click",
