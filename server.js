@@ -116,6 +116,17 @@ app.get("/file/experiment/:filename", googleAuth, asyncHandler(async (req, res) 
     res.download(path.join(__dirname, `public/asset/experiment/${req.params.filename}`));
 }));
 
+/* ==================== Problem Authoring Tool ==================== */
+
+app.get("/problem-authoring-tool", (req, res) => {
+  res.redirect("/problem-authoring-tool/");
+});
+
+app.use(
+  "/problem-authoring-tool",
+  express.static(path.join(__dirname, "public/problem-authoring-tool"))
+);
+
 /* ==================== QuizApp ==================== */
 
 // Login Page
