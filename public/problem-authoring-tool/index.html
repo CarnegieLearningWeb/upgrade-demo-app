@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Problem Authoring</title>
+  <script type="module" crossorigin src="/problem-authoring-tool/assets/index-DnfhsyK2.js"></script>
+  <link rel="stylesheet" crossorigin href="/problem-authoring-tool/assets/index-Buaj0CKe.css">
+</head>
+<body>
+  <header id="app-header">
+    <div class="header-left"></div>
+    <div class="header-right">
+      <div class="mode-tabs" role="tablist">
+        <button id="tab-edit" class="mode-tab active" role="tab" aria-selected="true">Edit</button>
+        <button id="tab-preview" class="mode-tab" role="tab" aria-selected="false">Preview</button>
+      </div>
+      <button id="sidebar-toggle" class="header-btn icon-only" title="Toggle sidebar" aria-label="Toggle sidebar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="1.75" y="1.75" width="3.5" height="12.5" rx="0.75" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="7.25" y="1.75" width="7" height="12.5" rx="0.75" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="app-main">
+    <div id="editor-container">
+      <div id="editor"></div>
+    </div>
+    <aside id="sidebar">
+      <div class="sidebar-top">
+        <button id="btn-export" class="export-btn hidden">Export JSON</button>
+      </div>
+      <div class="sidebar-body" id="sidebar-body"></div>
+    </aside>
+  </main>
+
+  <footer id="app-footer">
+    <div class="footer-left"></div>
+    <div class="footer-right">
+      <button id="start-over" class="btn-primary">Start Over</button>
+    </div>
+  </footer>
+
+</body>
+</html>
