@@ -20,6 +20,7 @@ const asyncHandler = require("./middlewares/async-handler");
 const googleAuth = require("./middlewares/google-auth");
 const upgradeAuth = require("./middlewares/upgrade-auth");
 const loggedInUser = require("./middlewares/logged-in-user");
+const { patAuth, computeSig } = require("./middlewares/pat-auth");
 const app = express();
 
 // Config Settings
@@ -62,6 +63,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(favicon(path.join(__dirname, "public/asset/favicon/favicon.ico")));
+
+// PAT auth gate — must run before express.static("public") so files under
+// public/problem-authoring-tool/ are not served without a valid session.
+const PAT_PUBLIC_PATHS = ["/login", "/login.html", "/api/login"];
+app.use("/problem-authoring-tool", (req, res, next) => {
+    if (PAT_PUBLIC_PATHS.includes(req.path)) return next();
+    patAuth(req, res, next);
+});
 
 // Set static server
 app.use(express.static(path.join(__dirname, "public")));
@@ -118,13 +127,77 @@ app.get("/file/experiment/:filename", googleAuth, asyncHandler(async (req, res) 
 
 /* ==================== Problem Authoring Tool ==================== */
 
-app.get("/problem-authoring-tool", (req, res) => {
-  res.redirect("/problem-authoring-tool/");
+const PAT_SESSION_EXPIRY_MINUTES = 60; // change to 2 for quick expiry testing
+
+// Helper: build a signed HS256 JWT for a PAT session
+function signPATToken(email, name) {
+    const secret = config.PAT_SESSION_SECRET;
+    const b64url = (obj) =>
+        Buffer.from(JSON.stringify(obj))
+            .toString("base64")
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=/g, "");
+    const header = b64url({ alg: "HS256", typ: "JWT" });
+    const payload = b64url({
+        email,
+        name,
+        exp: Math.floor(Date.now() / 1000) + PAT_SESSION_EXPIRY_MINUTES * 60
+    });
+    const sig = computeSig(header, payload, secret);
+    return `${header}.${payload}.${sig}`;
+}
+
+// Login page — public
+app.get("/problem-authoring-tool/login", (req, res) => {
+    res.render("problem-authoring-tool/login", { googleClientId: GOOGLE_CLIENT_ID });
 });
 
+// Login API — public
+app.post("/problem-authoring-tool/api/login", asyncHandler(async (req, res) => {
+    if (!config.PAT_SESSION_SECRET) {
+        return res.status(500).json({ error: "Server misconfigured: PAT_SESSION_SECRET not set" });
+    }
+    const { credential } = req.body;
+    if (!credential) {
+        return res.status(400).json({ error: "Missing credential" });
+    }
+    // Verify Google ID token
+    let payload;
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: GOOGLE_CLIENT_ID
+        });
+        payload = ticket.getPayload();
+    } catch (err) {
+        return res.status(401).json({ error: "Invalid Google token" });
+    }
+    // Restrict to verified @carnegielearning.com accounts
+    if (!payload.email_verified || !payload.email.endsWith("@carnegielearning.com")) {
+        return res.status(403).json({ error: "Access restricted to @carnegielearning.com accounts" });
+    }
+    // Issue session cookie
+    const token = signPATToken(payload.email, payload.name);
+    res.cookie("pat-session", token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: config.MODE === "PROD",
+        path: "/problem-authoring-tool",
+        maxAge: PAT_SESSION_EXPIRY_MINUTES * 60 * 1000
+    });
+    res.json({ ok: true });
+}));
+
+// Redirect bare path → trailing slash (must be protected; auth gate already ran)
+app.get("/problem-authoring-tool", (req, res) => {
+    res.redirect("/problem-authoring-tool/");
+});
+
+// Protected static files
 app.use(
-  "/problem-authoring-tool",
-  express.static(path.join(__dirname, "public/problem-authoring-tool"))
+    "/problem-authoring-tool",
+    express.static(path.join(__dirname, "public/problem-authoring-tool"))
 );
 
 /* ==================== QuizApp ==================== */
