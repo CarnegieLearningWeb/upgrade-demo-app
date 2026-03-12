@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Problem Authoring</title>
-  <script type="module" crossorigin src="/problem-authoring-tool/assets/index-B2Xh8HnX.js"></script>
-  <link rel="stylesheet" crossorigin href="/problem-authoring-tool/assets/index-BBb2kI9Y.css">
+  <script type="module" crossorigin src="/problem-authoring-tool/assets/index-DULKWkTd.js"></script>
+  <link rel="stylesheet" crossorigin href="/problem-authoring-tool/assets/index-Ci4Pk1D7.css">
 </head>
 <body>
   <header id="app-header">
@@ -17,6 +17,7 @@
       <div class="mode-tabs" role="tablist">
         <button id="tab-edit" class="mode-tab active" role="tab" aria-selected="true">Edit</button>
         <button id="tab-preview" class="mode-tab" role="tab" aria-selected="false">Preview</button>
+        <button id="tab-code" class="mode-tab" role="tab" aria-selected="false">Code</button>
       </div>
       <button id="sidebar-toggle" class="header-btn icon-only" title="Toggle sidebar" aria-label="Toggle sidebar">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -31,18 +32,49 @@
     <div id="editor-container">
       <div id="editor"></div>
     </div>
-    <aside id="sidebar">
-      <div class="sidebar-top">
-        <button id="btn-export" class="export-btn hidden">Export JSON</button>
+
+    <div id="code-panel" class="hidden">
+      <div id="code-editor-wrap">
+        <textarea id="code-textarea" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
       </div>
-      <div class="sidebar-body" id="sidebar-body"></div>
+    </div>
+
+    <aside id="sidebar">
+      <div class="sidebar-tabs"></div>
+      <div class="sidebar-body" id="sidebar-body">
+
+        <!-- Edit mode pane — dynamically rendered by sidebar.js -->
+        <div id="sidebar-pane-edit" class="sidebar-pane"></div>
+
+        <!-- Preview mode pane -->
+        <div id="sidebar-pane-preview" class="sidebar-pane hidden">
+          <div class="sidebar-action-section">
+            <button id="btn-view-json" class="export-btn">View JSON</button>
+            <button id="btn-export" class="export-btn">Export JSON</button>
+          </div>
+          <div class="sidebar-console-section" id="preview-console-wrap"></div>
+        </div>
+
+        <!-- Code mode pane -->
+        <div id="sidebar-pane-code" class="sidebar-pane hidden">
+          <div class="sidebar-action-section">
+            <button id="btn-api-docs" class="export-btn">API Docs</button>
+            <button id="btn-widget-functions" class="export-btn">Widget Functions</button>
+          </div>
+          <div class="sidebar-console-section" id="code-console-wrap"></div>
+        </div>
+
+      </div>
     </aside>
   </main>
 
-  <footer id="app-footer">
+  <footer id="app-footer" class="hidden">
     <div class="footer-left"></div>
     <div class="footer-right">
-      <button id="start-over" class="btn-primary">Start Over</button>
+      <button id="start-over" class="btn-primary hidden">Start Over</button>
+      <button id="code-discard" class="btn-secondary hidden">Discard</button>
+      <button id="code-run" class="btn-secondary hidden">Run</button>
+      <button id="code-save" class="btn-primary hidden">Save Changes</button>
     </div>
   </footer>
 
