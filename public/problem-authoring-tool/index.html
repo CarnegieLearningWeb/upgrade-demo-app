@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Problem Authoring</title>
-  <script type="module" crossorigin src="/problem-authoring-tool/assets/index-BjRhKvi2.js"></script>
-  <link rel="stylesheet" crossorigin href="/problem-authoring-tool/assets/index-BlYykvKf.css">
+  <script type="module" crossorigin src="/problem-authoring-tool/assets/index-Cx73UP6e.js"></script>
+  <link rel="stylesheet" crossorigin href="/problem-authoring-tool/assets/index-BcOdhika.css">
 </head>
 <body>
   <header id="app-header">
@@ -25,6 +25,7 @@
           <rect x="7.25" y="1.75" width="7" height="12.5" rx="0.75" stroke="currentColor" stroke-width="1.5"/>
         </svg>
       </button>
+      <button id="ai-toggle" class="header-btn icon-only" title="Toggle AI panel" aria-label="Toggle AI panel">AI</button>
     </div>
   </header>
 
@@ -34,12 +35,10 @@
     </div>
 
     <div id="code-panel" class="hidden">
-      <div id="code-editor-wrap">
-        <textarea id="code-textarea" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
-      </div>
+      <div id="code-editor-wrap"></div>
     </div>
 
-    <aside id="sidebar">
+    <aside id="sidebar" aria-label="Inspector">
       <div class="sidebar-tabs"></div>
       <div class="sidebar-body" id="sidebar-body">
 
@@ -64,6 +63,22 @@
           <div class="sidebar-console-section" id="code-console-wrap"></div>
         </div>
 
+      </div>
+    </aside>
+
+    <aside id="ai-panel" aria-label="AI Assistant">
+      <div class="ai-panel-header">
+        <span class="ai-panel-title">AI Assistant</span>
+        <button id="ai-new-chat" class="ai-new-chat-btn" disabled>New chat</button>
+      </div>
+      <div class="ai-panel-conversation" id="ai-conversation"></div>
+      <div class="ai-panel-footer">
+        <div class="ai-panel-input-area">
+          <textarea id="ai-input" class="ai-input" placeholder="Ask anything…" rows="1" spellcheck="true"></textarea>
+        </div>
+        <div class="ai-panel-action-bar">
+          <button id="ai-send" class="ai-send-btn" disabled>Send</button>
+        </div>
       </div>
     </aside>
   </main>

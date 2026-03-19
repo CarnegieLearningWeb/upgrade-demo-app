@@ -21,6 +21,9 @@ const googleAuth = require("./middlewares/google-auth");
 const upgradeAuth = require("./middlewares/upgrade-auth");
 const loggedInUser = require("./middlewares/logged-in-user");
 const { patAuth, computeSig } = require("./middlewares/pat-auth");
+const Anthropic = require("@anthropic-ai/sdk").default;
+const { TOOLS } = require("./tools");
+const { SYSTEM_PROMPT } = require("./prompt");
 const app = express();
 
 // Config Settings
@@ -546,6 +549,82 @@ app.delete("/api/v1/upgrade/clearDB", googleAuth, upgradeAuth, asyncHandler(asyn
         throw { status: error.response?.status || 500, message: error.message };
     }
 }));
+
+/* ==================== AI Chat ==================== */
+
+const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// Process a single stream event — writes SSE data to res and updates state.
+function handleStreamEvent(event, state, res) {
+    if (event.type === "content_block_start" && event.content_block?.type === "tool_use") {
+        state.currentToolUse = {
+            id: event.content_block.id,
+            name: event.content_block.name,
+            inputJSON: "",
+        };
+        return;
+    }
+
+    if (event.type === "content_block_delta") {
+        if (event.delta?.type === "text_delta") {
+            res.write(`data: ${JSON.stringify({ type: "delta", text: event.delta.text })}\n\n`);
+        } else if (event.delta?.type === "input_json_delta" && state.currentToolUse) {
+            state.currentToolUse.inputJSON += event.delta.partial_json;
+        }
+        return;
+    }
+
+    if (event.type === "content_block_stop" && state.currentToolUse) {
+        let input = {};
+        try { input = JSON.parse(state.currentToolUse.inputJSON); } catch { input = {}; }
+        res.write(`data: ${JSON.stringify({
+            type: "tool_use",
+            id: state.currentToolUse.id,
+            name: state.currentToolUse.name,
+            input,
+        })}\n\n`);
+        state.currentToolUse = null;
+        return;
+    }
+
+    if (event.type === "message_delta" && event.delta?.stop_reason) {
+        state.stopReason = event.delta.stop_reason;
+    }
+}
+
+app.post("/api/chat", express.json({ limit: "2mb" }), async (req, res) => {
+    const { messages } = req.body;
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+        return res.status(400).json({ error: "messages array is required" });
+    }
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    try {
+        const stream = anthropicClient.messages.stream({
+            model: "claude-sonnet-4-6",
+            max_tokens: 4096,
+            system: SYSTEM_PROMPT,
+            tools: TOOLS,
+            messages,
+        });
+
+        const state = { currentToolUse: null, stopReason: "end_turn" };
+        for await (const event of stream) {
+            handleStreamEvent(event, state, res);
+        }
+
+        res.write(`data: ${JSON.stringify({ type: "done", stop_reason: state.stopReason })}\n\n`);
+        res.end();
+    } catch (err) {
+        console.error("Claude API error:", err.message);
+        res.write(`data: ${JSON.stringify({ type: "error", message: err.message })}\n\n`);
+        res.end();
+    }
+});
 
 /* ==================== Errors ==================== */
 
