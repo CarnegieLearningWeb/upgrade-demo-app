@@ -592,7 +592,7 @@ function handleStreamEvent(event, state, res) {
     }
 }
 
-app.post("/api/chat", express.json({ limit: "2mb" }), async (req, res) => {
+app.post("/api/v1/chat", express.json({ limit: "2mb" }), async (req, res) => {
     const { messages } = req.body;
 
     if (!Array.isArray(messages) || messages.length === 0) {
