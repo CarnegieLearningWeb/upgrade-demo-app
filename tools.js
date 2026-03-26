@@ -1,7 +1,7 @@
 // Claude API tool definitions for the AI assistant.
 // Each entry follows Anthropic's tool format: { name, description, input_schema }.
 
-module.exports.TOOLS = [
+export const TOOLS = [
   {
     name: 'get_problem_state',
     description: 'Read the current document structure, rules, and code. Use this after making changes to verify the result or plan next steps. Returns { problem, rules, code }.',
@@ -19,8 +19,8 @@ module.exports.TOOLS = [
       properties: {
         type: {
           type: 'string',
-          enum: ['paragraph', 'heading1', 'heading2', 'heading3', 'bulletList', 'orderedList', 'choiceList', 'table'],
-          description: 'The block type to insert.',
+          enum: ['paragraph', 'heading1', 'heading2', 'heading3', 'bulletList', 'orderedList', 'choiceList', 'table', 'canvas', 'embed'],
+          description: 'The block type to insert. Canvas blocks have no content — they are configured via set_canvas_function. Embed blocks have no content — they are configured via set_embed_url.',
         },
         position: {
           type: 'number',
@@ -40,7 +40,7 @@ module.exports.TOOLS = [
   },
   {
     name: 'update_block_content',
-    description: 'Replace the content of an existing paragraph, heading, or list block. Does not work on tables (use update_table_cell instead).',
+    description: 'Replace the content of an existing paragraph, heading, or list block. Does not work on tables (use update_table_cell instead), canvas, or embed blocks.',
     input_schema: {
       type: 'object',
       properties: {
@@ -312,6 +312,47 @@ module.exports.TOOLS = [
         },
       },
       required: ['widgetId', 'category', 'ruleId'],
+    },
+  },
+  {
+    name: 'set_canvas_function',
+    description: 'Set or clear the canvas function on a canvas block. Each canvas block supports exactly one connected canvas function. Pass type and args to set, or type as null to clear.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        blockId: {
+          type: 'string',
+          description: 'UUID of the canvas block.',
+        },
+        type: {
+          type: ['string', 'null'],
+          description: 'Canvas function name (e.g. "draw"), or null to clear.',
+        },
+        args: {
+          type: 'array',
+          description: 'Argument values for the parameters after canvas. Each value must be a string, number, or boolean.',
+          items: {},
+        },
+      },
+      required: ['blockId'],
+    },
+  },
+  {
+    name: 'set_embed_url',
+    description: 'Set or clear the URL on an embed block. The URL must be a valid http or https link (e.g. a YouTube embed URL). Pass url as null or empty string to clear.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        blockId: {
+          type: 'string',
+          description: 'UUID of the embed block.',
+        },
+        url: {
+          type: ['string', 'null'],
+          description: 'The embed URL (http/https), or null to clear.',
+        },
+      },
+      required: ['blockId'],
     },
   },
   {
