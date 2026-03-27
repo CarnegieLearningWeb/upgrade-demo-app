@@ -176,10 +176,15 @@ app.post("/problem-authoring-tool/api/login", asyncHandler(async (req, res) => {
     } catch (err) {
         return res.status(401).json({ error: "Invalid Google token" });
     }
-    // Restrict to verified @carnegielearning.com accounts
-    if (!payload.email_verified || !payload.email.endsWith("@carnegielearning.com")) {
-        return res.status(403).json({ error: "Access restricted to @carnegielearning.com accounts" });
+    console.log(`[PAT login] email=${payload.email} verified=${payload.email_verified}`);
+    // Require a verified Google account
+    if (!payload.email_verified) {
+        return res.status(403).json({ error: "Google account must have a verified email" });
     }
+    // Restrict to verified @carnegielearning.com accounts
+    // if (!payload.email.endsWith("@carnegielearning.com")) {
+    //     return res.status(403).json({ error: "Access restricted to @carnegielearning.com accounts" });
+    // }
     // Issue session cookie
     const token = signPATToken(payload.email, payload.name);
     res.cookie("pat-session", token, {
