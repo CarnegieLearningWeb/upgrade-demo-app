@@ -208,6 +208,11 @@ app.use(
     express.static(path.join(__dirname, "public/problem-authoring-tool"))
 );
 
+// SPA fallback — serve index.html for client-side routes
+app.get("/problem-authoring-tool/*", patAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, "public/problem-authoring-tool/index.html"));
+});
+
 /* ==================== QuizApp ==================== */
 
 // Login Page
