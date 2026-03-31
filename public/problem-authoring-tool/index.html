@@ -4,12 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Problem Authoring</title>
-  <script type="module" crossorigin src="/problem-authoring-tool/assets/index-DVjgi-vT.js"></script>
-  <link rel="stylesheet" crossorigin href="/problem-authoring-tool/assets/index-BIC7T7Wy.css">
+  <script type="module" crossorigin src="/problem-authoring-tool/assets/index-LVKJib9g.js"></script>
+  <link rel="stylesheet" crossorigin href="/problem-authoring-tool/assets/index-DjxqPKTI.css">
 </head>
 <body>
+  <!-- Home page view (shown at root route) -->
+  <div id="home-page" class="hidden">
+    <div class="home-container">
+      <div class="home-top">
+        <div class="home-top-text">
+          <h1 class="home-title">Pages</h1>
+        </div>
+        <div class="home-actions">
+          <button id="home-new" class="home-btn home-btn-primary">New</button>
+          <button id="home-import" class="home-btn home-btn-secondary">Import</button>
+        </div>
+      </div>
+      <div id="home-error" class="home-error hidden"></div>
+      <div id="home-card-grid" class="home-card-grid"></div>
+    </div>
+  </div>
+
+  <!-- Editor view (shown at /page/:id route) -->
+  <div id="editor-view" class="hidden">
   <header id="app-header">
-    <div class="header-left"></div>
+    <div class="header-left">
+      <button id="header-home" class="header-btn icon-only" title="Back to pages" aria-label="Back to pages">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M2 14V6.667L8 2l6 4.667V14H2Zm4.235 0v-3.569c0-.974.79-1.764 1.765-1.764v0c.975 0 1.765.79 1.765 1.764V14"/>
+        </svg>
+      </button>
+    </div>
     <div class="header-right">
       <div id="how-to-use-wrapper">
         <button id="how-to-use-btn" class="header-btn">How to use</button>
@@ -74,9 +99,20 @@
       <div class="ai-panel-conversation" id="ai-conversation"></div>
       <div class="ai-panel-footer">
         <div class="ai-panel-input-area">
-          <textarea id="ai-input" class="ai-input" placeholder="Ask anything…" rows="1" spellcheck="true"></textarea>
+          <textarea id="ai-input" class="ai-input" placeholder="Ask anything or type '/' for suggestions" rows="1" spellcheck="true"></textarea>
         </div>
+        <div id="ai-attach-error" class="ai-attach-error hidden"></div>
         <div class="ai-panel-action-bar">
+          <button id="ai-attach-image" class="ai-attach-btn" title="Attach reference images for AI">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
+              <circle cx="5.5" cy="5.5" r="1.25" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M2 11l3-3 2.5 2.5L10 8l4 4v.5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 012 12.5V11z" fill="currentColor" opacity="0.3"/>
+            </svg>
+          </button>
+          <span id="ai-attach-status" class="ai-attach-status hidden"></span>
+          <button id="ai-attach-clear" class="ai-attach-clear hidden" title="Remove all attached images">&times;</button>
+          <span class="ai-action-spacer"></span>
           <button id="ai-send" class="ai-send-btn" disabled>Send</button>
         </div>
       </div>
@@ -92,6 +128,8 @@
       <button id="code-save" class="btn-primary hidden">Save Changes</button>
     </div>
   </footer>
+
+  </div><!-- /editor-view -->
 
 </body>
 </html>
