@@ -62,7 +62,7 @@ app.set("view engine", "ejs");
 app.set("trust proxy", true);
 
 // Set middleware
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(favicon(path.join(__dirname, "public/asset/favicon/favicon.ico")));
@@ -612,7 +612,7 @@ function handleStreamEvent(event, state, res) {
     }
 }
 
-app.post("/api/v1/chat", express.json({ limit: "50mb" }), async (req, res) => {
+app.post("/api/v1/chat", async (req, res) => {
     const { messages } = req.body;
 
     if (!Array.isArray(messages) || messages.length === 0) {
