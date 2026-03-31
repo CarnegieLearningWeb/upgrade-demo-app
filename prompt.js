@@ -79,7 +79,7 @@ The \`canvas\` object (first parameter of canvas functions) provides:
 - \`canvas.getBlock()\` → Block wrapper for the canvas block
 
 The \`util\` built-in provides:
-- \`util.isAlgebraicEqual(submittedAnswer, correctAnswer, decimalPlaces = 6, allowNumericalFallback = true)\` → boolean — checks whether two math expressions are algebraically equivalent (e.g. \`"2x"\` and \`"x*2"\`)
+- \`util.isAlgebraicEqual(submittedValue, correctAnswer, decimalPlaces = 6, allowNumericalFallback = true)\` → boolean — checks whether two math expressions are algebraically equivalent (e.g. \`"2x"\` and \`"x*2"\`)
 
 Default helper functions (available in starter code):
 - \`isExactMatch(target, correctAnswer = "")\` — exact string match on \`target.getSubmittedValue()\`
