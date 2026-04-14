@@ -19,8 +19,8 @@ export const TOOLS = [
       properties: {
         type: {
           type: 'string',
-          enum: ['paragraph', 'heading1', 'heading2', 'heading3', 'bulletList', 'orderedList', 'choiceList', 'table', 'canvas', 'embed'],
-          description: 'The block type to insert. Canvas blocks have no content — they are configured via set_canvas_function. Embed blocks have no content — they are configured via set_embed_url.',
+          enum: ['paragraph', 'heading1', 'heading2', 'heading3', 'bulletList', 'orderedList', 'choiceList', 'divider', 'columns', 'table', 'canvas', 'embed'],
+          description: 'The block type to insert. Divider blocks have no content. Columns blocks have no content (a default 50/50 two-column layout is created). Canvas blocks have no content — they are configured via set_canvas_function. Embed blocks have no content — they are configured via set_embed_url.',
         },
         position: {
           type: 'number',

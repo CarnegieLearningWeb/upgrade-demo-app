@@ -16,6 +16,7 @@ Authors create and arrange problem content visually. The document is a sequence 
 - **bulletList / orderedList** — lists with items, support stacked/inline/grid layout
 - **choiceList** — single-select radio list (each item has a unique choiceId)
 - **divider** — a horizontal rule for visual separation (no content; does not support alignment, indent, or text color)
+- **columns** — a two-column layout container (no content attributes; does not support alignment, indent, or text color). Each column holds its own vertical list of blocks. Nested columns are not allowed.
 - **table** — rows × columns grid (2×2 min, 16×16 max), cells contain paragraphs
 - **canvas** — block widget for custom interactive Konva content (not inline; has a fixed width/height)
 - **embed** — block widget for embedded content via URL (not inline; renders an iframe at 16:9 aspect ratio)
@@ -31,7 +32,7 @@ Inline widgets can be placed inside any rich text:
 - Choice lists submit when the student clicks a choice.
 - Do NOT add a button for submitting answers. Buttons are for custom actions (e.g., toggling block visibility, adding table rows, updating shared variables).
 
-Most blocks support formatting attributes: \`textAlign\` (left/center/right/justify), \`blockIndent\` (0–5), and \`textColor\` from a fixed 12-color palette (exception: **divider**, **canvas**, and **embed** do not support these):
+Most blocks support formatting attributes: \`textAlign\` (left/center/right/justify), \`blockIndent\` (0–5), and \`textColor\` from a fixed 12-color palette (exception: **divider**, **columns**, **canvas**, and **embed** do not support these):
 \`#1f2225\` (black), \`#657587\` (grey), \`#9ea4aa\` (light grey), \`#0400ff\` (blue), \`#0064ff\` (medium blue), \`#00bae5\` (cyan), \`#00ca85\` (green), \`#c400ff\` (purple), \`#ef052a\` (red), \`#ff9200\` (orange), \`#864d00\` (brown), \`#d4a600\` (gold).
 Only these colors are supported — do not use other hex values.
 
@@ -72,7 +73,11 @@ The \`target\` object provides:
 The \`page\` global provides:
 - \`page.getBlocks()\` → array of Block wrappers
 
-Block wrappers provide: \`getType()\` (returns "paragraph" | "heading" | "bulletList" | "orderedList" | "choiceList" | "divider" | "table" | "canvas" | "embed"), \`isVisible()\`, \`setVisible(bool)\`, \`getNextBlock()\`, \`getPreviousBlock()\`, and type-specific views via \`asRichText()\`, \`asList()\`, \`asDivider()\`, \`asTable()\`, \`asCanvas()\`, \`asEmbed()\`.
+Block wrappers provide: \`getType()\` (returns "paragraph" | "heading" | "bulletList" | "orderedList" | "choiceList" | "divider" | "columns" | "table" | "canvas" | "embed"), \`isVisible()\`, \`setVisible(bool)\`, \`getNextBlock()\`, \`getPreviousBlock()\`, and type-specific views via \`asRichText()\`, \`asList()\`, \`asDivider()\`, \`asColumns()\`, \`asTable()\`, \`asCanvas()\`, \`asEmbed()\`.
+
+The \`columns\` object (from \`block.asColumns()\`) provides:
+- \`columns.getLeftBlocks()\` → Block[] — blocks in the left column
+- \`columns.getRightBlocks()\` → Block[] — blocks in the right column
 
 The \`canvas\` object (first parameter of canvas functions) provides:
 - \`canvas.getStage()\` → the Konva.Stage instance for this canvas widget
@@ -146,6 +151,7 @@ You have tools to modify the problem document, rules, and code. Follow these pri
 - For a button widget: \`{ "type": "buttonToken", "attrs": { "buttonText": "Submit", "buttonColor": "primary" } }\`
 - For a math widget: \`{ "type": "mathToken", "attrs": { "latex": "E = mc^2" } }\` (omit latex or use empty string for placeholder state)
 - For a divider block: use \`insert_block\` with type "divider" (no content, no formatting attributes).
+- For a columns block: use \`insert_block\` with type "columns" (no content, no formatting attributes). A default 50/50 two-column layout is created with empty paragraphs in each column.
 - For an embed block: use \`insert_block\` with type "embed" (no content), then \`set_embed_url\` with the link. The URL must be a valid http/https URL.
 - Omit \`id\` fields on new nodes — the editor assigns them automatically.
 
