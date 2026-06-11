@@ -17,25 +17,32 @@ An app to demonstrate UpGrade, an open-source platform to support large-scale A/
 ```
 git clone https://github.com/CarnegieLearningWeb/upgrade-demo-app.git
 cd upgrade-demo-app
-touch .env
+cp .env.example .env
 ```
-3. Open the `.env` file with an editor and add the following variables:
-```
-PORT=8080
-MODE={DEV for development, PROD for production}
-MONGODB_URI={MongoDB Connection String starting with mongodb+srv://}
-GOOGLE_CLIENT_ID={Google OAuth 2.0 Client ID}
-UPGRADE_HOST_URL={UpGrade Backend Host URL (e.g. http://localhost:3030)}
-UPGRADE_BASE_URL={UpGrade Frontend Base URL (e.g. http://localhost:4200)}
-UPGRADE_CONTEXT={Name of the UpGrade Experiment Context (e.g. app)}
-UPGRADE_SERVICE_ACCOUNT_KEY_PATH={Path to the UpGrade Service Account Key File}
-```
+3. Open `.env` with an editor and fill in the values from `.env.example`.
 4. Run the following commands in the Terminal:
 ```
 npm install
 npm start
 ```
 5. Open your web browser and navigate to http://localhost:8080
+
+The deployed app also serves protected external tools from the same process:
+- Problem Authoring Tool: http://localhost:8080/problem-authoring-tool/
+- AI Experiment Consultant: http://localhost:8080/ai-consultant/
+
+### Syncing External Apps
+This repository vendors the server files and built client bundles for the sibling `problem-authoring-tool` and `upgrade-consultant` projects. After changing either external app, run this from the `upgrade-demo-app` root to refresh the vendored copies:
+```
+./sync-external-apps.sh
+```
+
+If the external app client bundles need to be rebuilt first, run:
+```
+./sync-external-apps.sh --build
+```
+
+The script assumes the sibling repositories live next to `upgrade-demo-app` in the same parent directory. You can override the paths with `PAT_ROOT=/path/to/problem-authoring-tool` or `CONSULTANT_ROOT=/path/to/upgrade-consultant`.
 
 ### Docker Setup
 1. Follow steps 1-3 from the Traditional Setup to clone the repository and create the `.env` file.

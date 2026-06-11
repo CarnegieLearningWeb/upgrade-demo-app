@@ -20,6 +20,10 @@ const asyncHandler = require("./middlewares/async-handler");
 const googleAuth = require("./middlewares/google-auth");
 const upgradeAuth = require("./middlewares/upgrade-auth");
 const loggedInUser = require("./middlewares/logged-in-user");
+const { createSharedExternalAuth } = require("./external-server/shared-auth");
+const { createProblemAuthoringToolRouter } = require("./external-server/problem-authoring-tool/routes");
+const { createAiConsultantRouter } = require("./external-server/ai-consultant/src/routes/index.js");
+const { initUploadsDir } = require("./external-server/ai-consultant/src/lib/uploads.js");
 const app = express();
 
 // Config Settings
@@ -31,6 +35,13 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 const UPGRADE_HOST_URL = config.UPGRADE_HOST_URL;
 const UPGRADE_BASE_URL = config.UPGRADE_BASE_URL;
 const UPGRADE_CONTEXT = config.UPGRADE_CONTEXT;
+const externalAuth = createSharedExternalAuth({
+    googleClientId: GOOGLE_CLIENT_ID,
+    sessionSecret: config.EXTERNAL_APP_SESSION_SECRET,
+    mode: MODE
+});
+
+initUploadsDir();
 
 // DeprecationWarning: Mongoose: the `strictQuery` option will be switched back to `false` by default in Mongoose 7. Use `mongoose.set('strictQuery', false);` if you want to prepare for this change. Or use `mongoose.set('strictQuery', true);` to suppress this warning.
 mongoose.set("strictQuery", false);
@@ -58,10 +69,27 @@ app.set("view engine", "ejs");
 app.set("trust proxy", true);
 
 // Set middleware
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(favicon(path.join(__dirname, "public/asset/favicon/favicon.ico")));
+
+// External app auth gates — these must run before express.static("public") so
+// files under public/problem-authoring-tool/ and public/ai-consultant/ are not
+// served without a valid shared external-app session.
+const EXTERNAL_APP_PUBLIC_PATHS = ["/login", "/login.html", "/api/login"];
+app.use("/problem-authoring-tool", (req, res, next) => {
+    externalAuth.gatePath({
+        loginPath: "/problem-authoring-tool/login",
+        publicPaths: EXTERNAL_APP_PUBLIC_PATHS
+    })(req, res, next);
+});
+app.use("/ai-consultant", (req, res, next) => {
+    externalAuth.gatePath({
+        loginPath: "/ai-consultant/login",
+        publicPaths: EXTERNAL_APP_PUBLIC_PATHS
+    })(req, res, next);
+});
 
 // Set static server
 app.use(express.static(path.join(__dirname, "public")));
@@ -115,6 +143,42 @@ app.get("/home", googleAuth, asyncHandler(async (req, res) => {
 app.get("/file/experiment/:filename", googleAuth, asyncHandler(async (req, res) => {
     res.download(path.join(__dirname, `public/asset/experiment/${req.params.filename}`));
 }));
+
+/* ==================== External Apps ==================== */
+
+app.get("/problem-authoring-tool/login", (req, res) => {
+    res.render("problem-authoring-tool/login", { googleClientId: GOOGLE_CLIENT_ID });
+});
+
+app.post(
+    "/problem-authoring-tool/api/login",
+    asyncHandler(externalAuth.loginHandler({ label: "problem-authoring-tool" }))
+);
+
+app.get("/ai-consultant/login", (req, res) => {
+    res.render("ai-consultant/login", { googleClientId: GOOGLE_CLIENT_ID });
+});
+
+app.post(
+    "/ai-consultant/api/login",
+    asyncHandler(externalAuth.loginHandler({ label: "ai-consultant" }))
+);
+
+app.get("/problem-authoring-tool", (req, res) => {
+    res.redirect("/problem-authoring-tool/");
+});
+
+app.get("/ai-consultant", (req, res) => {
+    res.redirect("/ai-consultant/");
+});
+
+app.get("/problem-authoring-tool/*", externalAuth.guard({ loginPath: "/problem-authoring-tool/login" }), (req, res) => {
+    res.sendFile(path.join(__dirname, "public/problem-authoring-tool/index.html"));
+});
+
+app.get("/ai-consultant/*", externalAuth.guard({ loginPath: "/ai-consultant/login" }), (req, res) => {
+    res.sendFile(path.join(__dirname, "public/ai-consultant/index.html"));
+});
 
 /* ==================== QuizApp ==================== */
 
@@ -462,6 +526,36 @@ app.delete("/api/v1/upgrade/clearDB", googleAuth, upgradeAuth, asyncHandler(asyn
         throw { status: error.response?.status || 500, message: error.message };
     }
 }));
+
+/* ==================== External App APIs ==================== */
+
+app.use(
+    "/api/v1/problem-authoring-tool",
+    createProblemAuthoringToolRouter({ auth: externalAuth.apiGuard })
+);
+
+app.use(
+    "/api/v1/ai-consultant",
+    externalAuth.apiGuard,
+    createAiConsultantRouter()
+);
+
+app.use("/api/v1/ai-consultant", (req, res) => {
+    res.status(404).json({
+        error: { code: "not_found", message: `No route for ${req.method} ${req.originalUrl}` }
+    });
+});
+
+app.use("/api/v1/ai-consultant", (err, req, res, next) => {
+    console.error("[ai-consultant] unhandled error:", err);
+    const status = err.status || 500;
+    res.status(status).json({
+        error: {
+            code: err.code || "internal_error",
+            message: err.expose ? err.message : "Internal server error"
+        }
+    });
+});
 
 /* ==================== Errors ==================== */
 

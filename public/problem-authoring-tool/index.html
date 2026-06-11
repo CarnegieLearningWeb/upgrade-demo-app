@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Problem Authoring</title>
+  <script type="module" crossorigin src="/problem-authoring-tool/assets/index-cZIgnuJF.js"></script>
+  <link rel="stylesheet" crossorigin href="/problem-authoring-tool/assets/index-B8qaUyaw.css">
+</head>
+<body>
+  <!-- Home page view (shown at root route) -->
+  <div id="home-page" class="hidden">
+    <div class="home-container">
+      <div class="home-top">
+        <div class="home-top-text">
+          <h1 class="home-title">Pages</h1>
+        </div>
+        <div class="home-actions">
+          <button id="home-new" class="home-btn home-btn-primary">New</button>
+          <button id="home-import" class="home-btn home-btn-secondary">Import</button>
+        </div>
+      </div>
+      <div id="home-error" class="home-error hidden"></div>
+      <div id="home-card-grid" class="home-card-grid"></div>
+    </div>
+  </div>
+
+  <!-- Editor view (shown at /page/:id route) -->
+  <div id="editor-view" class="hidden">
+  <header id="app-header">
+    <div class="header-left">
+      <button id="header-home" class="header-btn icon-only" title="Back to pages" aria-label="Back to pages">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M2 14V6.667L8 2l6 4.667V14H2Zm4.235 0v-3.569c0-.974.79-1.764 1.765-1.764v0c.975 0 1.765.79 1.765 1.764V14"/>
+        </svg>
+      </button>
+    </div>
+    <div class="header-right">
+      <div id="how-to-use-wrapper">
+        <button id="how-to-use-btn" class="header-btn">How to use</button>
+      </div>
+      <div class="mode-tabs" role="tablist">
+        <button id="tab-edit" class="mode-tab active" role="tab" aria-selected="true">Edit</button>
+        <button id="tab-preview" class="mode-tab" role="tab" aria-selected="false">Preview</button>
+        <button id="tab-code" class="mode-tab" role="tab" aria-selected="false">Code</button>
+      </div>
+      <button id="sidebar-toggle" class="header-btn icon-only" title="Toggle sidebar" aria-label="Toggle sidebar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="1.75" y="1.75" width="3.5" height="12.5" rx="0.75" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="7.25" y="1.75" width="7" height="12.5" rx="0.75" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </button>
+      <button id="ai-toggle" class="header-btn icon-only" title="Toggle AI panel" aria-label="Toggle AI panel">AI</button>
+    </div>
+  </header>
+
+  <main id="app-main">
+    <div id="editor-container">
+      <div id="editor"></div>
+    </div>
+
+    <div id="code-panel" class="hidden">
+      <div id="code-editor-wrap"></div>
+    </div>
+
+    <aside id="sidebar" aria-label="Inspector">
+      <div class="sidebar-tabs"></div>
+      <div class="sidebar-body" id="sidebar-body">
+
+        <!-- Edit mode pane — dynamically rendered by sidebar.js -->
+        <div id="sidebar-pane-edit" class="sidebar-pane"></div>
+
+        <!-- Preview mode pane -->
+        <div id="sidebar-pane-preview" class="sidebar-pane hidden">
+          <div class="sidebar-action-section">
+            <button id="btn-view-json" class="export-btn">View JSON</button>
+            <button id="btn-export" class="export-btn">Export JSON</button>
+          </div>
+          <div class="sidebar-console-section" id="preview-console-wrap"></div>
+        </div>
+
+        <!-- Code mode pane -->
+        <div id="sidebar-pane-code" class="sidebar-pane hidden">
+          <div class="sidebar-action-section">
+            <button id="btn-api-docs" class="export-btn">API Docs</button>
+            <button id="btn-widget-functions" class="export-btn">Widget Functions</button>
+          </div>
+          <div class="sidebar-console-section" id="code-console-wrap"></div>
+        </div>
+
+      </div>
+    </aside>
+
+    <aside id="ai-panel" aria-label="AI Assistant">
+      <div class="ai-panel-header">
+        <span class="ai-panel-title">AI Assistant</span>
+        <button id="ai-new-chat" class="ai-new-chat-btn" disabled>New chat</button>
+      </div>
+      <div class="ai-panel-conversation" id="ai-conversation"></div>
+      <div class="ai-panel-footer">
+        <div class="ai-panel-input-area">
+          <textarea id="ai-input" class="ai-input" placeholder="Ask anything or type '/' for suggestions" rows="1" spellcheck="true"></textarea>
+        </div>
+        <div id="ai-attach-error" class="ai-attach-error hidden"></div>
+        <div class="ai-panel-action-bar">
+          <button id="ai-attach-image" class="ai-attach-btn" title="Attach reference images for AI">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
+              <circle cx="5.5" cy="5.5" r="1.25" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M2 11l3-3 2.5 2.5L10 8l4 4v.5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 012 12.5V11z" fill="currentColor" opacity="0.3"/>
+            </svg>
+          </button>
+          <span id="ai-attach-status" class="ai-attach-status hidden"></span>
+          <button id="ai-attach-clear" class="ai-attach-clear hidden" title="Remove all attached images">&times;</button>
+          <span class="ai-action-spacer"></span>
+          <button id="ai-send" class="ai-send-btn" disabled>Send</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer id="app-footer" class="hidden">
+    <div class="footer-left"></div>
+    <div class="footer-right">
+      <button id="start-over" class="btn-primary hidden">Start Over</button>
+      <button id="code-discard" class="btn-secondary hidden">Discard</button>
+      <button id="code-run" class="btn-secondary hidden">Run</button>
+      <button id="code-save" class="btn-primary hidden">Save Changes</button>
+    </div>
+  </footer>
+
+  </div><!-- /editor-view -->
+
+</body>
+</html>

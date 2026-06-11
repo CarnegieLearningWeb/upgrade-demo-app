@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>AI Experiment Consultant</title>
+    <script type="module" crossorigin src="/ai-consultant/assets/index-CuJePMeu.js"></script>
+    <link rel="stylesheet" crossorigin href="/ai-consultant/assets/index-CXVfePV3.css">
+  </head>
+  <body>
+    <div id="app">
+      <header class="app-header">
+        <div class="app-header__title">AI Experiment Consultant</div>
+        <div class="app-header__actions">
+          <button id="new-chat" type="button" class="icon-btn" title="New chat" aria-label="New chat">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="chat">
+        <div class="chat__column">
+          <ol
+            id="messages"
+            class="messages"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+            aria-label="Conversation"
+          ></ol>
+          <div id="starter-chips" class="starter-chips" hidden></div>
+        </div>
+      </main>
+
+      <div class="composer-wrap">
+        <div class="composer-wrap__inner">
+          <div id="attachment-tray" class="attachment-tray" hidden></div>
+          <form id="composer-form" class="composer">
+            <label class="composer__file-btn icon-btn" title="Attach file" aria-label="Attach file">
+              <input
+                id="file-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,application/pdf,text/plain,text/csv,.csv,.txt"
+                multiple
+                hidden
+              />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </label>
+            <textarea
+              id="composer-input"
+              class="composer__input"
+              rows="1"
+              placeholder="Message AI Experiment Consultant…"
+              aria-label="Message"
+            ></textarea>
+            <button id="send-btn" type="submit" class="send-btn" disabled aria-label="Send">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </form>
+          <p class="composer-footer">
+            This tool helps you plan experiments. Final designs should be reviewed before use with real learners.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <aside id="artifact-panel" class="artifact-panel" hidden aria-label="Report panel">
+      <header class="artifact-panel__header">
+        <h2 id="artifact-panel-title" class="artifact-panel__title">Report</h2>
+        <div class="artifact-panel__actions">
+          <button id="artifact-copy" type="button" class="icon-btn" title="Copy to clipboard" aria-label="Copy">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+          </button>
+          <button id="artifact-download" type="button" class="icon-btn" title="Download as .md" aria-label="Download">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button id="artifact-close" type="button" class="icon-btn" aria-label="Close panel" title="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+      <div id="artifact-panel-body" class="artifact-panel__body"></div>
+    </aside>
+
+    <dialog id="lightbox" class="lightbox" aria-label="Image preview">
+      <button id="lightbox-close" type="button" class="lightbox__close" aria-label="Close preview" title="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <img id="lightbox-img" class="lightbox__img" alt="" />
+    </dialog>
+
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+  </body>
+</html>

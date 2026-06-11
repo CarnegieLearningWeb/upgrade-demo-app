@@ -1,0 +1,3 @@
+- This report was generated from the information provided during the consulting session. Review the experiment design before using it with real students.
+- The app context, site, target, condition codes, and metric keys must exactly match the values configured in UpGrade and used in the client app.
+- Synthetic simulation results, if included, are only a preflight demonstration of UpGrade's data flow and are not evidence of the intervention's real effect.
