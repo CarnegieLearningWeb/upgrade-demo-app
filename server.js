@@ -617,7 +617,7 @@ function handleStreamEvent(event, state, res) {
     }
 }
 
-app.post("/api/v1/chat", async (req, res) => {
+app.post("/api/v1/problem-authoring-tool/chat", async (req, res) => {
     const { messages } = req.body;
 
     if (!Array.isArray(messages) || messages.length === 0) {
@@ -638,7 +638,7 @@ app.post("/api/v1/chat", async (req, res) => {
 
         try {
             const stream = anthropicClient.messages.stream({
-                model: "claude-sonnet-4-6",
+                model: process.env.ANTHROPIC_MODEL,
                 max_tokens: 4096,
                 system: SYSTEM_PROMPT,
                 tools: TOOLS,
