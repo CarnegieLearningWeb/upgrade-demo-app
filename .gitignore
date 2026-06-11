@@ -6,3 +6,5 @@ node_modules
 .env
 # ignore upgrade service account key file
 upgrade-service-account-key.json
+# ignore AI consultant runtime uploads
+external-server/ai-consultant/uploads/
