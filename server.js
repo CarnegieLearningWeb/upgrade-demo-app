@@ -20,10 +20,10 @@ const asyncHandler = require("./middlewares/async-handler");
 const googleAuth = require("./middlewares/google-auth");
 const upgradeAuth = require("./middlewares/upgrade-auth");
 const loggedInUser = require("./middlewares/logged-in-user");
-const { patAuth, computeSig } = require("./middlewares/pat-auth");
-const Anthropic = require("@anthropic-ai/sdk").default;
-const { TOOLS } = require("./tools");
-const { SYSTEM_PROMPT } = require("./prompt");
+const { createSharedExternalAuth } = require("./external-server/shared-auth");
+const { createProblemAuthoringToolRouter } = require("./external-server/problem-authoring-tool/routes");
+const { createAiConsultantRouter } = require("./external-server/ai-consultant/src/routes/index.js");
+const { initUploadsDir } = require("./external-server/ai-consultant/src/lib/uploads.js");
 const app = express();
 
 // Config Settings
@@ -35,6 +35,13 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 const UPGRADE_HOST_URL = config.UPGRADE_HOST_URL;
 const UPGRADE_BASE_URL = config.UPGRADE_BASE_URL;
 const UPGRADE_CONTEXT = config.UPGRADE_CONTEXT;
+const externalAuth = createSharedExternalAuth({
+    googleClientId: GOOGLE_CLIENT_ID,
+    sessionSecret: config.EXTERNAL_APP_SESSION_SECRET,
+    mode: MODE
+});
+
+initUploadsDir();
 
 // DeprecationWarning: Mongoose: the `strictQuery` option will be switched back to `false` by default in Mongoose 7. Use `mongoose.set('strictQuery', false);` if you want to prepare for this change. Or use `mongoose.set('strictQuery', true);` to suppress this warning.
 mongoose.set("strictQuery", false);
@@ -67,12 +74,21 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(favicon(path.join(__dirname, "public/asset/favicon/favicon.ico")));
 
-// PAT auth gate — must run before express.static("public") so files under
-// public/problem-authoring-tool/ are not served without a valid session.
-const PAT_PUBLIC_PATHS = ["/login", "/login.html", "/api/login"];
+// External app auth gates — these must run before express.static("public") so
+// files under public/problem-authoring-tool/ and public/ai-consultant/ are not
+// served without a valid shared external-app session.
+const EXTERNAL_APP_PUBLIC_PATHS = ["/login", "/login.html", "/api/login"];
 app.use("/problem-authoring-tool", (req, res, next) => {
-    if (PAT_PUBLIC_PATHS.includes(req.path)) return next();
-    patAuth(req, res, next);
+    externalAuth.gatePath({
+        loginPath: "/problem-authoring-tool/login",
+        publicPaths: EXTERNAL_APP_PUBLIC_PATHS
+    })(req, res, next);
+});
+app.use("/ai-consultant", (req, res, next) => {
+    externalAuth.gatePath({
+        loginPath: "/ai-consultant/login",
+        publicPaths: EXTERNAL_APP_PUBLIC_PATHS
+    })(req, res, next);
 });
 
 // Set static server
@@ -128,89 +144,40 @@ app.get("/file/experiment/:filename", googleAuth, asyncHandler(async (req, res) 
     res.download(path.join(__dirname, `public/asset/experiment/${req.params.filename}`));
 }));
 
-/* ==================== Problem Authoring Tool ==================== */
+/* ==================== External Apps ==================== */
 
-const PAT_SESSION_EXPIRY_MINUTES = 60; // change to 2 for quick expiry testing
-
-// Helper: build a signed HS256 JWT for a PAT session
-function signPATToken(email, name) {
-    const secret = config.PAT_SESSION_SECRET;
-    const b64url = (obj) =>
-        Buffer.from(JSON.stringify(obj))
-            .toString("base64")
-            .replace(/\+/g, "-")
-            .replace(/\//g, "_")
-            .replace(/=/g, "");
-    const header = b64url({ alg: "HS256", typ: "JWT" });
-    const payload = b64url({
-        email,
-        name,
-        exp: Math.floor(Date.now() / 1000) + PAT_SESSION_EXPIRY_MINUTES * 60
-    });
-    const sig = computeSig(header, payload, secret);
-    return `${header}.${payload}.${sig}`;
-}
-
-// Login page — public
 app.get("/problem-authoring-tool/login", (req, res) => {
     res.render("problem-authoring-tool/login", { googleClientId: GOOGLE_CLIENT_ID });
 });
 
-// Login API — public
-app.post("/problem-authoring-tool/api/login", asyncHandler(async (req, res) => {
-    if (!config.PAT_SESSION_SECRET) {
-        return res.status(500).json({ error: "Server misconfigured: PAT_SESSION_SECRET not set" });
-    }
-    const { credential } = req.body;
-    if (!credential) {
-        return res.status(400).json({ error: "Missing credential" });
-    }
-    // Verify Google ID token
-    let payload;
-    try {
-        const ticket = await client.verifyIdToken({
-            idToken: credential,
-            audience: GOOGLE_CLIENT_ID
-        });
-        payload = ticket.getPayload();
-    } catch (err) {
-        return res.status(401).json({ error: "Invalid Google token" });
-    }
-    console.log(`[PAT login] email=${payload.email} verified=${payload.email_verified}`);
-    // Require a verified Google account
-    if (!payload.email_verified) {
-        return res.status(403).json({ error: "Google account must have a verified email" });
-    }
-    // Restrict to verified @carnegielearning.com accounts
-    if (!payload.email.endsWith("@carnegielearning.com")) {
-        return res.status(403).json({ error: "Access restricted to @carnegielearning.com accounts" });
-    }
-    // Issue session cookie
-    const token = signPATToken(payload.email, payload.name);
-    res.cookie("pat-session", token, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: config.MODE === "PROD",
-        path: "/problem-authoring-tool",
-        maxAge: PAT_SESSION_EXPIRY_MINUTES * 60 * 1000
-    });
-    res.json({ ok: true });
-}));
+app.post(
+    "/problem-authoring-tool/api/login",
+    asyncHandler(externalAuth.loginHandler({ label: "problem-authoring-tool" }))
+);
 
-// Redirect bare path → trailing slash (must be protected; auth gate already ran)
+app.get("/ai-consultant/login", (req, res) => {
+    res.render("ai-consultant/login", { googleClientId: GOOGLE_CLIENT_ID });
+});
+
+app.post(
+    "/ai-consultant/api/login",
+    asyncHandler(externalAuth.loginHandler({ label: "ai-consultant" }))
+);
+
 app.get("/problem-authoring-tool", (req, res) => {
     res.redirect("/problem-authoring-tool/");
 });
 
-// Protected static files
-app.use(
-    "/problem-authoring-tool",
-    express.static(path.join(__dirname, "public/problem-authoring-tool"))
-);
+app.get("/ai-consultant", (req, res) => {
+    res.redirect("/ai-consultant/");
+});
 
-// SPA fallback — serve index.html for client-side routes
-app.get("/problem-authoring-tool/*", patAuth, (req, res) => {
+app.get("/problem-authoring-tool/*", externalAuth.guard({ loginPath: "/problem-authoring-tool/login" }), (req, res) => {
     res.sendFile(path.join(__dirname, "public/problem-authoring-tool/index.html"));
+});
+
+app.get("/ai-consultant/*", externalAuth.guard({ loginPath: "/ai-consultant/login" }), (req, res) => {
+    res.sendFile(path.join(__dirname, "public/ai-consultant/index.html"));
 });
 
 /* ==================== QuizApp ==================== */
@@ -560,118 +527,34 @@ app.delete("/api/v1/upgrade/clearDB", googleAuth, upgradeAuth, asyncHandler(asyn
     }
 }));
 
-/* ==================== AI Chat ==================== */
+/* ==================== External App APIs ==================== */
 
-const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const MAX_RETRIES = 3;
-const INITIAL_DELAY_MS = 1000;
+app.use(
+    "/api/v1/problem-authoring-tool",
+    createProblemAuthoringToolRouter({ auth: externalAuth.apiGuard })
+);
 
-// Returns true for transient Anthropic API errors that are safe to retry.
-function isRetryableError(err) {
-    const status = err.status;
-    if (status === 429 || status === 529 || status === 503) return true;
-    return (err.message || "").toLowerCase().includes("overloaded");
-}
+app.use(
+    "/api/v1/ai-consultant",
+    externalAuth.apiGuard,
+    createAiConsultantRouter()
+);
 
-// Process a single stream event — writes SSE data to res and updates state.
-function handleStreamEvent(event, state, res) {
-    if (event.type === "content_block_start" && event.content_block?.type === "tool_use") {
-        state.currentToolUse = {
-            id: event.content_block.id,
-            name: event.content_block.name,
-            inputJSON: "",
-        };
-        // Notify client immediately so it can show a loading indicator
-        // while tool input JSON is still being accumulated.
-        res.write(`data: ${JSON.stringify({
-            type: "tool_start",
-            name: event.content_block.name,
-        })}\n\n`);
-        return;
-    }
+app.use("/api/v1/ai-consultant", (req, res) => {
+    res.status(404).json({
+        error: { code: "not_found", message: `No route for ${req.method} ${req.originalUrl}` }
+    });
+});
 
-    if (event.type === "content_block_delta") {
-        if (event.delta?.type === "text_delta") {
-            res.write(`data: ${JSON.stringify({ type: "delta", text: event.delta.text })}\n\n`);
-        } else if (event.delta?.type === "input_json_delta" && state.currentToolUse) {
-            state.currentToolUse.inputJSON += event.delta.partial_json;
+app.use("/api/v1/ai-consultant", (err, req, res, next) => {
+    console.error("[ai-consultant] unhandled error:", err);
+    const status = err.status || 500;
+    res.status(status).json({
+        error: {
+            code: err.code || "internal_error",
+            message: err.expose ? err.message : "Internal server error"
         }
-        return;
-    }
-
-    if (event.type === "content_block_stop" && state.currentToolUse) {
-        let input = {};
-        try { input = JSON.parse(state.currentToolUse.inputJSON); } catch { input = {}; }
-        res.write(`data: ${JSON.stringify({
-            type: "tool_use",
-            id: state.currentToolUse.id,
-            name: state.currentToolUse.name,
-            input,
-        })}\n\n`);
-        state.currentToolUse = null;
-        return;
-    }
-
-    if (event.type === "message_delta" && event.delta?.stop_reason) {
-        state.stopReason = event.delta.stop_reason;
-    }
-}
-
-app.post("/api/v1/problem-authoring-tool/chat", async (req, res) => {
-    const { messages } = req.body;
-
-    if (!Array.isArray(messages) || messages.length === 0) {
-        return res.status(400).json({ error: "messages array is required" });
-    }
-
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
-    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-        // Track whether any content has been sent to the client so we don't
-        // retry mid-stream (which would produce duplicate/corrupted output).
-        let contentSent = false;
-        const resTracker = {
-            write(data) { contentSent = true; return res.write(data); },
-        };
-
-        try {
-            const stream = anthropicClient.messages.stream({
-                model: process.env.ANTHROPIC_MODEL,
-                max_tokens: 4096,
-                system: SYSTEM_PROMPT,
-                tools: TOOLS,
-                messages,
-            });
-
-            const state = { currentToolUse: null, stopReason: "end_turn" };
-            for await (const event of stream) {
-                handleStreamEvent(event, state, resTracker);
-            }
-
-            res.write(`data: ${JSON.stringify({ type: "done", stop_reason: state.stopReason })}\n\n`);
-            res.end();
-            return;
-        } catch (err) {
-            const canRetry = !contentSent && isRetryableError(err) && attempt < MAX_RETRIES;
-
-            if (canRetry) {
-                const delay = INITIAL_DELAY_MS * Math.pow(2, attempt);
-                console.warn(
-                    `Retryable API error (attempt ${attempt + 1}/${MAX_RETRIES + 1}): ${err.message}. ` +
-                    `Retrying in ${delay}ms...`,
-                );
-                await new Promise(resolve => setTimeout(resolve, delay));
-                continue;
-            }
-
-            console.error("Claude API error:", err.message);
-            res.write(`data: ${JSON.stringify({ type: "error", message: err.message })}\n\n`);
-            res.end();
-            return;
-        }
-    }
+    });
 });
 
 /* ==================== Errors ==================== */

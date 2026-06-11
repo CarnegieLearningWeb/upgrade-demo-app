@@ -29,6 +29,15 @@ UPGRADE_HOST_URL={UpGrade Backend Host URL (e.g. http://localhost:3030)}
 UPGRADE_BASE_URL={UpGrade Frontend Base URL (e.g. http://localhost:4200)}
 UPGRADE_CONTEXT={Name of the UpGrade Experiment Context (e.g. app)}
 UPGRADE_SERVICE_ACCOUNT_KEY_PATH={Path to the UpGrade Service Account Key File}
+PAT_SESSION_SECRET={Secret used to sign shared external-app sessions}
+ANTHROPIC_API_KEY={Anthropic API key for external AI tools}
+ANTHROPIC_MODEL={Anthropic model name}
+
+# Optional, used by the AI Experiment Consultant
+UPGRADE_API_URL={UpGrade Backend API URL, e.g. https://upgrade-demo.carnegielearning.com/api}
+SEMANTIC_SCHOLAR_API_KEY={Semantic Scholar API key for higher paper-search quota}
+MAX_UPLOAD_BYTES={Max AI consultant upload size in bytes}
+DEBUG_LOGGING={Set true to print AI consultant server logs}
 ```
 4. Run the following commands in the Terminal:
 ```
@@ -36,6 +45,10 @@ npm install
 npm start
 ```
 5. Open your web browser and navigate to http://localhost:8080
+
+The deployed app also serves protected external tools from the same process:
+- Problem Authoring Tool: http://localhost:8080/problem-authoring-tool/
+- AI Experiment Consultant: http://localhost:8080/ai-consultant/
 
 ### Docker Setup
 1. Follow steps 1-3 from the Traditional Setup to clone the repository and create the `.env` file.
