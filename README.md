@@ -17,28 +17,9 @@ An app to demonstrate UpGrade, an open-source platform to support large-scale A/
 ```
 git clone https://github.com/CarnegieLearningWeb/upgrade-demo-app.git
 cd upgrade-demo-app
-touch .env
+cp .env.example .env
 ```
-3. Open the `.env` file with an editor and add the following variables:
-```
-PORT=8080
-MODE={DEV for development, PROD for production}
-MONGODB_URI={MongoDB Connection String starting with mongodb+srv://}
-GOOGLE_CLIENT_ID={Google OAuth 2.0 Client ID}
-UPGRADE_HOST_URL={UpGrade Backend Host URL (e.g. http://localhost:3030)}
-UPGRADE_BASE_URL={UpGrade Frontend Base URL (e.g. http://localhost:4200)}
-UPGRADE_CONTEXT={Name of the UpGrade Experiment Context (e.g. app)}
-UPGRADE_SERVICE_ACCOUNT_KEY_PATH={Path to the UpGrade Service Account Key File}
-PAT_SESSION_SECRET={Secret used to sign shared external-app sessions}
-ANTHROPIC_API_KEY={Anthropic API key for external AI tools}
-ANTHROPIC_MODEL={Anthropic model name}
-
-# Optional, used by the AI Experiment Consultant
-UPGRADE_API_URL={UpGrade Backend API URL, e.g. https://upgrade-demo.carnegielearning.com/api}
-SEMANTIC_SCHOLAR_API_KEY={Semantic Scholar API key for higher paper-search quota}
-MAX_UPLOAD_BYTES={Max AI consultant upload size in bytes}
-DEBUG_LOGGING={Set true to print AI consultant server logs}
-```
+3. Open `.env` with an editor and fill in the values from `.env.example`.
 4. Run the following commands in the Terminal:
 ```
 npm install
