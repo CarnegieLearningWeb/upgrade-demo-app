@@ -190,7 +190,7 @@ function rankCandidates(candidates, rankingTokens) {
 // Tool entry point.
 // ============================================================================
 
-export async function searchPapersTool({ input, emit }) {
+export async function searchPapersTool({ input, emit, signal }) {
   const specificQueries = (input.specificQueries || []).filter(
     (q) => typeof q === 'string' && q.trim().length >= 3,
   );
@@ -218,6 +218,7 @@ export async function searchPapersTool({ input, emit }) {
     queries: allQueries,
     resultsPerQuery,
     label: 'combined',
+    signal,
   });
 
   // Deterministic pre-ranking using canonical-key tokens (with queries as

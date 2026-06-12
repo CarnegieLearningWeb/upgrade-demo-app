@@ -12,7 +12,9 @@ import { searchPapersTool, SEARCH_PAPERS_SCHEMA } from './tools/search-papers.js
 //
 // `emit(event)` lets the tool stream progress events to the client during
 // execution; the chat route wraps it to add tool_use_id + tool name.
-// `signal` is reserved for future cancellation support (not wired yet).
+// `signal` is an AbortSignal that fires when the client disconnects (user hit
+// Stop). Long-running tools should check `signal.aborted` to stop early — but
+// must still finish their own cleanup, which should NOT be tied to the signal.
 // `run` returns the structured tool result that gets fed back to the model
 // in the next round.
 

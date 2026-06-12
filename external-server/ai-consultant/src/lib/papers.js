@@ -227,6 +227,7 @@ export async function searchPapersSequential({
   resultsPerQuery = 5,
   timeoutMs = DEFAULT_TIMEOUT_MS,
   label = 'initial',
+  signal,
 }) {
   const cleanQueries = (queries || [])
     .map((q) => (typeof q === 'string' ? q.trim() : ''))
@@ -245,6 +246,10 @@ export async function searchPapersSequential({
   let succeeded = 0;
 
   for (const query of cleanQueries) {
+    // Bail out of remaining queries if the user stopped the turn. Most of the
+    // wall-clock here is the >=1.5s spacing between calls, so skipping the rest
+    // of the batch is the meaningful win.
+    if (signal?.aborted) break;
     // No manual sleep — `throttledFetch` enforces the per-call spacing
     // for every Semantic Scholar request (including retries and fallback
     // queries), so the loop just dispatches.

@@ -162,11 +162,14 @@ function sampleAttributes({ metrics, syntheticSpecs, conditionCode }) {
 // Concurrency: bounded fan-out over an iterable of work items.
 // ============================================================================
 
-async function runWithConcurrency({ count, concurrency, work }) {
+async function runWithConcurrency({ count, concurrency, work, signal }) {
   const results = new Array(count);
   let next = 0;
   async function worker() {
     while (true) {
+      // Stop picking up new participants once the user has aborted the turn.
+      // In-flight items finish; cleanup still runs in the caller's `finally`.
+      if (signal?.aborted) return;
       const i = next++;
       if (i >= count) return;
       try {
@@ -416,7 +419,7 @@ function buildWarnings({ enrollment, queries, counters, cohortSize }) {
 // The tool entry point.
 // ============================================================================
 
-export async function runSimulation({ input, emit }) {
+export async function runSimulation({ input, emit, signal }) {
   const { experiment } = input;
   const cohortSize = Math.max(COHORT_MIN, Math.min(COHORT_MAX, Number(input.cohortSize) || COHORT_DEFAULT));
   const syntheticSpecs = input.syntheticSpecs || {};
@@ -474,6 +477,7 @@ export async function runSimulation({ input, emit }) {
     await runWithConcurrency({
       count: cohortSize,
       concurrency: PARTICIPANT_CONCURRENCY,
+      signal,
       work: async (i) => {
         await simulateParticipant({
           runId,
@@ -497,6 +501,13 @@ export async function runSimulation({ input, emit }) {
     });
 
     log.sim('cohort done', { completed, ...counters });
+
+    // User stopped mid-cohort — skip the results fetch and let `finally` tear
+    // down the temporary experiment + metrics.
+    if (signal?.aborted) {
+      log.sim('aborted', { runId, completed });
+      return { runId, experimentName: experiment.name, cohortSize, aborted: true };
+    }
 
     emit({ type: 'tool_progress', message: 'Fetching enrollment + metric results…' });
     const [enrollmentDetail, analyseData] = await Promise.all([

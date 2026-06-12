@@ -172,16 +172,19 @@ const EVENT_HANDLERS = {
   content_block_stop: handleBlockStop,
 };
 
-async function runOneRound({ client, messages, tools, ctx }) {
-  const stream = await client.messages.create({
-    model: process.env.ANTHROPIC_MODEL,
-    max_tokens: 64000,
-    thinking: { type: 'adaptive' },
-    system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
-    tools,
-    messages,
-    stream: true,
-  });
+async function runOneRound({ client, messages, tools, ctx, signal }) {
+  const stream = await client.messages.create(
+    {
+      model: process.env.ANTHROPIC_MODEL,
+      max_tokens: 64000,
+      thinking: { type: 'adaptive' },
+      system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+      tools,
+      messages,
+      stream: true,
+    },
+    { signal },
+  );
 
   const state = {
     blocks: [],
@@ -212,7 +215,7 @@ async function runOneRound({ client, messages, tools, ctx }) {
 // tool's name + tool_use_id and forward to the NDJSON channel.
 // ============================================================================
 
-async function executeToolUse({ toolUse, ctx }) {
+async function executeToolUse({ toolUse, ctx, signal }) {
   const tool = getTool(toolUse.name);
   log.tool('start', { tool: toolUse.name, id: toolUse.id });
   ctx.write({
@@ -235,7 +238,7 @@ async function executeToolUse({ toolUse, ctx }) {
 
   const started = Date.now();
   try {
-    const result = await tool.run({ input: toolUse.input, emit });
+    const result = await tool.run({ input: toolUse.input, emit, signal });
     log.tool('end ok', { tool: toolUse.name, id: toolUse.id, ms: Date.now() - started });
     ctx.write({ type: 'tool_end', tool: toolUse.name, toolUseId: toolUse.id, ok: true });
     return {
@@ -281,9 +284,18 @@ chatRouter.post('/', async (req, res) => {
   res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders?.();
 
+  // Abort downstream work (Anthropic stream, tool loops) when the client
+  // disconnects. The browser's Stop button aborts its fetch, which closes this
+  // response; `res` fires 'close' before it has ended, which is our cue. A
+  // normal end() fires 'close' too, but by then `writableEnded` is true.
+  const ac = new AbortController();
+  res.on('close', () => {
+    if (!res.writableEnded) ac.abort();
+  });
+
   const ctx = {
     write: (obj) => {
-      if (!res.writableEnded) res.write(JSON.stringify(obj) + '\n');
+      if (!res.writableEnded && !res.destroyed) res.write(JSON.stringify(obj) + '\n');
     },
   };
 
@@ -300,8 +312,9 @@ chatRouter.post('/', async (req, res) => {
 
   try {
     for (let round = 0; round < MAX_TOOL_ROUNDS; round += 1) {
+      if (ac.signal.aborted) break;
       const roundStart = Date.now();
-      const result = await runOneRound({ client: anthropic, messages, tools, ctx });
+      const result = await runOneRound({ client: anthropic, messages, tools, ctx, signal: ac.signal });
       const roundMs = Date.now() - roundStart;
       stopReason = result.stopReason;
       // Sum usage across rounds.
@@ -347,7 +360,7 @@ chatRouter.post('/', async (req, res) => {
 
       const toolResults = [];
       for (const t of toolUses) {
-        const r = await executeToolUse({ toolUse: t, ctx });
+        const r = await executeToolUse({ toolUse: t, ctx, signal: ac.signal });
         toolResults.push({ type: 'tool_result', ...r });
       }
       messages.push({ role: 'user', content: toolResults });
@@ -364,6 +377,12 @@ chatRouter.post('/', async (req, res) => {
     ctx.write({ type: 'done', stopReason, usage });
     res.end();
   } catch (err) {
+    // Client stopped/disconnected — the Anthropic stream (or a tool) threw an
+    // AbortError. The socket is already gone, so there's nothing to report.
+    if (ac.signal.aborted || err?.name === 'AbortError') {
+      log.chat('aborted by client');
+      return;
+    }
     log.warn('anthropic loop error', { err: err?.message || String(err), status: err?.status });
     const code = err?.status === 429 ? 'rate_limited' : err?.code || 'anthropic_error';
     ctx.write({
