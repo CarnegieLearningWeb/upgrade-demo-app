@@ -9,5 +9,5 @@ module.exports = {
     UPGRADE_BASE_URL: process.env.UPGRADE_BASE_URL || "",
     UPGRADE_CONTEXT: process.env.UPGRADE_CONTEXT || "",
     UPGRADE_SERVICE_ACCOUNT_KEY_PATH: process.env.UPGRADE_SERVICE_ACCOUNT_KEY_PATH || "",
-    EXTERNAL_APP_SESSION_SECRET: process.env.EXTERNAL_APP_SESSION_SECRET || ""
+    SESSION_SECRET: process.env.SESSION_SECRET || ""
 };

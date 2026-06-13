@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign In - AI Experiment Consultant</title>
+    <title>Sign In – Problem Authoring Tool</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -37,11 +37,11 @@
 </head>
 <body>
     <div class="card">
-        <h1>AI Experiment Consultant</h1>
-        <p class="subtitle">Sign in with your Google account to continue.</p>
+        <h1>Problem Authoring Tool</h1>
+        <p class="subtitle">Sign in with your Carnegie Learning Google account to continue.</p>
 
         <div id="g_id_onload"
-             data-client_id="<%= googleClientId %>"
+             data-client_id="{{GOOGLE_CLIENT_ID}}"
              data-callback="handleCredentialResponse"
              data-auto_prompt="false">
         </div>
@@ -60,11 +60,18 @@
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
+        const appBase = "{{APP_BASE}}";
+
+        function getErrorMessage(data) {
+            if (typeof data?.error === "string") return data.error;
+            return data?.error?.message || "Sign in failed. Please try again.";
+        }
+
         async function handleCredentialResponse(response) {
             const errorEl = document.getElementById("error");
             errorEl.textContent = "";
             try {
-                const res = await fetch("/ai-consultant/api/login", {
+                const res = await fetch(appBase + "/api/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ credential: response.credential }),
@@ -72,9 +79,9 @@
                 });
                 const data = await res.json();
                 if (res.ok && data.ok) {
-                    window.location.href = "/ai-consultant/";
+                    window.location.href = appBase + "/";
                 } else {
-                    errorEl.textContent = data.error || "Sign in failed. Please try again.";
+                    errorEl.textContent = getErrorMessage(data);
                 }
             } catch (err) {
                 errorEl.textContent = "Network error. Please try again.";

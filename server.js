@@ -20,8 +20,15 @@ const asyncHandler = require("./middlewares/async-handler");
 const googleAuth = require("./middlewares/google-auth");
 const upgradeAuth = require("./middlewares/upgrade-auth");
 const loggedInUser = require("./middlewares/logged-in-user");
-const { createSharedExternalAuth } = require("./external-server/shared-auth");
+const {
+    createAppAuth: createProblemAuthoringToolAuth,
+    createAuthRouter: createProblemAuthoringToolAuthRouter
+} = require("./external-server/problem-authoring-tool/auth.js");
 const { createProblemAuthoringToolRouter } = require("./external-server/problem-authoring-tool/routes");
+const {
+    createAppAuth: createAiConsultantAuth,
+    createAuthRouter: createAiConsultantAuthRouter
+} = require("./external-server/ai-consultant/src/lib/auth.js");
 const { createAiConsultantRouter } = require("./external-server/ai-consultant/src/routes/index.js");
 const { initUploadsDir } = require("./external-server/ai-consultant/src/lib/uploads.js");
 const app = express();
@@ -35,10 +42,17 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 const UPGRADE_HOST_URL = config.UPGRADE_HOST_URL;
 const UPGRADE_BASE_URL = config.UPGRADE_BASE_URL;
 const UPGRADE_CONTEXT = config.UPGRADE_CONTEXT;
-const externalAuth = createSharedExternalAuth({
+const problemAuthoringToolAuth = createProblemAuthoringToolAuth({
     googleClientId: GOOGLE_CLIENT_ID,
-    sessionSecret: config.EXTERNAL_APP_SESSION_SECRET,
-    mode: MODE
+    sessionSecret: config.SESSION_SECRET,
+    mode: MODE,
+    label: "problem-authoring-tool"
+});
+const aiConsultantAuth = createAiConsultantAuth({
+    googleClientId: GOOGLE_CLIENT_ID,
+    sessionSecret: config.SESSION_SECRET,
+    mode: MODE,
+    label: "ai-consultant"
 });
 
 initUploadsDir();
@@ -77,15 +91,15 @@ app.use(favicon(path.join(__dirname, "public/asset/favicon/favicon.ico")));
 // External app auth gates — these must run before express.static("public") so
 // files under public/problem-authoring-tool/ and public/ai-consultant/ are not
 // served without a valid shared external-app session.
-const EXTERNAL_APP_PUBLIC_PATHS = ["/login", "/login.html", "/api/login"];
+const EXTERNAL_APP_PUBLIC_PATHS = ["/login", "/api/login", "/api/session", "/api/logout"];
 app.use("/problem-authoring-tool", (req, res, next) => {
-    externalAuth.gatePath({
+    problemAuthoringToolAuth.gatePath({
         loginPath: "/problem-authoring-tool/login",
         publicPaths: EXTERNAL_APP_PUBLIC_PATHS
     })(req, res, next);
 });
 app.use("/ai-consultant", (req, res, next) => {
-    externalAuth.gatePath({
+    aiConsultantAuth.gatePath({
         loginPath: "/ai-consultant/login",
         publicPaths: EXTERNAL_APP_PUBLIC_PATHS
     })(req, res, next);
@@ -146,23 +160,17 @@ app.get("/file/experiment/:filename", googleAuth, asyncHandler(async (req, res) 
 
 /* ==================== External Apps ==================== */
 
-app.get("/problem-authoring-tool/login", (req, res) => {
-    res.render("problem-authoring-tool/login", { googleClientId: GOOGLE_CLIENT_ID });
-});
+app.use("/problem-authoring-tool", createProblemAuthoringToolAuthRouter({
+    auth: problemAuthoringToolAuth,
+    basePath: "/problem-authoring-tool",
+    googleClientId: GOOGLE_CLIENT_ID
+}));
 
-app.post(
-    "/problem-authoring-tool/api/login",
-    asyncHandler(externalAuth.loginHandler({ label: "problem-authoring-tool" }))
-);
-
-app.get("/ai-consultant/login", (req, res) => {
-    res.render("ai-consultant/login", { googleClientId: GOOGLE_CLIENT_ID });
-});
-
-app.post(
-    "/ai-consultant/api/login",
-    asyncHandler(externalAuth.loginHandler({ label: "ai-consultant" }))
-);
+app.use("/ai-consultant", createAiConsultantAuthRouter({
+    auth: aiConsultantAuth,
+    basePath: "/ai-consultant",
+    googleClientId: GOOGLE_CLIENT_ID
+}));
 
 app.get("/problem-authoring-tool", (req, res) => {
     res.redirect("/problem-authoring-tool/");
@@ -172,11 +180,11 @@ app.get("/ai-consultant", (req, res) => {
     res.redirect("/ai-consultant/");
 });
 
-app.get("/problem-authoring-tool/*", externalAuth.guard({ loginPath: "/problem-authoring-tool/login" }), (req, res) => {
+app.get("/problem-authoring-tool/*", problemAuthoringToolAuth.guard({ loginPath: "/problem-authoring-tool/login" }), (req, res) => {
     res.sendFile(path.join(__dirname, "public/problem-authoring-tool/index.html"));
 });
 
-app.get("/ai-consultant/*", externalAuth.guard({ loginPath: "/ai-consultant/login" }), (req, res) => {
+app.get("/ai-consultant/*", aiConsultantAuth.guard({ loginPath: "/ai-consultant/login" }), (req, res) => {
     res.sendFile(path.join(__dirname, "public/ai-consultant/index.html"));
 });
 
@@ -531,12 +539,12 @@ app.delete("/api/v1/upgrade/clearDB", googleAuth, upgradeAuth, asyncHandler(asyn
 
 app.use(
     "/api/v1/problem-authoring-tool",
-    createProblemAuthoringToolRouter({ auth: externalAuth.apiGuard })
+    createProblemAuthoringToolRouter({ auth: problemAuthoringToolAuth.apiGuard })
 );
 
 app.use(
     "/api/v1/ai-consultant",
-    externalAuth.apiGuard,
+    aiConsultantAuth.apiGuard,
     createAiConsultantRouter()
 );
 

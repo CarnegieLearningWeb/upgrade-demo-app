@@ -52,23 +52,28 @@ if [[ "$BUILD" == true ]]; then
 fi
 
 echo "Syncing problem-authoring-tool server files..."
+cp "${PAT_ROOT}/server/package.json" "${DEMO_ROOT}/external-server/problem-authoring-tool/package.json"
+cp "${PAT_ROOT}/server/auth.js" "${DEMO_ROOT}/external-server/problem-authoring-tool/auth.js"
+cp "${PAT_ROOT}/server/login-page.js" "${DEMO_ROOT}/external-server/problem-authoring-tool/login-page.js"
 cp "${PAT_ROOT}/server/prompt.js" "${DEMO_ROOT}/external-server/problem-authoring-tool/prompt.js"
+cp "${PAT_ROOT}/server/routes.js" "${DEMO_ROOT}/external-server/problem-authoring-tool/routes.js"
 cp "${PAT_ROOT}/server/tools.js" "${DEMO_ROOT}/external-server/problem-authoring-tool/tools.js"
+copy_dir_contents \
+  "${PAT_ROOT}/server/views" \
+  "${DEMO_ROOT}/external-server/problem-authoring-tool/views"
 
 echo "Syncing upgrade-consultant server files..."
 copy_dir_contents \
   "${CONSULTANT_ROOT}/server/src/lib" \
   "${DEMO_ROOT}/external-server/ai-consultant/src/lib"
+copy_dir_contents \
+  "${CONSULTANT_ROOT}/server/src/views" \
+  "${DEMO_ROOT}/external-server/ai-consultant/src/views"
 
 CONSULTANT_SRC_ROUTES="${CONSULTANT_ROOT}/server/src/routes"
 CONSULTANT_DEST_ROUTES="${DEMO_ROOT}/external-server/ai-consultant/src/routes"
 require_dir "$CONSULTANT_SRC_ROUTES"
-require_dir "$CONSULTANT_DEST_ROUTES"
-find "$CONSULTANT_DEST_ROUTES" -maxdepth 1 -type f -name '*.js' ! -name 'index.js' -delete
-find "$CONSULTANT_SRC_ROUTES" -maxdepth 1 -type f -name '*.js' ! -name 'index.js' -print0 |
-  while IFS= read -r -d '' file; do
-    cp "$file" "${CONSULTANT_DEST_ROUTES}/$(basename "$file")"
-  done
+copy_dir_contents "$CONSULTANT_SRC_ROUTES" "$CONSULTANT_DEST_ROUTES"
 
 echo "Syncing client bundles..."
 copy_dir_contents \
@@ -82,9 +87,6 @@ cat <<'MSG'
 Done.
 
 Kept demo-specific files unchanged:
-- external-server/shared-auth.js
-- external-server/problem-authoring-tool/routes.js
 - external-server/ai-consultant/src/env.js
-- external-server/ai-consultant/src/routes/index.js
 - external-server/ai-consultant/package.json
 MSG
