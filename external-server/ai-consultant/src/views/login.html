@@ -3,59 +3,283 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign In - AI Experiment Consultant</title>
+    <meta name="color-scheme" content="light" />
+    <meta name="description" content="Turn a learning-app idea, pain point, or screenshot into a concrete A/B test plan and an implementation-ready report." />
+    <title>AI Experiment Consultant — Turn learning-app ideas into A/B test plans</title>
     <style>
+        :root {
+            --blue: #0047cc;
+            --purple: #a145d9;
+            --ink: #1a1a2e;
+            --ink-soft: #55566b;
+            --ink-faint: #7c7d92;
+            --line: #e8e8f0;
+            --link: #0047cc;
+            --focus: #0047cc;
+
+            /* 4px spacing scale */
+            --s2: 8px;
+            --s3: 12px;
+            --s4: 16px;
+            --s5: 20px;
+            --s6: 24px;
+            --s7: 28px;
+            --s8: 32px;
+        }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-text-size-adjust: 100%; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #f1f3f4;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--ink);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: clamp(20px, 4vw, 48px);
+            background:
+                radial-gradient(900px circle at 10% -10%, rgba(0, 71, 204, 0.10), transparent 50%),
+                radial-gradient(900px circle at 100% 110%, rgba(161, 69, 217, 0.13), transparent 50%),
+                #eef0fb;
+        }
+
+        .card {
+            display: flex;
+            width: 100%;
+            max-width: 960px;
+            min-height: 560px;
+            background: #fff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 24px 60px -22px rgba(28, 27, 71, 0.45), 0 8px 22px -16px rgba(0, 0, 0, 0.30);
+        }
+
+        /* ---------- Left pane: value proposition ---------- */
+        .hero {
+            flex: 1.18 1 0;
+            position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            padding: clamp(36px, 3.5vw, 56px);
+            color: #fff;
+            background:
+                radial-gradient(130% 130% at 100% 100%, rgba(161, 69, 217, 0.65) 0%, rgba(161, 69, 217, 0) 55%),
+                radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 50%),
+                linear-gradient(145deg, #0047cc 0%, #3a2bc0 55%, #5a2fcf 100%);
         }
-        .card {
+        /* Geometric block motifs echoing the UpGrade brand. */
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: -50px; right: -46px;
+            width: 180px; height: 180px;
+            border: 1.5px solid rgba(255, 255, 255, 0.16);
+            border-radius: 26px;
+            transform: rotate(18deg);
+        }
+        .hero::after {
+            content: "";
+            position: absolute;
+            bottom: -34px; left: -28px;
+            width: 120px; height: 120px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 22px;
+            transform: rotate(-12deg);
+        }
+        .hero-inner { position: relative; z-index: 1; width: 100%; max-width: 440px; }
+
+        .brand { display: flex; align-items: center; gap: 11px; margin-bottom: 30px; }
+        .brand-mark {
+            width: 40px; height: 40px; flex-shrink: 0;
+            display: grid; place-items: center;
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+        .brand-mark svg { width: 22px; height: 22px; }
+        .brand-name { font-weight: 600; font-size: 1rem; letter-spacing: 0.01em; }
+
+        .headline {
+            font-size: clamp(1.9rem, 1.25rem + 2.3vw, 2.7rem);
+            line-height: 1.1;
+            letter-spacing: -0.025em;
+            font-weight: 800;
+        }
+        .lede {
+            margin-top: var(--s4);
+            font-size: 1.02rem;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.88);
+            max-width: 42ch;
+        }
+
+        .values { list-style: none; margin-top: var(--s7); display: grid; gap: 18px; }
+        .value { display: flex; align-items: center; gap: 14px; }
+        .value-icon {
+            width: 42px; height: 42px; flex-shrink: 0;
+            display: grid; place-items: center;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .value-icon svg { width: 20px; height: 20px; }
+        .value-text { font-size: 0.95rem; line-height: 1.4; color: rgba(255, 255, 255, 0.92); }
+
+        /* ---------- Right pane: sign in ---------- */
+        .auth {
+            flex: 1 1 0;
+            display: flex; justify-content: center;
+            padding: clamp(36px, 3.5vw, 56px);
             background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.14);
-            padding: 48px 40px 40px;
-            text-align: center;
-            max-width: 380px;
-            width: 100%;
         }
-        h1 { font-size: 1.3rem; color: #202124; margin-bottom: 6px; }
-        .subtitle { color: #5f6368; font-size: 0.875rem; margin-bottom: 32px; line-height: 1.5; }
+        .auth-inner { width: 100%; max-width: 320px; display: flex; flex-direction: column; }
+        .auth-main { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .auth-head h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; }
+        .auth-head p { margin-top: var(--s2); color: var(--ink-soft); font-size: 0.92rem; }
+
+        .signin { margin-top: var(--s7); display: flex; flex-direction: column; align-items: flex-start; }
+        #g_id_signin { min-height: 44px; }
         #error {
-            color: #c5221f;
+            color: #d32020;
             font-size: 0.8125rem;
-            margin-top: 16px;
-            min-height: 1.2em;
             line-height: 1.4;
+            margin-top: var(--s3);
+            min-height: 1.2em;
         }
-        #g_id_signin { display: flex; justify-content: center; }
+
+        .footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: var(--s6); font-size: 0.8rem; }
+        .footer-label { color: var(--ink-soft); }
+        /* One color across every link state so visited links never look different. */
+        .footer a, .footer a:link, .footer a:visited, .footer a:hover, .footer a:active {
+            color: var(--link); text-decoration: none; font-weight: 500;
+        }
+        .footer a:hover { text-decoration: underline; }
+        .footer a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+        .footer .sep { color: #c9cad8; user-select: none; }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .hero-inner, .auth-inner { animation: rise 0.5s ease both; }
+            .auth-inner { animation-delay: 0.06s; }
+            @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        }
+
+        @media (max-width: 840px) {
+            .card { flex-direction: column; max-width: 460px; min-height: 0; }
+            .hero, .auth { flex: none; width: 100%; }
+            .hero { padding: 40px 30px 34px; }
+            .auth { padding: 34px 30px 40px; }
+            .hero-inner, .auth-inner { max-width: none; }
+            .lede { max-width: none; }
+            .hero::before { top: -40px; right: -34px; width: 130px; height: 130px; }
+            .hero::after { display: none; }
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>AI Experiment Consultant</h1>
-        <p class="subtitle">Sign in with your Google account to continue.</p>
+    <div class="page">
+        <main class="card">
+            <!-- Left: what the tool does -->
+            <section class="hero">
+                <div class="hero-inner">
+                    <div class="brand">
+                        <span class="brand-mark" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                                <path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" />
+                                <path d="M6.453 15h11.094" />
+                                <path d="M8.5 2h7" />
+                            </svg>
+                        </span>
+                        <span class="brand-name">AI Experiment Consultant</span>
+                    </div>
 
-        <div id="g_id_onload"
-             data-client_id="{{GOOGLE_CLIENT_ID}}"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="false">
-        </div>
-        <div id="g_id_signin"
-             class="g_id_signin"
-             data-type="standard"
-             data-size="large"
-             data-theme="outline"
-             data-text="sign_in_with"
-             data-shape="rectangular"
-             data-logo_alignment="left">
-        </div>
+                    <h1 class="headline">Turn learning-app ideas into A/B test plans.</h1>
+                    <p class="lede">
+                        Share a learning app, pain point, or screenshot. This tool helps you refine a testable hypothesis, design a simple A/B test, and generate an implementation-ready report.
+                    </p>
 
-        <div id="error"></div>
+                    <ul class="values">
+                        <li class="value">
+                            <span class="value-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                                    <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+                                    <path d="M9 18h6" />
+                                    <path d="M10 22h4" />
+                                </svg>
+                            </span>
+                            <span class="value-text">Clarify your idea into a testable hypothesis</span>
+                        </li>
+                        <li class="value">
+                            <span class="value-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                                    <path d="M3 3v18h18" />
+                                    <path d="M18 17V9" />
+                                    <path d="M13 17V5" />
+                                    <path d="M8 17v-3" />
+                                </svg>
+                            </span>
+                            <span class="value-text">Design where the test runs, what changes, and how success is measured</span>
+                        </li>
+                        <li class="value">
+                            <span class="value-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                                    <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                                    <path d="M16 13H8" />
+                                    <path d="M16 17H8" />
+                                    <path d="M10 9H8" />
+                                </svg>
+                            </span>
+                            <span class="value-text">Generate a shareable UpGrade-ready report with setup and client integration guidance</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Right: sign in -->
+            <section class="auth">
+                <div class="auth-inner">
+                    <div class="auth-main">
+                        <div class="auth-head">
+                            <h2>Get started</h2>
+                            <p>Sign in with Google to start planning your experiment.</p>
+                        </div>
+
+                        <div class="signin">
+                            <div id="g_id_onload"
+                                 data-client_id="{{GOOGLE_CLIENT_ID}}"
+                                 data-callback="handleCredentialResponse"
+                                 data-auto_prompt="false">
+                            </div>
+                            <div id="g_id_signin"
+                                 class="g_id_signin"
+                                 data-type="standard"
+                                 data-size="large"
+                                 data-theme="outline"
+                                 data-text="sign_in_with"
+                                 data-shape="rectangular"
+                                 data-logo_alignment="left">
+                            </div>
+
+                            <div id="error" role="alert"></div>
+                        </div>
+                    </div>
+
+                    <nav class="footer" aria-label="Learn more">
+                        <span class="footer-label">Learn more:</span>
+                        <!-- TODO(paper): point the placeholder link below at the served PDF once the paper is hosted from the app. -->
+                        <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Paper (coming soon)" title="Coming soon">Paper</a>
+                        <span class="sep" aria-hidden="true">·</span>
+                        <a href="https://github.com/CarnegieLearningWeb/upgrade-consultant" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository (opens in a new tab)">GitHub</a>
+                        <span class="sep" aria-hidden="true">·</span>
+                        <a href="https://www.upgradeplatform.org/" target="_blank" rel="noopener noreferrer" aria-label="About UpGrade (opens in a new tab)">About UpGrade</a>
+                    </nav>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
