@@ -6,6 +6,7 @@ WORKSPACE_ROOT="$(cd "${DEMO_ROOT}/.." && pwd)"
 
 PAT_ROOT="${PAT_ROOT:-${WORKSPACE_ROOT}/problem-authoring-tool}"
 AI_CONSULTANT_ROOT="${AI_CONSULTANT_ROOT:-${CONSULTANT_ROOT:-${WORKSPACE_ROOT}/ai-experiment-consultant}}"
+AI_CONSULTANT_PAPER_PDF="ai-experiment-consultant-pele-2026.pdf"
 
 BUILD=false
 if [[ "${1:-}" == "--build" ]]; then
@@ -41,6 +42,26 @@ copy_dir_contents() {
   cp -R "${src}/." "$dest/"
 }
 
+copy_file() {
+  local src="$1"
+  local dest="$2"
+
+  if [[ ! -f "$src" ]]; then
+    echo "Missing file: $src" >&2
+    exit 1
+  fi
+  case "$dest" in
+    "${DEMO_ROOT}/external-server/"*|"${DEMO_ROOT}/public/"*) ;;
+    *)
+      echo "Refusing to overwrite unexpected destination: $dest" >&2
+      exit 1
+      ;;
+  esac
+
+  mkdir -p "$(dirname "$dest")"
+  cp "$src" "$dest"
+}
+
 require_dir "$PAT_ROOT"
 require_dir "$AI_CONSULTANT_ROOT"
 
@@ -69,6 +90,10 @@ copy_dir_contents \
 copy_dir_contents \
   "${AI_CONSULTANT_ROOT}/server/src/views" \
   "${DEMO_ROOT}/external-server/ai-consultant/src/views"
+echo "Syncing ai-experiment-consultant paper..."
+copy_file \
+  "${AI_CONSULTANT_ROOT}/paper/${AI_CONSULTANT_PAPER_PDF}" \
+  "${DEMO_ROOT}/external-server/ai-consultant/paper/${AI_CONSULTANT_PAPER_PDF}"
 
 CONSULTANT_SRC_ROUTES="${AI_CONSULTANT_ROOT}/server/src/routes"
 CONSULTANT_DEST_ROUTES="${DEMO_ROOT}/external-server/ai-consultant/src/routes"

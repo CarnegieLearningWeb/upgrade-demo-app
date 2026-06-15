@@ -42,6 +42,7 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 const UPGRADE_HOST_URL = config.UPGRADE_HOST_URL;
 const UPGRADE_BASE_URL = config.UPGRADE_BASE_URL;
 const UPGRADE_CONTEXT = config.UPGRADE_CONTEXT;
+const AI_CONSULTANT_PAPER_PDF = "ai-experiment-consultant-pele-2026.pdf";
 const problemAuthoringToolAuth = createProblemAuthoringToolAuth({
     googleClientId: GOOGLE_CLIENT_ID,
     sessionSecret: config.SESSION_SECRET,
@@ -92,6 +93,10 @@ app.use(favicon(path.join(__dirname, "public/asset/favicon/favicon.ico")));
 // files under public/problem-authoring-tool/ and public/ai-consultant/ are not
 // served without a valid shared external-app session.
 const EXTERNAL_APP_PUBLIC_PATHS = ["/login", "/api/login", "/api/session", "/api/logout"];
+const AI_CONSULTANT_PUBLIC_PATHS = [
+    ...EXTERNAL_APP_PUBLIC_PATHS,
+    `/paper/${AI_CONSULTANT_PAPER_PDF}`
+];
 app.use("/problem-authoring-tool", (req, res, next) => {
     problemAuthoringToolAuth.gatePath({
         loginPath: "/problem-authoring-tool/login",
@@ -101,7 +106,7 @@ app.use("/problem-authoring-tool", (req, res, next) => {
 app.use("/ai-consultant", (req, res, next) => {
     aiConsultantAuth.gatePath({
         loginPath: "/ai-consultant/login",
-        publicPaths: EXTERNAL_APP_PUBLIC_PATHS
+        publicPaths: AI_CONSULTANT_PUBLIC_PATHS
     })(req, res, next);
 });
 
@@ -171,6 +176,15 @@ app.use("/ai-consultant", createAiConsultantAuthRouter({
     basePath: "/ai-consultant",
     googleClientId: GOOGLE_CLIENT_ID
 }));
+
+app.get(`/ai-consultant/paper/${AI_CONSULTANT_PAPER_PDF}`, (req, res, next) => {
+    res.sendFile(
+        path.join(__dirname, "external-server/ai-consultant/paper", AI_CONSULTANT_PAPER_PDF),
+        (err) => {
+            if (err) next(err);
+        }
+    );
+});
 
 app.get("/problem-authoring-tool", (req, res) => {
     res.redirect("/problem-authoring-tool/");
