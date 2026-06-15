@@ -5,7 +5,7 @@ DEMO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_ROOT="$(cd "${DEMO_ROOT}/.." && pwd)"
 
 PAT_ROOT="${PAT_ROOT:-${WORKSPACE_ROOT}/problem-authoring-tool}"
-CONSULTANT_ROOT="${CONSULTANT_ROOT:-${WORKSPACE_ROOT}/upgrade-consultant}"
+AI_CONSULTANT_ROOT="${AI_CONSULTANT_ROOT:-${CONSULTANT_ROOT:-${WORKSPACE_ROOT}/ai-experiment-consultant}}"
 
 BUILD=false
 if [[ "${1:-}" == "--build" ]]; then
@@ -42,13 +42,13 @@ copy_dir_contents() {
 }
 
 require_dir "$PAT_ROOT"
-require_dir "$CONSULTANT_ROOT"
+require_dir "$AI_CONSULTANT_ROOT"
 
 if [[ "$BUILD" == true ]]; then
   echo "Building problem-authoring-tool client..."
   (cd "$PAT_ROOT" && npm run build)
-  echo "Building upgrade-consultant client..."
-  (cd "$CONSULTANT_ROOT" && npm run build)
+  echo "Building ai-experiment-consultant client..."
+  (cd "$AI_CONSULTANT_ROOT" && npm run build)
 fi
 
 echo "Syncing problem-authoring-tool server files..."
@@ -62,15 +62,15 @@ copy_dir_contents \
   "${PAT_ROOT}/server/views" \
   "${DEMO_ROOT}/external-server/problem-authoring-tool/views"
 
-echo "Syncing upgrade-consultant server files..."
+echo "Syncing ai-experiment-consultant server files..."
 copy_dir_contents \
-  "${CONSULTANT_ROOT}/server/src/lib" \
+  "${AI_CONSULTANT_ROOT}/server/src/lib" \
   "${DEMO_ROOT}/external-server/ai-consultant/src/lib"
 copy_dir_contents \
-  "${CONSULTANT_ROOT}/server/src/views" \
+  "${AI_CONSULTANT_ROOT}/server/src/views" \
   "${DEMO_ROOT}/external-server/ai-consultant/src/views"
 
-CONSULTANT_SRC_ROUTES="${CONSULTANT_ROOT}/server/src/routes"
+CONSULTANT_SRC_ROUTES="${AI_CONSULTANT_ROOT}/server/src/routes"
 CONSULTANT_DEST_ROUTES="${DEMO_ROOT}/external-server/ai-consultant/src/routes"
 require_dir "$CONSULTANT_SRC_ROUTES"
 copy_dir_contents "$CONSULTANT_SRC_ROUTES" "$CONSULTANT_DEST_ROUTES"
@@ -80,7 +80,7 @@ copy_dir_contents \
   "${PAT_ROOT}/client/dist" \
   "${DEMO_ROOT}/public/problem-authoring-tool"
 copy_dir_contents \
-  "${CONSULTANT_ROOT}/client/dist" \
+  "${AI_CONSULTANT_ROOT}/client/dist" \
   "${DEMO_ROOT}/public/ai-consultant"
 
 cat <<'MSG'

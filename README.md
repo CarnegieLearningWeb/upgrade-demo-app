@@ -32,7 +32,7 @@ The deployed app also serves protected external tools from the same process:
 - AI Experiment Consultant: http://localhost:8080/ai-consultant/
 
 ### Syncing External Apps
-This repository vendors the server files and built client bundles for the sibling `problem-authoring-tool` and `upgrade-consultant` projects. After changing either external app, run this from the `upgrade-demo-app` root to refresh the vendored copies:
+This repository vendors the server files and built client bundles for the sibling `problem-authoring-tool` and `ai-experiment-consultant` projects. After changing either external app, run this from the `upgrade-demo-app` root to refresh the vendored copies:
 ```
 ./sync-external-apps.sh
 ```
@@ -42,7 +42,7 @@ If the external app client bundles need to be rebuilt first, run:
 ./sync-external-apps.sh --build
 ```
 
-The script assumes the sibling repositories live next to `upgrade-demo-app` in the same parent directory. You can override the paths with `PAT_ROOT=/path/to/problem-authoring-tool` or `CONSULTANT_ROOT=/path/to/upgrade-consultant`.
+The script assumes the sibling repositories live next to `upgrade-demo-app` in the same parent directory. You can override the paths with `PAT_ROOT=/path/to/problem-authoring-tool` or `AI_CONSULTANT_ROOT=/path/to/ai-experiment-consultant`.
 
 ### Docker Setup
 1. Follow steps 1-3 from the Traditional Setup to clone the repository and create the `.env` file.
